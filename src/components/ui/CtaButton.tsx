@@ -1,4 +1,4 @@
-import { forwardRef, type AnchorHTMLAttributes, type ButtonHTMLAttributes, type ElementType, type ReactNode } from "react";
+import { forwardRef, type ElementType, type ReactNode } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
@@ -30,7 +30,8 @@ type CtaButtonProps = VariantProps<typeof cta> & {
   as?: ElementType;
   className?: string;
   children: ReactNode;
-} & Omit<ButtonHTMLAttributes<HTMLButtonElement> & AnchorHTMLAttributes<HTMLAnchorElement>, "className" | "children">;
+  [key: string]: unknown;
+};
 
 const CtaButton = forwardRef<HTMLElement, CtaButtonProps>(function CtaButton(
   { as: Tag = "button", variant, size, className, children, ...rest },
