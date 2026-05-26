@@ -9,24 +9,27 @@ import {
 } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
+import CookieBanner from "@/components/layout/CookieBanner";
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <div className="flex min-h-dvh items-center justify-center bg-brand-navy-deep px-6">
       <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
+        <p className="font-mono text-xs uppercase tracking-[0.2em] text-brand-red">Erro 404</p>
+        <h1 className="mt-4 font-display text-6xl font-black uppercase tracking-tighter text-white">
+          Página não encontrada
+        </h1>
+        <p className="mt-4 text-sm text-white/60">
+          O endereço acessado não existe ou foi movido.
         </p>
-        <div className="mt-6">
-          <Link
-            to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            Go home
-          </Link>
-        </div>
+        <Link
+          to="/"
+          className="mt-8 inline-block bg-brand-red px-6 py-3 font-display text-xs font-bold uppercase tracking-tighter text-white hover:bg-brand-red-dark"
+        >
+          Voltar ao início
+        </Link>
       </div>
     </div>
   );
@@ -35,31 +38,31 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
-
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <div className="flex min-h-dvh items-center justify-center bg-brand-navy-deep px-6">
       <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          This page didn't load
+        <p className="font-mono text-xs uppercase tracking-[0.2em] text-brand-red">Erro</p>
+        <h1 className="mt-4 font-display text-3xl font-black uppercase tracking-tighter text-white">
+          Esta página não carregou
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
+        <p className="mt-4 text-sm text-white/60">
+          Algo inesperado aconteceu. Tente novamente em instantes.
         </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-2">
+        <div className="mt-8 flex justify-center gap-3">
           <button
             onClick={() => {
               router.invalidate();
               reset();
             }}
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="bg-brand-red px-6 py-3 font-display text-xs font-bold uppercase tracking-tighter text-white hover:bg-brand-red-dark"
           >
-            Try again
+            Tentar novamente
           </button>
           <a
             href="/"
-            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+            className="border border-white/20 px-6 py-3 font-display text-xs font-bold uppercase tracking-tighter text-white hover:bg-white/5"
           >
-            Go home
+            Início
           </a>
         </div>
       </div>
@@ -72,19 +75,31 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { name: "theme-color", content: "#0A1229" },
+      { title: "ItaSafety — EPI e Proteção Industrial Enterprise" },
+      {
+        name: "description",
+        content:
+          "Distribuição de equipamentos de proteção individual (EPI) e consultoria técnica em segurança do trabalho. Conformidade NR-06, NR-10, NR-35.",
+      },
+      { property: "og:title", content: "ItaSafety — EPI e Proteção Industrial Enterprise" },
+      {
+        property: "og:description",
+        content:
+          "Catálogo técnico de EPIs e soluções de segurança industrial para a indústria brasileira.",
+      },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
+      { property: "og:locale", content: "pt_BR" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
+      { rel: "stylesheet", href: appCss },
+      { rel: "icon", href: "/favicon-mark.png", type: "image/png" },
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: appCss,
+        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@700;800;900&family=JetBrains+Mono:wght@400;500&display=swap",
       },
     ],
   }),
@@ -96,7 +111,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="pt-BR">
       <head>
         <HeadContent />
       </head>
@@ -110,10 +125,20 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:bg-brand-red focus:px-4 focus:py-2 focus:font-mono focus:text-xs focus:uppercase focus:tracking-wider focus:text-white"
+      >
+        Ir para o conteúdo
+      </a>
+      <Header />
+      <main id="main">
+        <Outlet />
+      </main>
+      <Footer />
+      <CookieBanner />
     </QueryClientProvider>
   );
 }
