@@ -3,6 +3,9 @@ import { ArrowRight, ShieldCheck, Truck, BadgeCheck } from "lucide-react";
 import heroImg from "@/assets/hero-industrial.jpg";
 import CategoryGrid from "@/components/sections/CategoryGrid";
 import FeaturedProducts from "@/components/sections/FeaturedProducts";
+import Container from "@/components/ui/Container";
+import CtaButton from "@/components/ui/CtaButton";
+import Eyebrow from "@/components/ui/Eyebrow";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -14,7 +17,6 @@ export const Route = createFileRoute("/")({
           "Distribuidora de EPIs para indústrias brasileiras. Capacetes, respiradores, cinturões, luvas, calçados e consultoria técnica em conformidade com as NRs.",
       },
       { property: "og:title", content: "ItaSafety — Proteção Industrial que Não Negocia" },
-      { property: "og:image", content: "/favicon-mark.png" },
     ],
   }),
   component: HomePage,
@@ -37,12 +39,10 @@ function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-r from-brand-navy-deep via-brand-navy-deep/70 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-brand-navy-deep to-transparent" />
 
-        <div className="relative z-10 mx-auto w-full max-w-7xl px-6 py-24">
+        <Container className="relative z-10 py-24">
           <div className="max-w-3xl space-y-8 animate-reveal">
             <div className="inline-flex items-center gap-3 border-l-4 border-brand-red bg-white/5 py-1 pl-4 backdrop-blur-sm">
-              <span className="font-mono text-xs uppercase tracking-tighter text-brand-red">
-                Conformidade NR-06 · NR-10 · NR-35
-              </span>
+              <Eyebrow>Conformidade NR-06 · NR-10 · NR-35</Eyebrow>
             </div>
             <h1 className="text-balance font-display text-5xl font-black uppercase leading-[0.9] tracking-tighter text-white md:text-7xl lg:text-8xl">
               Proteção que <br />
@@ -54,27 +54,24 @@ function HomePage() {
               criticidade.
             </p>
             <div className="flex flex-wrap gap-4 pt-2">
-              <Link
-                to="/categorias"
-                className="group flex items-center gap-3 bg-brand-red px-7 py-4 font-display text-sm font-bold uppercase tracking-tighter text-white transition-colors hover:bg-brand-red-dark"
-              >
+              <CtaButton as={Link} to="/categorias" className="group">
                 Ver Catálogo
-                <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden />
-              </Link>
-              <Link
-                to="/contato"
-                className="border-2 border-white/20 px-7 py-4 font-display text-sm font-bold uppercase tracking-tighter text-white transition-colors hover:bg-white/10"
-              >
+                <ArrowRight
+                  className="size-4 transition-transform group-hover:translate-x-1"
+                  aria-hidden
+                />
+              </CtaButton>
+              <CtaButton as={Link} to="/contato" variant="outline">
                 Consultoria Técnica
-              </Link>
+              </CtaButton>
             </div>
           </div>
-        </div>
+        </Container>
       </section>
 
       {/* TRUST STRIP */}
       <section aria-label="Indicadores de confiança" className="bg-white">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-12 gap-y-6 px-6 py-10">
+        <Container className="flex flex-wrap items-center justify-between gap-x-12 gap-y-6 py-10">
           <Stat value="25+" label="Anos de Mercado" />
           <Divider />
           <Stat value="100%" label="CA Ativo e Válido" />
@@ -87,39 +84,35 @@ function HomePage() {
             <span>HONEYWELL</span>
             <span>3M</span>
           </div>
-        </div>
+        </Container>
       </section>
 
       {/* CATEGORIES */}
       <section className="bg-brand-navy-deep py-24">
-        <div className="mx-auto max-w-7xl px-6">
+        <Container>
           <header className="mb-16 flex flex-wrap items-end justify-between gap-6">
             <div>
-              <span className="font-mono text-xs uppercase tracking-[0.2em] text-brand-red">
-                Especialidades
-              </span>
+              <Eyebrow>Especialidades</Eyebrow>
               <h2 className="mt-3 font-display text-4xl font-black uppercase italic tracking-tighter text-white md:text-5xl">
                 Categorias de Proteção
               </h2>
             </div>
             <Link
               to="/categorias"
-              className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-white hover:text-brand-red"
+              className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-white hover:text-brand-red"
             >
               Ver tudo →
             </Link>
           </header>
           <CategoryGrid />
-        </div>
+        </Container>
       </section>
 
       {/* WHY US */}
       <section className="border-y border-white/10 bg-surface-sunken py-24">
-        <div className="mx-auto max-w-7xl px-6">
+        <Container>
           <div className="mb-16 max-w-2xl">
-            <span className="font-mono text-xs uppercase tracking-[0.2em] text-brand-red">
-              Por que ItaSafety
-            </span>
+            <Eyebrow>Por que ItaSafety</Eyebrow>
             <h2 className="mt-3 font-display text-4xl font-black uppercase tracking-tighter text-white md:text-5xl">
               Engenharia que vai além do EPI.
             </h2>
@@ -141,29 +134,27 @@ function HomePage() {
               text="Cotação em até 24h, frota dedicada para São Paulo e operação nacional para reposição emergencial."
             />
           </div>
-        </div>
+        </Container>
       </section>
 
       {/* PRODUCTS */}
       <section className="bg-brand-navy-deep py-24">
-        <div className="mx-auto max-w-7xl px-6">
+        <Container>
           <header className="mb-16 flex flex-wrap items-end justify-between gap-6">
             <div>
-              <span className="font-mono text-xs uppercase tracking-[0.2em] text-brand-red">
-                Destaques
-              </span>
+              <Eyebrow>Destaques</Eyebrow>
               <h2 className="mt-3 font-display text-4xl font-black uppercase italic tracking-tighter text-white md:text-5xl">
                 Catálogo em Foco
               </h2>
             </div>
           </header>
           <FeaturedProducts />
-        </div>
+        </Container>
       </section>
 
       {/* CTA */}
       <section className="relative border-t-8 border-brand-red bg-surface-sunken py-24">
-        <div className="mx-auto max-w-4xl px-6 text-center">
+        <Container className="max-w-4xl text-center">
           <h2 className="text-balance font-display text-4xl font-black uppercase tracking-tighter text-white md:text-6xl">
             Pronto para dimensionar a proteção da sua planta?
           </h2>
@@ -172,22 +163,21 @@ function HomePage() {
             técnica e cotação personalizada — sem custo.
           </p>
           <div className="mt-10 flex flex-wrap justify-center gap-4">
-            <Link
-              to="/contato"
-              className="bg-brand-red px-8 py-4 font-display text-sm font-bold uppercase tracking-tighter text-white hover:bg-brand-red-dark"
-            >
+            <CtaButton as={Link} to="/contato" size="lg">
               Solicitar Orçamento
-            </Link>
-            <a
+            </CtaButton>
+            <CtaButton
+              as="a"
               href="https://wa.me/5511988776655"
               target="_blank"
               rel="noreferrer"
-              className="border-2 border-white/20 px-8 py-4 font-display text-sm font-bold uppercase tracking-tighter text-white hover:bg-white/10"
+              variant="outline"
+              size="lg"
             >
               WhatsApp Business
-            </a>
+            </CtaButton>
           </div>
-        </div>
+        </Container>
       </section>
     </>
   );
@@ -199,7 +189,7 @@ function Stat({ value, label }: { value: string; label: string }) {
       <span className="font-display text-3xl font-black tracking-tighter text-brand-navy-deep">
         {value}
       </span>
-      <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-brand-navy-deep/50">
+      <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-brand-navy-deep/50">
         {label}
       </span>
     </div>

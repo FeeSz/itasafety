@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import PageHero from "@/components/ui/PageHero";
+import Container from "@/components/ui/Container";
 import { CATEGORIES } from "@/lib/categories";
 
 export const Route = createFileRoute("/categorias")({
@@ -25,18 +26,18 @@ function CategoriesPage() {
         description="Portfólio estruturado por classe de risco, com itens certificados pelo Ministério do Trabalho e validados por nossa engenharia de aplicação."
       />
       <section className="bg-surface-sunken py-20">
-        <div className="mx-auto max-w-7xl px-6">
+        <Container>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {CATEGORIES.map((cat) => (
               <article
                 key={cat.slug}
-                className="group border-t-4 border-brand-red bg-brand-navy-deep p-8 transition-transform hover:-translate-y-1"
+                className="group border-t-4 border-brand-red bg-brand-navy-deep p-8 transition-transform duration-300 hover:-translate-y-1"
               >
                 <div className="mb-6 flex items-center justify-between">
-                  <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/40">
+                  <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-white/40">
                     {cat.code}
                   </span>
-                  <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-brand-red">
+                  <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-brand-red">
                     {cat.normas}
                   </span>
                 </div>
@@ -53,7 +54,7 @@ function CategoriesPage() {
               </article>
             ))}
           </div>
-        </div>
+        </Container>
       </section>
     </>
   );
