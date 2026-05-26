@@ -12,24 +12,23 @@ import appCss from "../styles.css?url";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import CookieBanner from "@/components/layout/CookieBanner";
+import CtaButton from "@/components/ui/CtaButton";
+import Eyebrow from "@/components/ui/Eyebrow";
 
 function NotFoundComponent() {
   return (
     <div className="flex min-h-dvh items-center justify-center bg-brand-navy-deep px-6">
       <div className="max-w-md text-center">
-        <p className="font-mono text-xs uppercase tracking-[0.2em] text-brand-red">Erro 404</p>
+        <Eyebrow>Erro 404</Eyebrow>
         <h1 className="mt-4 font-display text-6xl font-black uppercase tracking-tighter text-white">
           Página não encontrada
         </h1>
         <p className="mt-4 text-sm text-white/60">
           O endereço acessado não existe ou foi movido.
         </p>
-        <Link
-          to="/"
-          className="mt-8 inline-block bg-brand-red px-6 py-3 font-display text-xs font-bold uppercase tracking-tighter text-white hover:bg-brand-red-dark"
-        >
+        <CtaButton as={Link} to="/" size="sm" className="mt-8">
           Voltar ao início
-        </Link>
+        </CtaButton>
       </div>
     </div>
   );
@@ -41,7 +40,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   return (
     <div className="flex min-h-dvh items-center justify-center bg-brand-navy-deep px-6">
       <div className="max-w-md text-center">
-        <p className="font-mono text-xs uppercase tracking-[0.2em] text-brand-red">Erro</p>
+        <Eyebrow>Erro</Eyebrow>
         <h1 className="mt-4 font-display text-3xl font-black uppercase tracking-tighter text-white">
           Esta página não carregou
         </h1>
@@ -49,21 +48,18 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
           Algo inesperado aconteceu. Tente novamente em instantes.
         </p>
         <div className="mt-8 flex justify-center gap-3">
-          <button
+          <CtaButton
+            size="sm"
             onClick={() => {
               router.invalidate();
               reset();
             }}
-            className="bg-brand-red px-6 py-3 font-display text-xs font-bold uppercase tracking-tighter text-white hover:bg-brand-red-dark"
           >
             Tentar novamente
-          </button>
-          <a
-            href="/"
-            className="border border-white/20 px-6 py-3 font-display text-xs font-bold uppercase tracking-tighter text-white hover:bg-white/5"
-          >
+          </CtaButton>
+          <CtaButton as="a" href="/" variant="outline" size="sm">
             Início
-          </a>
+          </CtaButton>
         </div>
       </div>
     </div>
