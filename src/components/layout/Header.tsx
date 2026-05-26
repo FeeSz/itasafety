@@ -2,6 +2,8 @@ import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Menu, Phone, X } from "lucide-react";
 import Logo from "./Logo";
+import Container from "@/components/ui/Container";
+import CtaButton from "@/components/ui/CtaButton";
 
 const NAV = [
   { to: "/categorias", label: "Categorias" },
@@ -35,7 +37,7 @@ export default function Header() {
           : "border-transparent bg-brand-navy-deep"
       }`}
     >
-      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
+      <Container className="flex h-20 items-center justify-between">
         <div className="flex items-center gap-12">
           <Logo />
           <nav aria-label="Principal" className="hidden lg:block">
@@ -70,12 +72,14 @@ export default function Header() {
               </span>
             </span>
           </a>
-          <Link
+          <CtaButton
+            as={Link}
             to="/contato"
-            className="hidden bg-brand-red px-5 py-3 font-display text-xs font-bold uppercase tracking-tighter text-white transition-colors hover:bg-brand-red-dark active:scale-95 sm:inline-block"
+            size="sm"
+            className="hidden sm:inline-flex"
           >
             Solicitar Orçamento
-          </Link>
+          </CtaButton>
           <button
             type="button"
             onClick={() => setOpen(true)}
@@ -85,7 +89,7 @@ export default function Header() {
             <Menu className="size-6" aria-hidden />
           </button>
         </div>
-      </div>
+      </Container>
 
       {open && (
         <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true">
@@ -123,13 +127,14 @@ export default function Header() {
               </ul>
             </nav>
             <div className="mt-auto space-y-4">
-              <Link
+              <CtaButton
+                as={Link}
                 to="/contato"
                 onClick={() => setOpen(false)}
-                className="block bg-brand-red px-6 py-4 text-center font-display text-sm font-bold uppercase tracking-tighter text-white"
+                className="w-full"
               >
                 Solicitar Orçamento
-              </Link>
+              </CtaButton>
               <a
                 href="tel:+551126267417"
                 className="block text-center font-mono text-sm text-white/70"

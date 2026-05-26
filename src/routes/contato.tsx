@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import PageHero from "@/components/ui/PageHero";
 import QuoteForm from "@/components/forms/QuoteForm";
+import Container from "@/components/ui/Container";
 
 export const Route = createFileRoute("/contato")({
   head: () => ({
@@ -27,7 +28,7 @@ function ContactPage() {
       />
 
       <section className="bg-surface-sunken py-24">
-        <div className="mx-auto grid max-w-7xl gap-16 px-6 lg:grid-cols-2">
+        <Container className="grid gap-16 lg:grid-cols-2">
           <div className="space-y-10">
             <ContactItem
               icon={<MessageCircle className="size-5" aria-hidden />}
@@ -61,7 +62,7 @@ function ContactPage() {
             />
 
             <div className="border-l-4 border-brand-red bg-white/5 p-6">
-              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-brand-red">
+              <p className="font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-brand-red">
                 Horário Comercial
               </p>
               <p className="mt-2 text-sm text-white/80">
