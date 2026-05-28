@@ -27,9 +27,9 @@ function ContactPage() {
         description="Cotação técnica em até 24h úteis. Para urgências operacionais, utilize o WhatsApp Business — atendimento humano em horário comercial."
       />
 
-      <section className="bg-surface-sunken py-24">
-        <Container className="grid gap-16 lg:grid-cols-2">
-          <div className="space-y-10">
+      <section className="bg-white py-20 md:py-24">
+        <Container className="grid gap-14 lg:grid-cols-[1fr_1.1fr] lg:gap-20">
+          <div className="space-y-8">
             <ContactItem
               icon={<MessageCircle className="size-5" aria-hidden />}
               label="WhatsApp Business"
@@ -61,11 +61,11 @@ function ContactPage() {
               value="São Paulo, SP — Brasil"
             />
 
-            <div className="border-l-4 border-brand-red bg-white/5 p-6">
-              <p className="font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-brand-red">
+            <div className="rounded-md border border-hairline border-l-[3px] border-l-brand-red bg-surface-sunken p-6">
+              <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-red">
                 Horário Comercial
               </p>
-              <p className="mt-2 text-sm text-white/80">
+              <p className="mt-2 text-sm text-ink-muted">
                 Segunda a sexta · 08h00 às 18h00 (horário de Brasília)
               </p>
             </div>
@@ -93,14 +93,16 @@ function ContactItem({
 }) {
   const content = (
     <>
-      <div className="grid size-12 shrink-0 place-items-center bg-white/5 text-brand-red transition-colors group-hover:bg-brand-red group-hover:text-white">
+      <div className="grid size-12 shrink-0 place-items-center rounded-sm bg-brand-navy/5 text-brand-navy transition-colors group-hover:bg-brand-red group-hover:text-white">
         {icon}
       </div>
       <div>
-        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/40">
+        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-soft">
           {label}
         </p>
-        <p className="mt-1 font-display text-lg font-bold text-white">{value}</p>
+        <p className="mt-1 font-display text-lg font-bold tracking-tight text-ink">
+          {value}
+        </p>
       </div>
     </>
   );

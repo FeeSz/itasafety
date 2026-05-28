@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-display: "Inter Tight", system-ui, sans-serif;
+  --font-display: "Space Grotesk", "Inter Tight", system-ui, sans-serif;
   --font-sans: "Inter", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
@@ -29,62 +29,85 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
+  /* Brand identity — ItaSafety */
   --color-brand-navy: var(--brand-navy);
   --color-brand-navy-deep: var(--brand-navy-deep);
   --color-brand-red: var(--brand-red);
   --color-brand-red-dark: var(--brand-red-dark);
-  --color-surface-raised: var(--surface-raised);
+
+  /* Industrial neutrals */
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-soft: var(--ink-soft);
+  --color-surface: var(--surface);
   --color-surface-sunken: var(--surface-sunken);
+  --color-surface-raised: var(--surface-raised);
+  --color-hairline: var(--hairline);
 
   --radius-sm: 2px;
   --radius-md: 4px;
   --radius-lg: 6px;
   --radius-xl: 8px;
 
-  --shadow-glow-red: 0 0 40px oklch(0.58 0.22 25 / 0.25);
+  --shadow-card: 0 1px 2px oklch(0.20 0.04 250 / 0.06), 0 4px 16px oklch(0.20 0.04 250 / 0.04);
+  --shadow-lift: 0 4px 12px oklch(0.20 0.04 250 / 0.08), 0 16px 40px oklch(0.20 0.04 250 / 0.08);
 
   --ease-industrial: cubic-bezier(0.2, 0, 0, 1);
   --ease-decelerate: cubic-bezier(0, 0, 0.2, 1);
 }
 
 :root {
-  --brand-navy: oklch(0.18 0.06 265);
-  --brand-navy-deep: oklch(0.13 0.05 265);
-  --brand-red: oklch(0.58 0.22 25);
-  --brand-red-dark: oklch(0.48 0.20 25);
-  --surface-raised: oklch(0.22 0.05 265);
-  --surface-sunken: oklch(0.10 0.04 265);
+  /* Brand */
+  --brand-navy: oklch(0.32 0.10 255);          /* institutional blue */
+  --brand-navy-deep: oklch(0.18 0.06 260);     /* deep navy for footer/CTA */
+  --brand-red: oklch(0.55 0.22 25);            /* strategic red */
+  --brand-red-dark: oklch(0.46 0.20 25);
 
-  --background: oklch(0.13 0.05 265);
-  --foreground: oklch(0.98 0.005 270);
-  --card: oklch(0.18 0.06 265);
-  --card-foreground: oklch(0.98 0.005 270);
-  --popover: oklch(0.18 0.06 265);
-  --popover-foreground: oklch(0.98 0.005 270);
-  --primary: oklch(0.58 0.22 25);
+  /* Industrial neutrals — light theme */
+  --ink: oklch(0.18 0.03 260);                 /* primary text */
+  --ink-muted: oklch(0.42 0.02 260);           /* secondary text */
+  --ink-soft: oklch(0.58 0.015 260);           /* tertiary / labels */
+  --surface: oklch(1 0 0);                     /* white */
+  --surface-sunken: oklch(0.97 0.005 260);     /* very light gray */
+  --surface-raised: oklch(0.99 0.003 260);     /* near white */
+  --hairline: oklch(0.88 0.008 260);           /* border */
+
+  /* shadcn semantic tokens (light) */
+  --background: oklch(1 0 0);
+  --foreground: var(--ink);
+  --card: oklch(1 0 0);
+  --card-foreground: var(--ink);
+  --popover: oklch(1 0 0);
+  --popover-foreground: var(--ink);
+  --primary: var(--brand-red);
   --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.22 0.05 265);
-  --secondary-foreground: oklch(0.98 0.005 270);
-  --muted: oklch(0.22 0.05 265);
-  --muted-foreground: oklch(0.65 0.02 265);
-  --accent: oklch(0.58 0.22 25);
+  --secondary: var(--surface-sunken);
+  --secondary-foreground: var(--ink);
+  --muted: var(--surface-sunken);
+  --muted-foreground: var(--ink-muted);
+  --accent: var(--brand-navy);
   --accent-foreground: oklch(1 0 0);
-  --destructive: oklch(0.58 0.22 25);
+  --destructive: var(--brand-red);
   --destructive-foreground: oklch(1 0 0);
-  --border: oklch(1 0 0 / 0.08);
-  --input: oklch(1 0 0 / 0.10);
-  --ring: oklch(0.58 0.22 25);
+  --border: var(--hairline);
+  --input: var(--hairline);
+  --ring: var(--brand-navy);
   --radius: 4px;
 }
 
 @keyframes reveal-up {
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fade-in {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
 }
 
 @layer base {
@@ -110,7 +133,7 @@
   }
 
   :focus-visible {
-    outline: 2px solid var(--brand-red);
+    outline: 2px solid var(--brand-navy);
     outline-offset: 2px;
   }
 }
@@ -118,7 +141,16 @@
 @layer utilities {
   .animate-reveal { animation: reveal-up 0.6s var(--ease-industrial) both; }
   .animate-fade-in { animation: fade-in 0.4s var(--ease-industrial) both; }
+  .animate-marquee { animation: marquee 40s linear infinite; }
 
   .text-balance { text-wrap: balance; }
   .text-pretty { text-wrap: pretty; }
+
+  /* Subtle industrial blueprint pattern */
+  .bg-grid-faint {
+    background-image:
+      linear-gradient(to right, oklch(0.32 0.10 255 / 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, oklch(0.32 0.10 255 / 0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
 }

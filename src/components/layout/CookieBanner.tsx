@@ -56,17 +56,17 @@ export default function CookieBanner() {
     <div
       role="dialog"
       aria-labelledby="cookie-title"
-      className="fixed inset-x-4 bottom-4 z-[80] mx-auto max-w-3xl border border-white/10 bg-brand-navy-deep/95 p-5 shadow-2xl backdrop-blur-xl md:inset-x-auto md:left-1/2 md:-translate-x-1/2"
+      className="fixed inset-x-4 bottom-4 z-[80] mx-auto max-w-3xl rounded-md border border-hairline bg-white p-5 shadow-lift md:inset-x-auto md:left-1/2 md:-translate-x-1/2"
     >
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <p
             id="cookie-title"
-            className="font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-brand-red"
+            className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-brand-red"
           >
-            Privacidade & LGPD
+            Privacidade &amp; LGPD
           </p>
-          <p className="mt-2 max-w-xl text-sm leading-relaxed text-white/70">
+          <p className="mt-2 max-w-xl text-sm leading-relaxed text-ink-muted">
             Usamos cookies essenciais para operar o site e cookies opcionais de
             analytics para entender uso agregado. Você pode aceitar, recusar ou
             personalizar a qualquer momento.
@@ -76,14 +76,14 @@ export default function CookieBanner() {
           <button
             type="button"
             onClick={() => decide(false, false)}
-            className="border border-white/15 px-4 py-2.5 text-xs font-medium uppercase tracking-wider text-white/80 hover:bg-white/5"
+            className="rounded-sm border border-hairline px-4 py-2.5 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-ink-muted transition-colors hover:border-brand-navy hover:text-brand-navy"
           >
             Apenas Essenciais
           </button>
           <button
             type="button"
             onClick={() => decide(true, true)}
-            className="bg-brand-red px-4 py-2.5 font-display text-xs font-bold uppercase tracking-tighter text-white hover:bg-brand-red-dark"
+            className="rounded-sm bg-brand-red px-4 py-2.5 font-display text-[11px] font-bold uppercase tracking-wider text-white transition-colors hover:bg-brand-red-dark"
           >
             Aceitar Todos
           </button>

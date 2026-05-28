@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { z } from "zod";
+import { ArrowRight } from "lucide-react";
 
 const schema = z.object({
   company: z.string().trim().min(2, "Informe o nome da empresa").max(120),
@@ -37,44 +38,96 @@ export default function QuoteForm() {
     setSent(true);
   }
 
-  const label = "block font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-white/50";
+  const label =
+    "block font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-ink-soft";
   const input =
-    "w-full bg-brand-navy-deep border-b-2 border-white/15 px-0 py-3 text-white font-medium outline-none transition-colors focus:border-brand-red placeholder:text-white/30";
+    "w-full rounded-sm border border-hairline bg-white px-4 py-3 text-ink font-medium outline-none transition-colors focus:border-brand-navy focus:ring-2 focus:ring-brand-navy/15 placeholder:text-ink-soft/60";
 
   return (
     <form
       onSubmit={onSubmit}
       noValidate
-      className="space-y-6 border border-white/10 bg-white/5 p-8 backdrop-blur-sm md:p-10"
+      className="space-y-6 rounded-md border border-hairline bg-white p-8 shadow-card md:p-10"
       aria-label="Formulário de solicitação de orçamento"
     >
+      <div>
+        <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-brand-red">
+          Cotação Técnica
+        </p>
+        <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-ink">
+          Solicite seu orçamento
+        </h2>
+        <p className="mt-2 text-sm text-ink-muted">
+          Resposta em até 24h úteis. Todos os campos são obrigatórios.
+        </p>
+      </div>
+
       <div className="space-y-2">
-        <label htmlFor="company" className={label}>Empresa / CNPJ</label>
-        <input id="company" name="company" type="text" autoComplete="organization" className={input} aria-invalid={!!errors.company} />
+        <label htmlFor="company" className={label}>
+          Empresa / CNPJ
+        </label>
+        <input
+          id="company"
+          name="company"
+          type="text"
+          autoComplete="organization"
+          className={input}
+          aria-invalid={!!errors.company}
+        />
         {errors.company && <p className="text-xs text-brand-red">{errors.company}</p>}
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
         <div className="space-y-2">
-          <label htmlFor="name" className={label}>Seu Nome</label>
-          <input id="name" name="name" type="text" autoComplete="name" className={input} aria-invalid={!!errors.name} />
+          <label htmlFor="name" className={label}>
+            Seu Nome
+          </label>
+          <input
+            id="name"
+            name="name"
+            type="text"
+            autoComplete="name"
+            className={input}
+            aria-invalid={!!errors.name}
+          />
           {errors.name && <p className="text-xs text-brand-red">{errors.name}</p>}
         </div>
         <div className="space-y-2">
-          <label htmlFor="phone" className={label}>Telefone</label>
-          <input id="phone" name="phone" type="tel" inputMode="tel" autoComplete="tel" className={input} aria-invalid={!!errors.phone} />
+          <label htmlFor="phone" className={label}>
+            Telefone
+          </label>
+          <input
+            id="phone"
+            name="phone"
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            className={input}
+            aria-invalid={!!errors.phone}
+          />
           {errors.phone && <p className="text-xs text-brand-red">{errors.phone}</p>}
         </div>
       </div>
 
       <div className="space-y-2">
-        <label htmlFor="email" className={label}>E-mail Corporativo</label>
-        <input id="email" name="email" type="email" autoComplete="email" className={input} aria-invalid={!!errors.email} />
+        <label htmlFor="email" className={label}>
+          E-mail Corporativo
+        </label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          className={input}
+          aria-invalid={!!errors.email}
+        />
         {errors.email && <p className="text-xs text-brand-red">{errors.email}</p>}
       </div>
 
       <div className="space-y-2">
-        <label htmlFor="message" className={label}>Necessidade Técnica</label>
+        <label htmlFor="message" className={label}>
+          Necessidade Técnica
+        </label>
         <textarea
           id="message"
           name="message"
@@ -88,13 +141,14 @@ export default function QuoteForm() {
 
       <button
         type="submit"
-        className="w-full bg-brand-red py-5 font-display text-base font-bold uppercase tracking-tighter text-white transition-colors hover:bg-brand-red-dark active:scale-[0.98]"
+        className="inline-flex w-full items-center justify-center gap-2 rounded-sm bg-brand-red px-6 py-4 font-display text-sm font-bold uppercase tracking-wider text-white shadow-[0_2px_0_oklch(0.40_0.18_25)] transition-all hover:bg-brand-red-dark hover:shadow-none active:scale-[0.99]"
       >
         Enviar Solicitação
+        <ArrowRight className="size-4" aria-hidden />
       </button>
 
       {sent && (
-        <p role="status" className="text-center text-sm text-white/70">
+        <p role="status" className="text-center text-sm text-ink-muted">
           Abrimos seu cliente de e-mail. Caso prefira, fale conosco pelo WhatsApp.
         </p>
       )}

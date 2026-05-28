@@ -3,23 +3,29 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 /**
- * Unified industrial CTA. Replaces ~7 hand-rolled `bg-brand-red px-X py-Y...`
- * variants spread across pages. Polymorphic via the `as` prop so it can render
- * <Link>, <a>, or <button> while keeping styling consistent.
+ * Unified industrial CTA. Light theme — works on white surfaces and on
+ * dark navy backgrounds via the `onDark` flag. Polymorphic via `as`.
  */
 const cta = cva(
-  "inline-flex items-center justify-center gap-3 font-display font-bold uppercase tracking-tighter transition-colors duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red focus-visible:ring-offset-2 focus-visible:ring-offset-brand-navy-deep disabled:opacity-50 disabled:pointer-events-none",
+  "inline-flex items-center justify-center gap-2.5 font-display font-semibold uppercase tracking-wider rounded-sm transition-all duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none",
   {
     variants: {
       variant: {
-        primary: "bg-brand-red text-white hover:bg-brand-red-dark",
-        outline: "border-2 border-white/20 text-white hover:bg-white/10",
-        ghost: "text-white hover:text-brand-red",
+        primary:
+          "bg-brand-red text-white hover:bg-brand-red-dark shadow-[0_2px_0_oklch(0.40_0.18_25)] hover:shadow-none focus-visible:ring-brand-red",
+        navy:
+          "bg-brand-navy text-white hover:bg-brand-navy-deep focus-visible:ring-brand-navy",
+        outline:
+          "border border-hairline text-ink hover:border-brand-navy hover:text-brand-navy focus-visible:ring-brand-navy",
+        outlineLight:
+          "border border-white/30 text-white hover:bg-white hover:text-brand-navy-deep focus-visible:ring-white",
+        ghost:
+          "text-ink hover:text-brand-red focus-visible:ring-brand-navy",
       },
       size: {
-        sm: "px-5 py-3 text-xs",
-        md: "px-7 py-4 text-sm",
-        lg: "px-8 py-5 text-base",
+        sm: "px-4 py-2.5 text-[11px]",
+        md: "px-6 py-3.5 text-xs",
+        lg: "px-8 py-4 text-sm",
       },
     },
     defaultVariants: { variant: "primary", size: "md" },

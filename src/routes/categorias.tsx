@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowUpRight } from "lucide-react";
 import PageHero from "@/components/ui/PageHero";
 import Container from "@/components/ui/Container";
 import { CATEGORIES } from "@/lib/categories";
@@ -25,34 +26,47 @@ function CategoriesPage() {
         title="Categorias de Proteção Industrial"
         description="Portfólio estruturado por classe de risco, com itens certificados pelo Ministério do Trabalho e validados por nossa engenharia de aplicação."
       />
-      <section className="bg-surface-sunken py-20">
+      <section className="bg-white py-20 md:py-28">
         <Container>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {CATEGORIES.map((cat) => (
-              <article
-                key={cat.slug}
-                className="group border-t-4 border-brand-red bg-brand-navy-deep p-8 transition-transform duration-300 hover:-translate-y-1"
-              >
-                <div className="mb-6 flex items-center justify-between">
-                  <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-white/40">
-                    {cat.code}
-                  </span>
-                  <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-brand-red">
-                    {cat.normas}
-                  </span>
-                </div>
-                <h2 className="font-display text-2xl font-bold uppercase tracking-tight text-white">
-                  {cat.title}
-                </h2>
-                <p className="mt-4 text-sm leading-relaxed text-white/60">{cat.description}</p>
-                <Link
-                  to="/contato"
-                  className="mt-8 inline-block font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-white hover:text-brand-red"
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {CATEGORIES.map((cat) => {
+              const Icon = cat.icon;
+              return (
+                <article
+                  key={cat.slug}
+                  className="group relative flex flex-col gap-6 overflow-hidden rounded-md border border-hairline bg-white p-8 transition-all duration-300 hover:-translate-y-1 hover:border-brand-navy hover:shadow-lift"
                 >
-                  Solicitar Cotação →
-                </Link>
-              </article>
-            ))}
+                  <div className="flex items-start justify-between">
+                    <span className="grid size-14 place-items-center rounded-sm bg-brand-navy/5 text-brand-navy transition-colors group-hover:bg-brand-red group-hover:text-white">
+                      <Icon className="size-7" strokeWidth={1.5} aria-hidden />
+                    </span>
+                    <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-soft">
+                      {cat.code}
+                    </span>
+                  </div>
+                  <div>
+                    <h2 className="font-display text-xl font-bold leading-tight tracking-tight text-ink">
+                      {cat.title}
+                    </h2>
+                    <p className="mt-3 text-sm leading-relaxed text-ink-muted">
+                      {cat.description}
+                    </p>
+                  </div>
+                  <div className="mt-auto flex items-center justify-between border-t border-hairline pt-5">
+                    <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-brand-navy">
+                      {cat.normas}
+                    </span>
+                    <Link
+                      to="/contato"
+                      className="inline-flex items-center gap-1.5 font-display text-[11px] font-bold uppercase tracking-wider text-brand-red"
+                    >
+                      Cotar
+                      <ArrowUpRight className="size-3.5" aria-hidden />
+                    </Link>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         </Container>
       </section>

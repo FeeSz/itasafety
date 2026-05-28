@@ -1,10 +1,12 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { ArrowRight, ShieldCheck, Truck, BadgeCheck } from "lucide-react";
-import heroImg from "@/assets/hero-industrial.jpg";
+import HeroIndustrial from "@/components/sections/HeroIndustrial";
 import CategoryGrid from "@/components/sections/CategoryGrid";
 import FeaturedProducts from "@/components/sections/FeaturedProducts";
+import Differentials from "@/components/sections/Differentials";
+import Certifications from "@/components/sections/Certifications";
+import PartnersStrip from "@/components/sections/PartnersStrip";
+import CommercialCTA from "@/components/sections/CommercialCTA";
 import Container from "@/components/ui/Container";
-import CtaButton from "@/components/ui/CtaButton";
 import Eyebrow from "@/components/ui/Eyebrow";
 
 export const Route = createFileRoute("/")({
@@ -14,7 +16,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Distribuidora de EPIs para indústrias brasileiras. Capacetes, respiradores, cinturões, luvas, calçados e consultoria técnica em conformidade com as NRs.",
+          "Distribuidora enterprise de EPIs para indústrias brasileiras. Capacetes, respiradores, cinturões, luvas, calçados e consultoria técnica em conformidade com as NRs.",
       },
       { property: "og:title", content: "ItaSafety — Proteção Industrial que Não Negocia" },
     ],
@@ -25,199 +27,65 @@ export const Route = createFileRoute("/")({
 function HomePage() {
   return (
     <>
-      {/* HERO */}
-      <section className="relative flex min-h-[85vh] items-center overflow-hidden border-b-4 border-brand-red">
-        <img
-          src={heroImg}
-          alt=""
-          aria-hidden="true"
-          width={1920}
-          height={1080}
-          fetchPriority="high"
-          className="absolute inset-0 size-full object-cover opacity-45"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-brand-navy-deep via-brand-navy-deep/70 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-brand-navy-deep to-transparent" />
+      <HeroIndustrial />
 
-        <Container className="relative z-10 py-24">
-          <div className="max-w-3xl space-y-8 animate-reveal">
-            <div className="inline-flex items-center gap-3 border-l-4 border-brand-red bg-white/5 py-1 pl-4 backdrop-blur-sm">
-              <Eyebrow>Conformidade NR-06 · NR-10 · NR-35</Eyebrow>
-            </div>
-            <h1 className="text-balance font-display text-5xl font-black uppercase leading-[0.9] tracking-tighter text-white md:text-7xl lg:text-8xl">
-              Proteção que <br />
-              <span className="text-brand-red">não negocia.</span>
-            </h1>
-            <p className="max-w-xl text-pretty text-lg font-medium leading-relaxed text-white/75">
-              Distribuição enterprise de equipamentos de proteção individual e
-              engenharia de segurança para complexos industriais de alta
-              criticidade.
-            </p>
-            <div className="flex flex-wrap gap-4 pt-2">
-              <CtaButton as={Link} to="/categorias" className="group">
-                Ver Catálogo
-                <ArrowRight
-                  className="size-4 transition-transform group-hover:translate-x-1"
-                  aria-hidden
-                />
-              </CtaButton>
-              <CtaButton as={Link} to="/contato" variant="outline">
-                Consultoria Técnica
-              </CtaButton>
-            </div>
-          </div>
-        </Container>
-      </section>
-
-      {/* TRUST STRIP */}
-      <section aria-label="Indicadores de confiança" className="bg-white">
-        <Container className="flex flex-wrap items-center justify-between gap-x-12 gap-y-6 py-10">
-          <Stat value="25+" label="Anos de Mercado" />
-          <Divider />
-          <Stat value="100%" label="CA Ativo e Válido" />
-          <Divider />
-          <Stat value="24h" label="Cotação Express" />
-          <Divider />
-          <Stat value="500+" label="Clientes Industriais" />
-          <div className="hidden gap-8 font-display font-black tracking-tighter text-brand-navy-deep/40 lg:flex">
-            <span>MSA</span>
-            <span>HONEYWELL</span>
-            <span>3M</span>
-          </div>
-        </Container>
-      </section>
+      <PartnersStrip />
 
       {/* CATEGORIES */}
-      <section className="bg-brand-navy-deep py-24">
+      <section className="bg-surface-sunken py-24 md:py-32">
         <Container>
-          <header className="mb-16 flex flex-wrap items-end justify-between gap-6">
+          <div className="mb-14 flex flex-wrap items-end justify-between gap-6">
             <div>
               <Eyebrow>Especialidades</Eyebrow>
-              <h2 className="mt-3 font-display text-4xl font-black uppercase italic tracking-tighter text-white md:text-5xl">
+              <h2 className="mt-5 font-display text-3xl font-bold leading-[1.1] tracking-tight text-ink md:text-5xl">
                 Categorias de Proteção
               </h2>
+              <p className="mt-4 max-w-xl text-ink-muted">
+                Catálogo segmentado por norma regulamentadora e função
+                operacional — da proteção da cabeça à dermatológica.
+              </p>
             </div>
             <Link
               to="/categorias"
-              className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-white hover:text-brand-red"
+              className="inline-flex items-center gap-2 font-display text-sm font-semibold uppercase tracking-wider text-brand-navy hover:text-brand-red"
             >
-              Ver tudo →
+              Ver catálogo completo →
             </Link>
-          </header>
+          </div>
           <CategoryGrid />
         </Container>
       </section>
 
-      {/* WHY US */}
-      <section className="border-y border-white/10 bg-surface-sunken py-24">
-        <Container>
-          <div className="mb-16 max-w-2xl">
-            <Eyebrow>Por que ItaSafety</Eyebrow>
-            <h2 className="mt-3 font-display text-4xl font-black uppercase tracking-tighter text-white md:text-5xl">
-              Engenharia que vai além do EPI.
-            </h2>
-          </div>
-          <div className="grid gap-px border border-white/10 bg-white/10 md:grid-cols-3">
-            <Pillar
-              icon={<ShieldCheck className="size-7" aria-hidden />}
-              title="Conformidade Total"
-              text="100% dos itens com CA ativo. Auditoria documental e rastreabilidade por lote para cada entrega."
-            />
-            <Pillar
-              icon={<BadgeCheck className="size-7" aria-hidden />}
-              title="Curadoria Técnica"
-              text="Marcas líderes mundiais — MSA, Honeywell, 3M, Dystar — com especificação validada por nossos engenheiros."
-            />
-            <Pillar
-              icon={<Truck className="size-7" aria-hidden />}
-              title="Logística Crítica"
-              text="Cotação em até 24h, frota dedicada para São Paulo e operação nacional para reposição emergencial."
-            />
-          </div>
-        </Container>
-      </section>
+      <Differentials />
 
       {/* PRODUCTS */}
-      <section className="bg-brand-navy-deep py-24">
+      <section className="border-t border-hairline bg-white py-24 md:py-32">
         <Container>
-          <header className="mb-16 flex flex-wrap items-end justify-between gap-6">
+          <div className="mb-14 flex flex-wrap items-end justify-between gap-6">
             <div>
               <Eyebrow>Destaques</Eyebrow>
-              <h2 className="mt-3 font-display text-4xl font-black uppercase italic tracking-tighter text-white md:text-5xl">
+              <h2 className="mt-5 font-display text-3xl font-bold leading-[1.1] tracking-tight text-ink md:text-5xl">
                 Catálogo em Foco
               </h2>
+              <p className="mt-4 max-w-xl text-ink-muted">
+                Equipamentos mais especificados pela nossa engenharia de
+                aplicação nos últimos 90 dias.
+              </p>
             </div>
-          </header>
+            <Link
+              to="/contato"
+              className="inline-flex items-center gap-2 font-display text-sm font-semibold uppercase tracking-wider text-brand-navy hover:text-brand-red"
+            >
+              Cotar lista completa →
+            </Link>
+          </div>
           <FeaturedProducts />
         </Container>
       </section>
 
-      {/* CTA */}
-      <section className="relative border-t-8 border-brand-red bg-surface-sunken py-24">
-        <Container className="max-w-4xl text-center">
-          <h2 className="text-balance font-display text-4xl font-black uppercase tracking-tighter text-white md:text-6xl">
-            Pronto para dimensionar a proteção da sua planta?
-          </h2>
-          <p className="mx-auto mt-6 max-w-2xl text-pretty text-lg text-white/70">
-            Fale com um engenheiro de aplicação. Levantamento de risco, lista
-            técnica e cotação personalizada — sem custo.
-          </p>
-          <div className="mt-10 flex flex-wrap justify-center gap-4">
-            <CtaButton as={Link} to="/contato" size="lg">
-              Solicitar Orçamento
-            </CtaButton>
-            <CtaButton
-              as="a"
-              href="https://wa.me/5511988776655"
-              target="_blank"
-              rel="noreferrer"
-              variant="outline"
-              size="lg"
-            >
-              WhatsApp Business
-            </CtaButton>
-          </div>
-        </Container>
-      </section>
+      <Certifications />
+
+      <CommercialCTA />
     </>
-  );
-}
-
-function Stat({ value, label }: { value: string; label: string }) {
-  return (
-    <div className="flex flex-col">
-      <span className="font-display text-3xl font-black tracking-tighter text-brand-navy-deep">
-        {value}
-      </span>
-      <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-brand-navy-deep/50">
-        {label}
-      </span>
-    </div>
-  );
-}
-
-function Divider() {
-  return <div className="hidden h-12 w-px bg-brand-navy-deep/10 md:block" aria-hidden />;
-}
-
-function Pillar({
-  icon,
-  title,
-  text,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  text: string;
-}) {
-  return (
-    <div className="bg-brand-navy-deep p-10">
-      <div className="mb-6 inline-grid size-12 place-items-center bg-brand-red text-white">
-        {icon}
-      </div>
-      <h3 className="font-display text-xl font-bold uppercase tracking-tight text-white">
-        {title}
-      </h3>
-      <p className="mt-3 text-sm leading-relaxed text-white/60">{text}</p>
-    </div>
   );
 }

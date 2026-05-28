@@ -2,12 +2,11 @@ import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
 type EyebrowProps = HTMLAttributes<HTMLSpanElement> & {
-  tone?: "accent" | "muted";
+  tone?: "accent" | "muted" | "onDark";
 };
 
 /**
- * Section/label microtype. Unifies the 3 inconsistent variants found
- * across the codebase (tracking-tighter / [0.18em] / [0.2em]) into one.
+ * Section/label microtype. Single canonical style with three tone options.
  */
 export default function Eyebrow({
   tone = "accent",
@@ -17,8 +16,11 @@ export default function Eyebrow({
   return (
     <span
       className={cn(
-        "font-mono text-[11px] font-medium uppercase tracking-[0.2em]",
-        tone === "accent" ? "text-brand-red" : "text-white/40",
+        "inline-flex items-center gap-2 font-mono text-[11px] font-semibold uppercase tracking-[0.22em]",
+        tone === "accent" && "text-brand-red",
+        tone === "muted" && "text-ink-soft",
+        tone === "onDark" && "text-white/70",
+        "before:block before:h-px before:w-6 before:bg-current",
         className,
       )}
       {...rest}
