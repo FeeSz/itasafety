@@ -72,7 +72,7 @@ function ContactPage() {
           </div>
 
           <QuoteForm />
-        </div>
+        </Container>
       </section>
     </>
   );
