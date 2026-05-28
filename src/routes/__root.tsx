@@ -17,13 +17,13 @@ import Eyebrow from "@/components/ui/Eyebrow";
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-brand-navy-deep px-6">
+    <div className="flex min-h-dvh items-center justify-center bg-white px-6">
       <div className="max-w-md text-center">
         <Eyebrow>Erro 404</Eyebrow>
-        <h1 className="mt-4 font-display text-6xl font-black uppercase tracking-tighter text-white">
+        <h1 className="mt-4 font-display text-5xl font-bold tracking-tight text-ink md:text-6xl">
           Página não encontrada
         </h1>
-        <p className="mt-4 text-sm text-white/60">
+        <p className="mt-4 text-sm text-ink-muted">
           O endereço acessado não existe ou foi movido.
         </p>
         <CtaButton as={Link} to="/" size="sm" className="mt-8">
@@ -38,13 +38,13 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-brand-navy-deep px-6">
+    <div className="flex min-h-dvh items-center justify-center bg-white px-6">
       <div className="max-w-md text-center">
         <Eyebrow>Erro</Eyebrow>
-        <h1 className="mt-4 font-display text-3xl font-black uppercase tracking-tighter text-white">
+        <h1 className="mt-4 font-display text-3xl font-bold tracking-tight text-ink">
           Esta página não carregou
         </h1>
-        <p className="mt-4 text-sm text-white/60">
+        <p className="mt-4 text-sm text-ink-muted">
           Algo inesperado aconteceu. Tente novamente em instantes.
         </p>
         <div className="mt-8 flex justify-center gap-3">
@@ -76,7 +76,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { name: "theme-color", content: "#0A1229" },
+      { name: "theme-color", content: "#ffffff" },
       { title: "ItaSafety — Proteção Industrial que Não Negocia" },
       { name: "description", content: SITE_DESCRIPTION },
       { property: "og:title", content: "ItaSafety — Proteção Industrial que Não Negocia" },
@@ -96,7 +96,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@700;800;900&family=JetBrains+Mono:wght@400;500&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap",
       },
     ],
   }),
