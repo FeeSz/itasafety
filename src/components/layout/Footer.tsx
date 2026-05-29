@@ -1,111 +1,113 @@
 import { Link } from "@tanstack/react-router";
-import { Mail, MapPin, Phone } from "lucide-react";
+import { Mail, MapPin, Clock, Linkedin, Instagram, Facebook } from "lucide-react";
 import Logo from "./Logo";
-import Container from "@/components/ui/Container";
-
-const FOOTER_SECTIONS = [
-  {
-    heading: "Categorias",
-    links: [
-      { label: "Proteção Cabeça", to: "/categorias" },
-      { label: "Proteção Visual", to: "/categorias" },
-      { label: "Proteção Respiratória", to: "/categorias" },
-      { label: "Trabalho em Altura", to: "/categorias" },
-      { label: "Calçados de Segurança", to: "/categorias" },
-    ],
-  },
-  {
-    heading: "Empresa",
-    links: [
-      { label: "Quem Somos", to: "/sobre" },
-      { label: "Fale Conosco", to: "/contato" },
-    ],
-  },
-  {
-    heading: "Legal",
-    links: [
-      { label: "Política de Privacidade", to: "/privacidade" },
-      { label: "Termos de Uso", to: "/termos" },
-      { label: "Política de Cookies", to: "/cookies" },
-    ],
-  },
-] as const;
+import { CATEGORIES } from "@/lib/categories";
 
 export default function Footer() {
+  const topCats = CATEGORIES.slice(0, 8);
   return (
-    <footer className="border-t-[3px] border-brand-red bg-brand-navy-deep pb-10 pt-20 text-white/80">
-      <Container>
-        <div className="grid gap-12 lg:grid-cols-[1.6fr_1fr_1fr_1fr]">
+    <footer className="bg-announce-dark text-white/85">
+      <div className="mx-auto max-w-7xl px-6 pb-10 pt-16">
+        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
+          {/* About */}
           <div>
-            <Logo onDark />
-            <p className="mt-6 max-w-sm text-pretty text-sm leading-relaxed text-white/60">
-              Distribuição enterprise de equipamentos de proteção individual e
-              consultoria técnica para indústrias brasileiras desde 1998.
-              Comprometidos com a vida e a conformidade normativa.
+            <div className="bg-white/95 inline-block rounded-md p-2">
+              <Logo />
+            </div>
+            <p className="mt-5 text-sm leading-relaxed text-white/65">
+              Equipamentos de Proteção Individual com qualidade e certificação.
+              Fornecendo segurança para empresas de todo o Brasil.
             </p>
+            <div className="mt-5 flex gap-3">
+              {[Linkedin, Instagram, Facebook].map((Icon, i) => (
+                <a
+                  key={i}
+                  href="#"
+                  aria-label="Rede social"
+                  className="grid size-9 place-items-center rounded-md bg-white/5 text-white/60 transition-colors hover:bg-brand-blue hover:text-white"
+                >
+                  <Icon className="size-4" />
+                </a>
+              ))}
+            </div>
+          </div>
 
-            <ul className="mt-8 space-y-3 text-sm text-white/70">
-              <li className="flex items-start gap-3">
-                <Phone className="mt-0.5 size-4 shrink-0 text-brand-red" aria-hidden />
-                <a href="tel:+551126267417" className="hover:text-white">
-                  +55 (11) 2626-7417
+          {/* Categorias */}
+          <nav aria-label="Categorias">
+            <h2 className="mb-4 text-[12px] font-bold uppercase tracking-[0.15em] text-brand-blue-light">
+              Categorias
+            </h2>
+            <ul className="space-y-2 text-sm text-white/70">
+              {topCats.map((c) => (
+                <li key={c.slug}>
+                  <Link
+                    to="/departamento/$slug"
+                    params={{ slug: c.slug }}
+                    className="transition-colors hover:text-white"
+                  >
+                    {c.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          {/* Institucional */}
+          <nav aria-label="Institucional">
+            <h2 className="mb-4 text-[12px] font-bold uppercase tracking-[0.15em] text-brand-blue-light">
+              Institucional
+            </h2>
+            <ul className="space-y-2 text-sm text-white/70">
+              <li><Link to="/quemsomos" className="hover:text-white">Quem Somos</Link></li>
+              <li><Link to="/localizacao" className="hover:text-white">Localização</Link></li>
+              <li><Link to="/contato" className="hover:text-white">Contato</Link></li>
+              <li><Link to="/privacidade" className="hover:text-white">Política de Privacidade</Link></li>
+              <li>
+                <a
+                  href="https://consultaca.com/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hover:text-white"
+                >
+                  Consulta de CA (MTE) ↗
                 </a>
               </li>
-              <li className="flex items-start gap-3">
-                <Mail className="mt-0.5 size-4 shrink-0 text-brand-red" aria-hidden />
+            </ul>
+          </nav>
+
+          {/* Contato */}
+          <div>
+            <h2 className="mb-4 text-[12px] font-bold uppercase tracking-[0.15em] text-brand-blue-light">
+              Contato
+            </h2>
+            <ul className="space-y-3 text-sm text-white/75">
+              <li className="flex items-start gap-2">
+                <Mail className="mt-0.5 size-4 shrink-0 text-brand-blue-light" />
                 <a href="mailto:contato@itasafety.com.br" className="hover:text-white">
                   contato@itasafety.com.br
                 </a>
               </li>
-              <li className="flex items-start gap-3">
-                <MapPin className="mt-0.5 size-4 shrink-0 text-brand-red" aria-hidden />
+              <li className="flex items-start gap-2">
+                <MapPin className="mt-0.5 size-4 shrink-0 text-brand-blue-light" />
                 <span>São Paulo, SP — Brasil</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <Clock className="mt-0.5 size-4 shrink-0 text-brand-blue-light" />
+                <span>Seg–Sex, 08h às 18h</span>
               </li>
             </ul>
           </div>
-
-          {FOOTER_SECTIONS.map((section) => (
-            <nav key={section.heading} aria-labelledby={`footer-${section.heading}`}>
-              <h2
-                id={`footer-${section.heading}`}
-                className="mb-6 font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-white/40"
-              >
-                {section.heading}
-              </h2>
-              <ul className="space-y-3 text-sm text-white/70">
-                {section.links.map((link) => (
-                  <li key={link.label}>
-                    <Link to={link.to} className="transition-colors hover:text-brand-red">
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-                {section.heading === "Empresa" && (
-                  <li>
-                    <a
-                      href="https://wa.me/5511988776655"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="transition-colors hover:text-brand-red"
-                    >
-                      WhatsApp
-                    </a>
-                  </li>
-                )}
-              </ul>
-            </nav>
-          ))}
         </div>
 
-        <div className="mt-16 flex flex-col gap-4 border-t border-white/10 pt-8 md:flex-row md:items-center md:justify-between">
-          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/40">
-            © {new Date().getFullYear()} ItaSafety EPI Ltda · São Paulo, BR
+        <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 md:flex-row">
+          <p className="text-[12px] text-white/45">
+            © {new Date().getFullYear()} ItaSafety. Todos os direitos reservados.
           </p>
-          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/40">
-            Conformidade NR-06 · NR-10 · NR-35 · ISO 9001
+          <p className="text-[12px] text-white/45">
+            Conformidade NR-06 · Produtos certificados pelo MTE
           </p>
         </div>
-      </Container>
+      </div>
     </footer>
   );
 }

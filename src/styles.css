@@ -5,8 +5,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-display: "Space Grotesk", "Inter Tight", system-ui, sans-serif;
-  --font-sans: "Inter", system-ui, sans-serif;
+  --font-display: "Nunito Sans", system-ui, sans-serif;
+  --font-sans: "Nunito Sans", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
   --color-background: var(--background);
@@ -29,13 +29,21 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  /* Brand identity — ItaSafety */
-  --color-brand-navy: var(--brand-navy);
-  --color-brand-navy-deep: var(--brand-navy-deep);
+  /* Brand — ItaSafety (Ultra EPI blueprint, azul institucional) */
+  --color-brand-blue: var(--brand-blue);
+  --color-brand-blue-hover: var(--brand-blue-hover);
+  --color-brand-blue-active: var(--brand-blue-active);
+  --color-brand-blue-light: var(--brand-blue-light);
+  --color-brand-blue-soft: var(--brand-blue-soft);
+  --color-brand-blue-tint: var(--brand-blue-tint);
+
+  /* Legacy aliases (mantidos pra compat com componentes antigos) */
+  --color-brand-navy: var(--brand-blue);
+  --color-brand-navy-deep: var(--brand-blue-active);
   --color-brand-red: var(--brand-red);
   --color-brand-red-dark: var(--brand-red-dark);
 
-  /* Industrial neutrals */
+  /* Cinzas industriais */
   --color-ink: var(--ink);
   --color-ink-muted: var(--ink-muted);
   --color-ink-soft: var(--ink-soft);
@@ -44,113 +52,115 @@
   --color-surface-raised: var(--surface-raised);
   --color-hairline: var(--hairline);
 
-  --radius-sm: 2px;
-  --radius-md: 4px;
-  --radius-lg: 6px;
-  --radius-xl: 8px;
+  --color-header-dark: var(--header-dark);
+  --color-announce-dark: var(--announce-dark);
 
-  --shadow-card: 0 1px 2px oklch(0.20 0.04 250 / 0.06), 0 4px 16px oklch(0.20 0.04 250 / 0.04);
-  --shadow-lift: 0 4px 12px oklch(0.20 0.04 250 / 0.08), 0 16px 40px oklch(0.20 0.04 250 / 0.08);
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
 
-  --ease-industrial: cubic-bezier(0.2, 0, 0, 1);
-  --ease-decelerate: cubic-bezier(0, 0, 0.2, 1);
+  --shadow-card: 0 2px 8px rgba(0,0,0,0.06);
+  --shadow-lift: 0 8px 24px rgba(27,79,138,0.12);
+  --shadow-strong: 0 12px 32px rgba(27,79,138,0.18);
+
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-enter: cubic-bezier(0, 0, 0.2, 1);
 }
 
 :root {
-  /* Brand */
-  --brand-navy: oklch(0.32 0.10 255);          /* institutional blue */
-  --brand-navy-deep: oklch(0.18 0.06 260);     /* deep navy for footer/CTA */
-  --brand-red: oklch(0.55 0.22 25);            /* strategic red */
-  --brand-red-dark: oklch(0.46 0.20 25);
+  /* Azul institucional (10%) */
+  --brand-blue: #1B4F8A;
+  --brand-blue-hover: #2563A8;
+  --brand-blue-active: #0F3566;
+  --brand-blue-light: #3B7DD8;
+  --brand-blue-soft: #DBEAFE;
+  --brand-blue-tint: #EBF4FF;
 
-  /* Industrial neutrals — light theme */
-  --ink: oklch(0.18 0.03 260);                 /* primary text */
-  --ink-muted: oklch(0.42 0.02 260);           /* secondary text */
-  --ink-soft: oklch(0.58 0.015 260);           /* tertiary / labels */
-  --surface: oklch(1 0 0);                     /* white */
-  --surface-sunken: oklch(0.97 0.005 260);     /* very light gray */
-  --surface-raised: oklch(0.99 0.003 260);     /* near white */
-  --hairline: oklch(0.88 0.008 260);           /* border */
+  /* Vermelho — apenas alertas/urgência */
+  --brand-red: #C0392B;
+  --brand-red-dark: #A93226;
 
-  /* shadcn semantic tokens (light) */
-  --background: oklch(1 0 0);
+  /* Cinzas (30%) */
+  --ink: #1A1A2E;
+  --ink-muted: #4A5568;
+  --ink-soft: #718096;
+  --surface: #FFFFFF;
+  --surface-sunken: #F8F9FA;
+  --surface-raised: #F7FAFC;
+  --hairline: #E2E8F0;
+
+  --header-dark: #2D3748;
+  --announce-dark: #1A1A2E;
+
+  /* shadcn tokens */
+  --background: #FFFFFF;
   --foreground: var(--ink);
-  --card: oklch(1 0 0);
+  --card: #FFFFFF;
   --card-foreground: var(--ink);
-  --popover: oklch(1 0 0);
+  --popover: #FFFFFF;
   --popover-foreground: var(--ink);
-  --primary: var(--brand-red);
-  --primary-foreground: oklch(1 0 0);
+  --primary: var(--brand-blue);
+  --primary-foreground: #FFFFFF;
   --secondary: var(--surface-sunken);
   --secondary-foreground: var(--ink);
   --muted: var(--surface-sunken);
   --muted-foreground: var(--ink-muted);
-  --accent: var(--brand-navy);
-  --accent-foreground: oklch(1 0 0);
+  --accent: var(--brand-blue);
+  --accent-foreground: #FFFFFF;
   --destructive: var(--brand-red);
-  --destructive-foreground: oklch(1 0 0);
+  --destructive-foreground: #FFFFFF;
   --border: var(--hairline);
   --input: var(--hairline);
-  --ring: var(--brand-navy);
-  --radius: 4px;
+  --ring: var(--brand-blue);
+  --radius: 6px;
 }
 
 @keyframes reveal-up {
   from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
-@keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
-
-@keyframes marquee {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @layer base {
-  * {
-    border-color: var(--color-border);
-  }
-
+  * { border-color: var(--color-border); }
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
   }
-
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
   }
-
-  ::selection {
-    background-color: var(--brand-red);
-    color: white;
-  }
-
-  :focus-visible {
-    outline: 2px solid var(--brand-navy);
-    outline-offset: 2px;
-  }
+  ::selection { background-color: var(--brand-blue); color: white; }
+  :focus-visible { outline: 2px solid var(--brand-blue); outline-offset: 2px; }
 }
 
 @layer utilities {
-  .animate-reveal { animation: reveal-up 0.6s var(--ease-industrial) both; }
-  .animate-fade-in { animation: fade-in 0.4s var(--ease-industrial) both; }
-  .animate-marquee { animation: marquee 40s linear infinite; }
-
+  .animate-reveal { animation: reveal-up 0.6s var(--ease-standard) both; }
+  .animate-fade-in { animation: fade-in 0.3s var(--ease-standard) both; }
+  .animate-marquee { animation: marquee 35s linear infinite; }
+  .animate-slide-down { animation: slide-down 200ms var(--ease-standard) both; }
   .text-balance { text-wrap: balance; }
   .text-pretty { text-wrap: pretty; }
-
-  /* Subtle industrial blueprint pattern */
-  .bg-grid-faint {
-    background-image:
-      linear-gradient(to right, oklch(0.32 0.10 255 / 0.04) 1px, transparent 1px),
-      linear-gradient(to bottom, oklch(0.32 0.10 255 / 0.04) 1px, transparent 1px);
-    background-size: 48px 48px;
+  .skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e4e4e4 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
