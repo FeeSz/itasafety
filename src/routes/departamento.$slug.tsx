@@ -85,7 +85,7 @@ function DepartamentoPage() {
                 Subcategorias
               </h2>
               <ul className="mt-3 space-y-1.5 text-sm">
-                {(cat.subcategories ?? ["Todos os produtos"]).map((s) => (
+                {(cat.subcategories ?? ["Todos os produtos"]).map((s: string) => (
                   <li key={s}>
                     <button
                       type="button"
