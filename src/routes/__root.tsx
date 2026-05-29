@@ -14,6 +14,9 @@ import Footer from "@/components/layout/Footer";
 import CookieBanner from "@/components/layout/CookieBanner";
 import CtaButton from "@/components/ui/CtaButton";
 import Eyebrow from "@/components/ui/Eyebrow";
+import { QuoteCartProvider } from "@/components/quote/QuoteCartContext";
+import QuoteFab from "@/components/quote/QuoteFab";
+import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -96,7 +99,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap",
       },
     ],
   }),
@@ -124,18 +127,22 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
-      <a
-        href="#main"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:bg-brand-red focus:px-4 focus:py-2 focus:font-mono focus:text-xs focus:uppercase focus:tracking-wider focus:text-white"
-      >
-        Ir para o conteúdo
-      </a>
-      <Header />
-      <main id="main">
-        <Outlet />
-      </main>
-      <Footer />
-      <CookieBanner />
+      <QuoteCartProvider>
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:bg-brand-blue focus:px-4 focus:py-2 focus:text-xs focus:font-bold focus:uppercase focus:tracking-wider focus:text-white"
+        >
+          Ir para o conteúdo
+        </a>
+        <Header />
+        <main id="main">
+          <Outlet />
+        </main>
+        <Footer />
+        <CookieBanner />
+        <QuoteFab />
+        <Toaster position="top-right" />
+      </QuoteCartProvider>
     </QueryClientProvider>
   );
 }

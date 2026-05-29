@@ -1,24 +1,19 @@
-import { Link, createFileRoute } from "@tanstack/react-router";
-import HeroIndustrial from "@/components/sections/HeroIndustrial";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import HeroSlider from "@/components/sections/HeroSlider";
 import CategoryGrid from "@/components/sections/CategoryGrid";
 import FeaturedProducts from "@/components/sections/FeaturedProducts";
-import Differentials from "@/components/sections/Differentials";
-import Certifications from "@/components/sections/Certifications";
-import PartnersStrip from "@/components/sections/PartnersStrip";
-import CommercialCTA from "@/components/sections/CommercialCTA";
-import Container from "@/components/ui/Container";
-import Eyebrow from "@/components/ui/Eyebrow";
+import IntermediateBanners from "@/components/sections/IntermediateBanners";
+import TrustSignals from "@/components/sections/TrustSignals";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "ItaSafety — Proteção Industrial que Não Negocia" },
+      { title: "ItaSafety — Equipamentos de Proteção Individual (EPI)" },
       {
         name: "description",
         content:
-          "Distribuidora enterprise de EPIs para indústrias brasileiras. Capacetes, respiradores, cinturões, luvas, calçados e consultoria técnica em conformidade com as NRs.",
+          "Distribuidora de EPIs com produtos certificados pelo MTE. Calçados, luvas, capacetes, proteção visual, respiratória e auditiva para empresas de todo o Brasil.",
       },
-      { property: "og:title", content: "ItaSafety — Proteção Industrial que Não Negocia" },
     ],
   }),
   component: HomePage,
@@ -27,65 +22,50 @@ export const Route = createFileRoute("/")({
 function HomePage() {
   return (
     <>
-      <HeroIndustrial />
+      <HeroSlider />
 
-      <PartnersStrip />
-
-      {/* CATEGORIES */}
-      <section className="bg-surface-sunken py-24 md:py-32">
-        <Container>
-          <div className="mb-14 flex flex-wrap items-end justify-between gap-6">
+      {/* Categorias */}
+      <section className="bg-white py-14">
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="mb-8 flex items-end justify-between gap-4">
             <div>
-              <Eyebrow>Especialidades</Eyebrow>
-              <h2 className="mt-5 font-display text-3xl font-bold leading-[1.1] tracking-tight text-ink md:text-5xl">
-                Categorias de Proteção
+              <h2 className="text-2xl font-extrabold text-ink md:text-3xl">
+                Navegue por Categoria
               </h2>
-              <p className="mt-4 max-w-xl text-ink-muted">
-                Catálogo segmentado por norma regulamentadora e função
-                operacional — da proteção da cabeça à dermatológica.
-              </p>
+              <span className="mt-2 block h-[3px] w-10 bg-brand-blue" />
             </div>
-            <Link
-              to="/categorias"
-              className="inline-flex items-center gap-2 font-display text-sm font-semibold uppercase tracking-wider text-brand-navy hover:text-brand-red"
-            >
-              Ver catálogo completo →
-            </Link>
           </div>
           <CategoryGrid />
-        </Container>
+        </div>
       </section>
 
-      <Differentials />
-
-      {/* PRODUCTS */}
-      <section className="border-t border-hairline bg-white py-24 md:py-32">
-        <Container>
-          <div className="mb-14 flex flex-wrap items-end justify-between gap-6">
+      {/* Produtos em destaque */}
+      <section className="bg-surface-sunken py-14">
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
             <div>
-              <Eyebrow>Destaques</Eyebrow>
-              <h2 className="mt-5 font-display text-3xl font-bold leading-[1.1] tracking-tight text-ink md:text-5xl">
-                Catálogo em Foco
+              <h2 className="text-2xl font-extrabold text-ink md:text-3xl">
+                Produtos em Destaque
               </h2>
-              <p className="mt-4 max-w-xl text-ink-muted">
-                Equipamentos mais especificados pela nossa engenharia de
-                aplicação nos últimos 90 dias.
+              <p className="mt-2 text-sm text-ink-muted">
+                Seleção dos mais procurados com Certificado de Aprovação.
               </p>
             </div>
             <Link
-              to="/contato"
-              className="inline-flex items-center gap-2 font-display text-sm font-semibold uppercase tracking-wider text-brand-navy hover:text-brand-red"
+              to="/departamento/$slug"
+              params={{ slug: "calcados" }}
+              className="text-sm font-bold text-brand-blue hover:text-brand-blue-hover"
             >
-              Cotar lista completa →
+              Ver todos →
             </Link>
           </div>
           <FeaturedProducts />
-        </Container>
+        </div>
       </section>
 
-      <Certifications />
+      <IntermediateBanners />
 
-      <CommercialCTA />
+      <TrustSignals />
     </>
   );
 }

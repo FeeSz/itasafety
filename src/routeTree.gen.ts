@@ -12,11 +12,16 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermosRouteImport } from './routes/termos'
 import { Route as SobreRouteImport } from './routes/sobre'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as QuemsomosRouteImport } from './routes/quemsomos'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
+import { Route as LocalizacaoRouteImport } from './routes/localizacao'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as CategoriasRouteImport } from './routes/categorias'
+import { Route as CarrinhoRouteImport } from './routes/carrinho'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DetalhesSkuRouteImport } from './routes/detalhes.$sku'
+import { Route as DepartamentoSlugRouteImport } from './routes/departamento.$slug'
 
 const TermosRoute = TermosRouteImport.update({
   id: '/termos',
@@ -33,9 +38,19 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
+const QuemsomosRoute = QuemsomosRouteImport.update({
+  id: '/quemsomos',
+  path: '/quemsomos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PrivacidadeRoute = PrivacidadeRouteImport.update({
   id: '/privacidade',
   path: '/privacidade',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LocalizacaoRoute = LocalizacaoRouteImport.update({
+  id: '/localizacao',
+  path: '/localizacao',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CookiesRoute = CookiesRouteImport.update({
@@ -53,85 +68,135 @@ const CategoriasRoute = CategoriasRouteImport.update({
   path: '/categorias',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CarrinhoRoute = CarrinhoRouteImport.update({
+  id: '/carrinho',
+  path: '/carrinho',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DetalhesSkuRoute = DetalhesSkuRouteImport.update({
+  id: '/detalhes/$sku',
+  path: '/detalhes/$sku',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DepartamentoSlugRoute = DepartamentoSlugRouteImport.update({
+  id: '/departamento/$slug',
+  path: '/departamento/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/carrinho': typeof CarrinhoRoute
   '/categorias': typeof CategoriasRoute
   '/contato': typeof ContatoRoute
   '/cookies': typeof CookiesRoute
+  '/localizacao': typeof LocalizacaoRoute
   '/privacidade': typeof PrivacidadeRoute
+  '/quemsomos': typeof QuemsomosRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sobre': typeof SobreRoute
   '/termos': typeof TermosRoute
+  '/departamento/$slug': typeof DepartamentoSlugRoute
+  '/detalhes/$sku': typeof DetalhesSkuRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/carrinho': typeof CarrinhoRoute
   '/categorias': typeof CategoriasRoute
   '/contato': typeof ContatoRoute
   '/cookies': typeof CookiesRoute
+  '/localizacao': typeof LocalizacaoRoute
   '/privacidade': typeof PrivacidadeRoute
+  '/quemsomos': typeof QuemsomosRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sobre': typeof SobreRoute
   '/termos': typeof TermosRoute
+  '/departamento/$slug': typeof DepartamentoSlugRoute
+  '/detalhes/$sku': typeof DetalhesSkuRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/carrinho': typeof CarrinhoRoute
   '/categorias': typeof CategoriasRoute
   '/contato': typeof ContatoRoute
   '/cookies': typeof CookiesRoute
+  '/localizacao': typeof LocalizacaoRoute
   '/privacidade': typeof PrivacidadeRoute
+  '/quemsomos': typeof QuemsomosRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sobre': typeof SobreRoute
   '/termos': typeof TermosRoute
+  '/departamento/$slug': typeof DepartamentoSlugRoute
+  '/detalhes/$sku': typeof DetalhesSkuRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/carrinho'
     | '/categorias'
     | '/contato'
     | '/cookies'
+    | '/localizacao'
     | '/privacidade'
+    | '/quemsomos'
     | '/sitemap.xml'
     | '/sobre'
     | '/termos'
+    | '/departamento/$slug'
+    | '/detalhes/$sku'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/carrinho'
     | '/categorias'
     | '/contato'
     | '/cookies'
+    | '/localizacao'
     | '/privacidade'
+    | '/quemsomos'
     | '/sitemap.xml'
     | '/sobre'
     | '/termos'
+    | '/departamento/$slug'
+    | '/detalhes/$sku'
   id:
     | '__root__'
     | '/'
+    | '/carrinho'
     | '/categorias'
     | '/contato'
     | '/cookies'
+    | '/localizacao'
     | '/privacidade'
+    | '/quemsomos'
     | '/sitemap.xml'
     | '/sobre'
     | '/termos'
+    | '/departamento/$slug'
+    | '/detalhes/$sku'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CarrinhoRoute: typeof CarrinhoRoute
   CategoriasRoute: typeof CategoriasRoute
   ContatoRoute: typeof ContatoRoute
   CookiesRoute: typeof CookiesRoute
+  LocalizacaoRoute: typeof LocalizacaoRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
+  QuemsomosRoute: typeof QuemsomosRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SobreRoute: typeof SobreRoute
   TermosRoute: typeof TermosRoute
+  DepartamentoSlugRoute: typeof DepartamentoSlugRoute
+  DetalhesSkuRoute: typeof DetalhesSkuRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -157,11 +222,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/quemsomos': {
+      id: '/quemsomos'
+      path: '/quemsomos'
+      fullPath: '/quemsomos'
+      preLoaderRoute: typeof QuemsomosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/privacidade': {
       id: '/privacidade'
       path: '/privacidade'
       fullPath: '/privacidade'
       preLoaderRoute: typeof PrivacidadeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/localizacao': {
+      id: '/localizacao'
+      path: '/localizacao'
+      fullPath: '/localizacao'
+      preLoaderRoute: typeof LocalizacaoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cookies': {
@@ -185,6 +264,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CategoriasRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/carrinho': {
+      id: '/carrinho'
+      path: '/carrinho'
+      fullPath: '/carrinho'
+      preLoaderRoute: typeof CarrinhoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -192,18 +278,37 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/detalhes/$sku': {
+      id: '/detalhes/$sku'
+      path: '/detalhes/$sku'
+      fullPath: '/detalhes/$sku'
+      preLoaderRoute: typeof DetalhesSkuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/departamento/$slug': {
+      id: '/departamento/$slug'
+      path: '/departamento/$slug'
+      fullPath: '/departamento/$slug'
+      preLoaderRoute: typeof DepartamentoSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CarrinhoRoute: CarrinhoRoute,
   CategoriasRoute: CategoriasRoute,
   ContatoRoute: ContatoRoute,
   CookiesRoute: CookiesRoute,
+  LocalizacaoRoute: LocalizacaoRoute,
   PrivacidadeRoute: PrivacidadeRoute,
+  QuemsomosRoute: QuemsomosRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SobreRoute: SobreRoute,
   TermosRoute: TermosRoute,
+  DepartamentoSlugRoute: DepartamentoSlugRoute,
+  DetalhesSkuRoute: DetalhesSkuRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
