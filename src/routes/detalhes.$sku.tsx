@@ -128,8 +128,9 @@ function DetalhesPage() {
             </ul>
 
             <div className="mt-8 flex items-center gap-3">
-              <label className="text-sm font-semibold text-ink">Quantidade:</label>
+              <label htmlFor="product-qty" className="text-sm font-semibold text-ink">Quantidade:</label>
               <input
+                id="product-qty"
                 type="number"
                 min={1}
                 value={qty}
