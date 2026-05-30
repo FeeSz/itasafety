@@ -5,17 +5,16 @@ import Container from "@/components/ui/Container";
 import CtaButton from "@/components/ui/CtaButton";
 import Eyebrow from "@/components/ui/Eyebrow";
 
+import { pageMeta } from "@/lib/seo";
+
 export const Route = createFileRoute("/sobre")({
-  head: () => ({
-    meta: [
-      { title: "A Empresa — ItaSafety EPI" },
-      {
-        name: "description",
-        content:
-          "Há mais de duas décadas fornecendo equipamentos de proteção individual e consultoria técnica para a indústria brasileira.",
-      },
-    ],
-  }),
+  head: () =>
+    pageMeta({
+      title: "A Empresa — ItaSafety EPI",
+      description:
+        "Há mais de duas décadas fornecendo equipamentos de proteção individual e consultoria técnica para a indústria brasileira.",
+      path: "/sobre",
+    }),
   component: AboutPage,
 });
 
