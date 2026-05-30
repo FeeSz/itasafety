@@ -3,9 +3,16 @@ import { Trash2, ShoppingCart } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useQuoteCart } from "@/components/quote/QuoteCartContext";
+import { pageMeta } from "@/lib/seo";
 
 export const Route = createFileRoute("/carrinho")({
-  head: () => ({ meta: [{ title: "Lista de Cotação — ItaSafety" }] }),
+  head: () =>
+    pageMeta({
+      title: "Lista de Cotação — ItaSafety",
+      description:
+        "Revise os EPIs selecionados e envie sua solicitação de cotação à equipe comercial da ItaSafety.",
+      path: "/carrinho",
+    }),
   component: CarrinhoPage,
 });
 
