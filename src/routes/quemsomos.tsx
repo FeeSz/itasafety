@@ -1,17 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ShieldCheck, Target, Users, Award } from "lucide-react";
+import { pageMeta } from "@/lib/seo";
 
 export const Route = createFileRoute("/quemsomos")({
-  head: () => ({
-    meta: [
-      { title: "Quem Somos — ItaSafety" },
-      {
-        name: "description",
-        content:
-          "Conheça a ItaSafety: distribuidora de Equipamentos de Proteção Individual com foco em qualidade, certificação e atendimento técnico para indústrias.",
-      },
-    ],
-  }),
+  head: () =>
+    pageMeta({
+      title: "Quem Somos — ItaSafety",
+      description:
+        "Conheça a ItaSafety: distribuidora de Equipamentos de Proteção Individual com foco em qualidade, certificação e atendimento técnico para indústrias.",
+      path: "/quemsomos",
+    }),
   component: QuemSomosPage,
 });
 
