@@ -2,17 +2,16 @@ import { createFileRoute } from "@tanstack/react-router";
 import PageHero from "@/components/ui/PageHero";
 import Container from "@/components/ui/Container";
 
+import { pageMeta } from "@/lib/seo";
+
 export const Route = createFileRoute("/termos")({
-  head: () => ({
-    meta: [
-      { title: "Termos de Uso — ItaSafety" },
-      {
-        name: "description",
-        content:
-          "Termos de uso do site institucional ItaSafety e regras de envio de cotação.",
-      },
-    ],
-  }),
+  head: () =>
+    pageMeta({
+      title: "Termos de Uso — ItaSafety",
+      description:
+        "Termos de uso do site institucional ItaSafety e regras de envio de cotação.",
+      path: "/termos",
+    }),
   component: TermsPage,
 });
 
