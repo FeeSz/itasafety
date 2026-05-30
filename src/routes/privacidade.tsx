@@ -2,17 +2,16 @@ import { createFileRoute } from "@tanstack/react-router";
 import PageHero from "@/components/ui/PageHero";
 import Container from "@/components/ui/Container";
 
+import { pageMeta } from "@/lib/seo";
+
 export const Route = createFileRoute("/privacidade")({
-  head: () => ({
-    meta: [
-      { title: "Política de Privacidade — ItaSafety" },
-      {
-        name: "description",
-        content:
-          "Como a ItaSafety coleta, trata e protege seus dados pessoais conforme a Lei Geral de Proteção de Dados (LGPD).",
-      },
-    ],
-  }),
+  head: () =>
+    pageMeta({
+      title: "Política de Privacidade — ItaSafety",
+      description:
+        "Como a ItaSafety coleta, trata e protege seus dados pessoais conforme a Lei Geral de Proteção de Dados (LGPD).",
+      path: "/privacidade",
+    }),
   component: PrivacyPage,
 });
 
