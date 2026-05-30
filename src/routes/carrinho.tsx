@@ -78,6 +78,7 @@ function CarrinhoPage() {
                         type="number"
                         min={1}
                         value={i.qty}
+                        aria-label={`Quantidade de ${i.name}`}
                         onChange={(e) => setQty(i.sku, parseInt(e.target.value || "1", 10))}
                         className="w-20 rounded-md border border-hairline px-3 py-1.5 text-sm"
                       />
