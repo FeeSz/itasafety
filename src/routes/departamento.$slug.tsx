@@ -6,21 +6,27 @@ import { useQuoteCart } from "@/components/quote/QuoteCartContext";
 import { ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 
+import { pageMeta } from "@/lib/seo";
+
 export const Route = createFileRoute("/departamento/$slug")({
   loader: ({ params }) => {
     const cat = CATEGORIES.find((c) => c.slug === params.slug);
     if (!cat) throw notFound();
     return { cat };
   },
-  head: ({ loaderData }) => ({
-    meta: [
-      {
-        title: loaderData
-          ? `${loaderData.cat.title} — ItaSafety`
-          : "Categoria — ItaSafety",
-      },
-    ],
-  }),
+  head: ({ loaderData, params }) => {
+    const title = loaderData
+      ? `${loaderData.cat.title} — EPIs ItaSafety`
+      : "Categoria — ItaSafety";
+    const description = loaderData
+      ? `${loaderData.cat.title}: EPIs certificados (CA ativo) com pronta entrega para indústrias. Solicite cotação na ItaSafety.`
+      : "Categoria de EPIs ItaSafety.";
+    return pageMeta({
+      title,
+      description,
+      path: `/departamento/${params.slug}`,
+    });
+  },
   errorComponent: ({ error }) => (
     <div className="mx-auto max-w-3xl p-10 text-center">
       <p className="text-ink-muted">{error.message}</p>
