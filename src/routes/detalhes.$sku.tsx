@@ -4,6 +4,7 @@ import { ChevronRight, ShoppingCart, ShieldCheck, Truck, Award, Check } from "lu
 import { FEATURED_PRODUCTS } from "@/lib/products";
 import { useQuoteCart } from "@/components/quote/QuoteCartContext";
 import { toast } from "sonner";
+import { pageMeta, SITE_URL, abs } from "@/lib/seo";
 
 export const Route = createFileRoute("/detalhes/$sku")({
   loader: ({ params }) => {
@@ -11,13 +12,56 @@ export const Route = createFileRoute("/detalhes/$sku")({
     if (!product) throw notFound();
     return { product };
   },
-  head: ({ loaderData }) => ({
-    meta: [
-      {
-        title: loaderData ? `${loaderData.product.name} — ItaSafety` : "Produto",
-      },
-    ],
-  }),
+  head: ({ loaderData, params }) => {
+    if (!loaderData) {
+      return pageMeta({
+        title: "Produto — ItaSafety",
+        description: "Detalhes do produto na ItaSafety.",
+        path: `/detalhes/${params.sku}`,
+      });
+    }
+    const { product } = loaderData;
+    const image = abs(product.image);
+    const base = pageMeta({
+      title: `${product.name} (CA ${product.ca}) — ItaSafety`,
+      description: product.description,
+      path: `/detalhes/${params.sku}`,
+      image,
+      type: "product",
+    });
+    return {
+      ...base,
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Product",
+            name: product.name,
+            sku: product.sku,
+            description: product.description,
+            image,
+            category: product.category,
+            brand: { "@type": "Brand", name: "ItaSafety" },
+            additionalProperty: [
+              { "@type": "PropertyValue", name: "CA", value: product.ca },
+            ],
+            offers: {
+              "@type": "Offer",
+              url: `${SITE_URL}/detalhes/${product.sku}`,
+              availability: "https://schema.org/InStock",
+              priceCurrency: "BRL",
+              priceSpecification: {
+                "@type": "PriceSpecification",
+                priceCurrency: "BRL",
+                description: "Sob cotação",
+              },
+            },
+          }),
+        },
+      ],
+    };
+  },
   errorComponent: ({ error }) => <div className="p-10 text-center">{error.message}</div>,
   notFoundComponent: () => (
     <div className="p-10 text-center">
@@ -84,8 +128,9 @@ function DetalhesPage() {
             </ul>
 
             <div className="mt-8 flex items-center gap-3">
-              <label className="text-sm font-semibold text-ink">Quantidade:</label>
+              <label htmlFor="product-qty" className="text-sm font-semibold text-ink">Quantidade:</label>
               <input
+                id="product-qty"
                 type="number"
                 min={1}
                 value={qty}

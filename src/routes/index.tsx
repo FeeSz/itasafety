@@ -4,20 +4,53 @@ import CategoryGrid from "@/components/sections/CategoryGrid";
 import FeaturedProducts from "@/components/sections/FeaturedProducts";
 import IntermediateBanners from "@/components/sections/IntermediateBanners";
 import TrustSignals from "@/components/sections/TrustSignals";
+import { pageMeta, SITE_URL } from "@/lib/seo";
+
+const HOME_DESC =
+  "Distribuidora de EPIs com produtos certificados pelo MTE. Calçados, luvas, capacetes, proteção visual, respiratória e auditiva para empresas de todo o Brasil.";
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "ItaSafety — Equipamentos de Proteção Individual (EPI)" },
-      {
-        name: "description",
-        content:
-          "Distribuidora de EPIs com produtos certificados pelo MTE. Calçados, luvas, capacetes, proteção visual, respiratória e auditiva para empresas de todo o Brasil.",
-      },
-    ],
-  }),
+  head: () => {
+    const base = pageMeta({
+      title: "ItaSafety — Equipamentos de Proteção Individual (EPI)",
+      description: HOME_DESC,
+      path: "/",
+    });
+    return {
+      ...base,
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@graph": [
+              {
+                "@type": "Organization",
+                name: "ItaSafety",
+                url: SITE_URL,
+                logo: `${SITE_URL}/favicon-mark.png`,
+                contactPoint: {
+                  "@type": "ContactPoint",
+                  telephone: "+55-11-2626-7417",
+                  contactType: "sales",
+                  areaServed: "BR",
+                  availableLanguage: "Portuguese",
+                },
+              },
+              {
+                "@type": "WebSite",
+                name: "ItaSafety",
+                url: SITE_URL,
+              },
+            ],
+          }),
+        },
+      ],
+    };
+  },
   component: HomePage,
 });
+
 
 function HomePage() {
   return (

@@ -1,13 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CATEGORIES } from "@/lib/categories";
+import { pageMeta } from "@/lib/seo";
 
 export const Route = createFileRoute("/categorias")({
-  head: () => ({
-    meta: [
-      { title: "Categorias — ItaSafety" },
-      { name: "description", content: "Todas as categorias de EPI da ItaSafety." },
-    ],
-  }),
+  head: () =>
+    pageMeta({
+      title: "Categorias de EPI — ItaSafety",
+      description:
+        "Navegue pelo catálogo completo de EPIs ItaSafety: calçados, luvas, capacetes, proteção visual, respiratória, auditiva e mais.",
+      path: "/categorias",
+    }),
   component: CategoriesPage,
 });
 

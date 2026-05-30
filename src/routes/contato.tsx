@@ -4,17 +4,16 @@ import PageHero from "@/components/ui/PageHero";
 import QuoteForm from "@/components/forms/QuoteForm";
 import Container from "@/components/ui/Container";
 
+import { pageMeta } from "@/lib/seo";
+
 export const Route = createFileRoute("/contato")({
-  head: () => ({
-    meta: [
-      { title: "Solicitar Orçamento — ItaSafety" },
-      {
-        name: "description",
-        content:
-          "Fale com um engenheiro de aplicação ItaSafety. Cotação técnica, levantamento de risco e atendimento corporativo para indústrias.",
-      },
-    ],
-  }),
+  head: () =>
+    pageMeta({
+      title: "Solicitar Orçamento — ItaSafety",
+      description:
+        "Fale com um engenheiro de aplicação ItaSafety. Cotação técnica, levantamento de risco e atendimento corporativo para indústrias.",
+      path: "/contato",
+    }),
   component: ContactPage,
 });
 

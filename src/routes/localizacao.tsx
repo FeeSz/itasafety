@@ -1,13 +1,44 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { MapPin, Clock, Phone, Mail } from "lucide-react";
+import { pageMeta, SITE_URL } from "@/lib/seo";
 
 export const Route = createFileRoute("/localizacao")({
-  head: () => ({
-    meta: [
-      { title: "Localização — ItaSafety" },
-      { name: "description", content: "Onde estamos e como nos encontrar." },
-    ],
-  }),
+  head: () => {
+    const base = pageMeta({
+      title: "Localização e Contato — ItaSafety",
+      description:
+        "Endereço, horário de atendimento, telefone e e-mail da ItaSafety. Atendemos empresas em todo o Brasil.",
+      path: "/localizacao",
+    });
+    return {
+      ...base,
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "LocalBusiness",
+            name: "ItaSafety",
+            url: SITE_URL,
+            telephone: "+55-11-2626-7417",
+            email: "contato@itasafety.com.br",
+            address: {
+              "@type": "PostalAddress",
+              addressLocality: "São Paulo",
+              addressRegion: "SP",
+              addressCountry: "BR",
+            },
+            openingHoursSpecification: {
+              "@type": "OpeningHoursSpecification",
+              dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+              opens: "08:00",
+              closes: "18:00",
+            },
+          }),
+        },
+      ],
+    };
+  },
   component: LocalizacaoPage,
 });
 

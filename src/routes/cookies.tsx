@@ -2,17 +2,16 @@ import { createFileRoute } from "@tanstack/react-router";
 import PageHero from "@/components/ui/PageHero";
 import Container from "@/components/ui/Container";
 
+import { pageMeta } from "@/lib/seo";
+
 export const Route = createFileRoute("/cookies")({
-  head: () => ({
-    meta: [
-      { title: "Política de Cookies — ItaSafety" },
-      {
-        name: "description",
-        content:
-          "Detalhamento dos cookies utilizados pelo site ItaSafety e como gerenciar suas preferências.",
-      },
-    ],
-  }),
+  head: () =>
+    pageMeta({
+      title: "Política de Cookies — ItaSafety",
+      description:
+        "Detalhamento dos cookies utilizados pelo site ItaSafety e como gerenciar suas preferências.",
+      path: "/cookies",
+    }),
   component: CookiesPage,
 });
 

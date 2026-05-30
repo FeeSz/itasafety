@@ -1,0 +1,28 @@
+# ItaSafety
+
+> Distribuidora brasileira de Equipamentos de Proteção Individual (EPI) com produtos certificados pelo MTE. Atendimento técnico para indústrias em todo o Brasil.
+
+A ItaSafety fornece EPIs com Certificado de Aprovação (CA) ativo — calçados, luvas, capacetes, proteção visual, respiratória, auditiva, vestimentas e equipamentos para solda. Atendemos empresas com cotação técnica, engenharia de aplicação e entrega nacional.
+
+## Pages
+
+- [Home](/): Visão geral do catálogo e destaques.
+- [Categorias](/categorias): Todas as categorias de EPI.
+- [A Empresa](/sobre): História, missão e compromissos técnicos.
+- [Quem Somos](/quemsomos): Missão, visão, valores e atendimento.
+- [Contato](/contato): Solicitar orçamento e falar com a engenharia.
+- [Localização](/localizacao): Endereço, horário e contatos.
+- [Política de Privacidade](/privacidade): Tratamento de dados conforme LGPD.
+- [Termos de Uso](/termos): Regras de uso do site.
+- [Política de Cookies](/cookies): Cookies utilizados e preferências.
+
+## Categorias
+
+- [Calçados](/departamento/calcados): Botinas, botas PVC, palmilhas, sapatos sociais.
+- [Capacetes](/departamento/capacetes): Capacetes classe A e B.
+- [Luvas](/departamento/luvas): Nitrílica, látex, neoprene, raspa, vaqueta, malha.
+- [Proteção Visual](/departamento/protecao-visual): Óculos de segurança e ampla visão.
+- [Proteção Respiratória](/departamento/protecao-respiratoria): Respiradores e filtros.
+- [Proteção Auditiva](/departamento/protecao-auditiva): Plugs e abafadores.
+- [Solda e Facial](/departamento/solda-facial): Óculos e máscaras de solda.
+- [Vestimenta de Proteção](/departamento/vestimenta-de-protecao): Vestimentas industriais.
