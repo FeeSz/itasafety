@@ -88,6 +88,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         name: "google-site-verification",
         content: "0Lcl1ACMKo_ErTp0ZMeCJVE9eh-d4pHxxsPUKes77Og",
       },
+      { property: "og:title", content: "ITASAFETY - Equipamentos de Proteção Individual Ltda" },
+      { name: "twitter:title", content: "ITASAFETY - Equipamentos de Proteção Individual Ltda" },
+      { name: "description", content: "ItaSafety - Equipamentos de proteção individual. Fornecemos as melhores marcas com a melhor qualidade e toda atenção que nossos clientes merecem." },
+      { property: "og:description", content: "ItaSafety - Equipamentos de proteção individual. Fornecemos as melhores marcas com a melhor qualidade e toda atenção que nossos clientes merecem." },
+      { name: "twitter:description", content: "ItaSafety - Equipamentos de proteção individual. Fornecemos as melhores marcas com a melhor qualidade e toda atenção que nossos clientes merecem." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/1ab0672f-beb8-43f3-b9c9-967b0d2d7287/id-preview-aa10ea5d--da39f44e-909c-475c-b71a-c8842452812c.lovable.app-1780193247403.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/1ab0672f-beb8-43f3-b9c9-967b0d2d7287/id-preview-aa10ea5d--da39f44e-909c-475c-b71a-c8842452812c.lovable.app-1780193247403.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
