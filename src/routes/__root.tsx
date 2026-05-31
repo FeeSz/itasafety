@@ -70,9 +70,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 const SITE_DESCRIPTION =
-  "Distribuição enterprise de EPIs e consultoria técnica em segurança do trabalho. Conformidade NR-06, NR-10, NR-35 e ISO 9001 para a indústria brasileira desde 1998.";
-const OG_IMAGE =
-  "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/808c6a51-aad4-49c1-b310-c84e2a3dbef0/id-preview-2fc68a0b--da39f44e-909c-475c-b71a-c8842452812c.lovable.app-1779822655037.png";
+  "Distribuição de EPIs e consultoria técnica em segurança do trabalho — NR-06, NR-10, NR-35 e ISO 9001 para a indústria brasileira.";
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
@@ -82,20 +80,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "theme-color", content: "#ffffff" },
       { title: "ITASAFETY - Equipamentos de Proteção Individual Ltda" },
       { name: "description", content: SITE_DESCRIPTION },
-      { property: "og:title", content: "ITASAFETY - Equipamentos de Proteção Individual Ltda" },
-      { property: "og:description", content: SITE_DESCRIPTION },
+      { property: "og:site_name", content: "ItaSafety" },
       { property: "og:type", content: "website" },
       { property: "og:locale", content: "pt_BR" },
-      { property: "og:image", content: OG_IMAGE },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "ITASAFETY - Equipamentos de Proteção Individual Ltda" },
-      { name: "twitter:description", content: SITE_DESCRIPTION },
-      { name: "twitter:image", content: OG_IMAGE },
-      { name: "description", content: "ItaSafety - Equipamentos de proteção individual. Fornecemos as melhores marcas com a melhor qualidade e toda atenção que nossos clientes merecem." },
-      { property: "og:description", content: "ItaSafety - Equipamentos de proteção individual. Fornecemos as melhores marcas com a melhor qualidade e toda atenção que nossos clientes merecem." },
-      { name: "twitter:description", content: "ItaSafety - Equipamentos de proteção individual. Fornecemos as melhores marcas com a melhor qualidade e toda atenção que nossos clientes merecem." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/67b5f5d8-e410-43da-abde-d3dc41161359/id-preview-3a622ab3--da39f44e-909c-475c-b71a-c8842452812c.lovable.app-1780103515912.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/67b5f5d8-e410-43da-abde-d3dc41161359/id-preview-3a622ab3--da39f44e-909c-475c-b71a-c8842452812c.lovable.app-1780103515912.png" },
+      {
+        name: "google-site-verification",
+        content: "0Lcl1ACMKo_ErTp0ZMeCJVE9eh-d4pHxxsPUKes77Og",
+      },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
