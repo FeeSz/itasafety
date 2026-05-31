@@ -17,7 +17,7 @@ export default function Logo({ className = "", onDark = false }: LogoProps) {
         alt="ItaSafety"
         width={280}
         height={88}
-        className="h-16 w-auto md:h-20 lg:h-24 transition-transform duration-300 group-hover:scale-[1.02]"
+        className="h-10 w-auto sm:h-12 md:h-16 lg:h-20 transition-transform duration-300 group-hover:scale-[1.02]"
         style={{ objectFit: "contain" }}
       />
     </a>
