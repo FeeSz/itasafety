@@ -10,12 +10,14 @@ export function pageMeta(opts: {
   path: string;
   image?: string;
   type?: "website" | "article" | "product";
+  noindex?: boolean;
 }) {
   const url = abs(opts.path);
   return {
     meta: [
       { title: opts.title },
       { name: "description", content: opts.description },
+      ...(opts.noindex ? [{ name: "robots", content: "noindex, nofollow" }] : []),
       { property: "og:title", content: opts.title },
       { property: "og:description", content: opts.description },
       { property: "og:url", content: url },

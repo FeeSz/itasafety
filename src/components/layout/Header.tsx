@@ -38,22 +38,24 @@ export default function Header() {
 
   return (
     <header
-      className={`sticky top-0 z-50 transition-shadow duration-200 ${scrolled ? "shadow-strong" : ""}`}
+      className={`sticky top-0 z-50 bg-white transition-shadow duration-200 ${
+        scrolled ? "shadow-card" : ""
+      }`}
     >
       <AnnouncementBar />
 
-      {/* Main header */}
-      <div className="bg-header-dark text-white">
-        <div className="mx-auto flex h-[72px] max-w-7xl items-center gap-4 px-4 md:px-6">
-          <Logo onDark className="shrink-0" />
+      {/* Main header — light */}
+      <div className="border-b border-hairline bg-white">
+        <div className="mx-auto flex min-h-[96px] max-w-7xl items-center gap-6 px-4 py-3 md:px-6 md:py-4">
+          <Logo className="shrink-0" />
 
           {/* Search (desktop) */}
           <form
             onSubmit={onSearchSubmit}
-            className="mx-4 hidden flex-1 md:flex"
+            className="mx-2 hidden flex-1 md:flex"
             role="search"
           >
-            <div className="flex w-full overflow-hidden rounded-md border-2 border-hairline bg-white focus-within:border-brand-blue focus-within:shadow-[0_0_0_3px_rgba(27,79,138,0.15)]">
+            <div className="flex w-full overflow-hidden rounded-md border-2 border-hairline bg-white transition-colors focus-within:border-brand-blue focus-within:shadow-[0_0_0_3px_rgba(27,79,138,0.12)]">
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -73,10 +75,10 @@ export default function Header() {
           </form>
 
           {/* Right zone */}
-          <div className="ml-auto flex items-center gap-2 md:gap-4">
+          <div className="ml-auto flex items-center gap-1 md:gap-2">
             <Link
-              to="/contato"
-              className="hidden items-center gap-2 rounded-md px-3 py-2 text-xs text-white/90 transition-colors hover:bg-white/10 md:flex"
+              to="/auth"
+              className="hidden items-center gap-2 rounded-md px-3 py-2 text-xs text-ink-muted transition-colors hover:bg-surface-sunken hover:text-brand-blue md:flex"
             >
               <User className="size-5" />
               <span className="font-medium">Entrar ou Cadastrar</span>
@@ -84,12 +86,12 @@ export default function Header() {
             <button
               type="button"
               onClick={() => setCartOpen(true)}
-              className="relative grid size-11 place-items-center rounded-md text-white hover:bg-white/10"
+              className="relative grid size-11 place-items-center rounded-md text-ink-muted transition-colors hover:bg-surface-sunken hover:text-brand-blue"
               aria-label={`Carrinho de cotação (${count} itens)`}
             >
               <ShoppingCart className="size-5" />
               {count > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 grid h-5 min-w-5 place-items-center rounded-full bg-brand-red px-1 text-[10px] font-bold leading-none">
+                <span className="absolute -right-0.5 -top-0.5 grid h-5 min-w-5 place-items-center rounded-full bg-brand-red px-1 text-[10px] font-bold leading-none text-white">
                   {count}
                 </span>
               )}
@@ -97,7 +99,7 @@ export default function Header() {
             <button
               type="button"
               onClick={() => setDrawer(true)}
-              className="grid size-11 place-items-center rounded-md text-white hover:bg-white/10 md:hidden"
+              className="grid size-11 place-items-center rounded-md text-ink-muted hover:bg-surface-sunken md:hidden"
               aria-label="Abrir menu"
             >
               <Menu className="size-6" />
@@ -127,13 +129,13 @@ export default function Header() {
         </form>
       </div>
 
-      {/* Categories nav bar */}
+      {/* Categories nav bar — accent strip */}
       <div className="hidden bg-brand-blue text-white md:block">
         <div className="mx-auto flex h-11 max-w-7xl items-center gap-6 px-6">
           <button
             type="button"
             onClick={() => setMega(true)}
-            className="flex items-center gap-2 rounded-sm bg-black/20 px-4 py-1.5 text-[12px] font-bold uppercase tracking-wider transition-colors hover:bg-black/35"
+            className="flex items-center gap-2 rounded-sm bg-black/15 px-4 py-1.5 text-[12px] font-bold uppercase tracking-wider transition-colors hover:bg-black/30"
           >
             <Menu className="size-4" />
             Todas as Categorias
@@ -148,7 +150,7 @@ export default function Header() {
                   <Link
                     to="/departamento/$slug"
                     params={{ slug }}
-                    className="block rounded px-3 py-1.5 font-medium text-white/95 transition-colors hover:bg-white/10 hover:text-brand-blue-soft"
+                    className="block rounded px-3 py-1.5 font-medium text-white/95 transition-colors hover:bg-white/10"
                   >
                     {cat.title}
                   </Link>
@@ -171,12 +173,12 @@ export default function Header() {
             className="absolute inset-0 bg-black/60 animate-fade-in"
           />
           <div className="absolute right-0 top-0 flex h-full w-[85%] max-w-sm flex-col bg-white animate-fade-in">
-            <div className="flex items-center justify-between border-b border-hairline bg-header-dark p-4 text-white">
-              <Logo onDark />
+            <div className="flex items-center justify-between border-b border-hairline bg-white p-4">
+              <Logo />
               <button
                 type="button"
                 onClick={() => setDrawer(false)}
-                className="grid size-10 place-items-center text-white"
+                className="grid size-10 place-items-center text-ink-muted"
                 aria-label="Fechar"
               >
                 <X className="size-6" />
@@ -212,6 +214,7 @@ export default function Header() {
                 <li><Link to="/localizacao" onClick={() => setDrawer(false)} className="block py-2 text-ink">Localização</Link></li>
                 <li><Link to="/contato" onClick={() => setDrawer(false)} className="block py-2 text-ink">Contato</Link></li>
                 <li><Link to="/carrinho" onClick={() => setDrawer(false)} className="block py-2 text-ink">Lista de Cotação</Link></li>
+                <li><Link to="/auth" onClick={() => setDrawer(false)} className="block py-2 text-brand-blue font-semibold">Entrar / Cadastrar</Link></li>
               </ul>
             </div>
           </div>
