@@ -5,7 +5,7 @@ type LogoProps = {
   onDark?: boolean;
 };
 
-export default function Logo({ className = "", onDark = false }: LogoProps) {
+export default function Logo({ className = "" }: LogoProps) {
   return (
     <a
       href="/"
@@ -15,9 +15,9 @@ export default function Logo({ className = "", onDark = false }: LogoProps) {
       <img
         src={logoSrc}
         alt="ItaSafety"
-        width={280}
-        height={88}
-        className="h-10 w-auto sm:h-12 md:h-16 lg:h-20 transition-transform duration-300 group-hover:scale-[1.02]"
+        width={320}
+        height={104}
+        className="h-12 w-auto sm:h-14 md:h-20 lg:h-24 transition-transform duration-300 group-hover:scale-[1.02]"
         style={{ objectFit: "contain" }}
       />
     </a>

@@ -66,19 +66,19 @@ function ProductCard({ p }: { p: Product }) {
   const isNew = p.tags?.includes("novo");
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-xl border border-hairline bg-white shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lift">
-      <div className="relative aspect-square overflow-hidden bg-surface-sunken p-4">
+    <article className="group flex flex-col overflow-hidden rounded-xl border border-hairline bg-white shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-blue-soft hover:shadow-lift">
+      <div className="relative aspect-square overflow-hidden bg-white p-5">
         <img
           src={p.image}
           alt={p.name}
           loading="lazy"
-          className="size-full object-contain transition-transform duration-500 group-hover:scale-105"
+          className="size-full object-contain mix-blend-multiply transition-transform duration-500 group-hover:scale-105"
         />
         <span className="absolute left-3 top-3 rounded-sm bg-brand-blue px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
           CA Aprovado
         </span>
         {isNew && (
-          <span className="absolute right-3 top-3 rounded-sm bg-green-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+          <span className="absolute right-3 top-3 rounded-sm bg-brand-red px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
             Novo
           </span>
         )}
