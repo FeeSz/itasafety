@@ -170,6 +170,7 @@ function BrandsAdmin() {
       </div>
 
       <BrandDialog
+        key={editing?.id ?? (creating ? "new" : "closed")}
         open={creating || !!editing}
         row={editing}
         onClose={() => {
