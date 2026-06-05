@@ -164,6 +164,7 @@ function CategoriesAdmin() {
       </div>
 
       <CategoryDialog
+        key={editing?.id ?? (creating ? "new" : "closed")}
         open={creating || !!editing}
         row={editing}
         onClose={() => {
