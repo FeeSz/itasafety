@@ -220,13 +220,7 @@ function BrandDialog({
   const [active, setActive] = useState(row?.active ?? true);
   const [saving, setSaving] = useState(false);
 
-  useState(() => {
-    setName(row?.name ?? "");
-    setSlug(row?.slug ?? "");
-    setLogoUrl(row?.logo_url ?? "");
-    setSortOrder(row?.sort_order ?? 0);
-    setActive(row?.active ?? true);
-  });
+
 
   const save = async () => {
     if (!name.trim()) return toast.error("Nome obrigatório.");
