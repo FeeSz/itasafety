@@ -216,14 +216,6 @@ function CategoryDialog({
   const [active, setActive] = useState(row?.active ?? true);
   const [saving, setSaving] = useState(false);
 
-  // reset on open
-  useState(() => {
-    setName(row?.name ?? "");
-    setSlug(row?.slug ?? "");
-    setDescription(row?.description ?? "");
-    setSortOrder(row?.sort_order ?? 0);
-    setActive(row?.active ?? true);
-  });
 
   const save = async () => {
     if (!name.trim()) return toast.error("Nome obrigatório.");
