@@ -159,6 +159,22 @@
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
   }
+  .input {
+    display: block;
+    width: 100%;
+    border-radius: 6px;
+    border: 1px solid var(--hairline);
+    background-color: white;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 150ms, box-shadow 150ms;
+  }
+  .input:focus {
+    border-color: var(--brand-blue);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--brand-blue) 15%, transparent);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

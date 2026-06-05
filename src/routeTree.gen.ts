@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermosRouteImport } from './routes/termos'
 import { Route as SobreRouteImport } from './routes/sobre'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as QuemsomosRouteImport } from './routes/quemsomos'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as LocalizacaoRouteImport } from './routes/localizacao'
@@ -26,6 +27,8 @@ import { Route as DetalhesSkuRouteImport } from './routes/detalhes.$sku'
 import { Route as DepartamentoSlugRouteImport } from './routes/departamento.$slug'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
+import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_authenticated/admin/categories'
+import { Route as AuthenticatedAdminBrandsRouteImport } from './routes/_authenticated/admin/brands'
 
 const TermosRoute = TermosRouteImport.update({
   id: '/termos',
@@ -40,6 +43,11 @@ const SobreRoute = SobreRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const QuemsomosRoute = QuemsomosRouteImport.update({
@@ -111,6 +119,18 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRouteRoute,
 } as any)
+const AuthenticatedAdminCategoriesRoute =
+  AuthenticatedAdminCategoriesRouteImport.update({
+    id: '/categories',
+    path: '/categories',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminBrandsRoute =
+  AuthenticatedAdminBrandsRouteImport.update({
+    id: '/brands',
+    path: '/brands',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -122,12 +142,15 @@ export interface FileRoutesByFullPath {
   '/localizacao': typeof LocalizacaoRoute
   '/privacidade': typeof PrivacidadeRoute
   '/quemsomos': typeof QuemsomosRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sobre': typeof SobreRoute
   '/termos': typeof TermosRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/departamento/$slug': typeof DepartamentoSlugRoute
   '/detalhes/$sku': typeof DetalhesSkuRoute
+  '/admin/brands': typeof AuthenticatedAdminBrandsRoute
+  '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesByTo {
@@ -140,11 +163,14 @@ export interface FileRoutesByTo {
   '/localizacao': typeof LocalizacaoRoute
   '/privacidade': typeof PrivacidadeRoute
   '/quemsomos': typeof QuemsomosRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sobre': typeof SobreRoute
   '/termos': typeof TermosRoute
   '/departamento/$slug': typeof DepartamentoSlugRoute
   '/detalhes/$sku': typeof DetalhesSkuRoute
+  '/admin/brands': typeof AuthenticatedAdminBrandsRoute
+  '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesById {
@@ -159,12 +185,15 @@ export interface FileRoutesById {
   '/localizacao': typeof LocalizacaoRoute
   '/privacidade': typeof PrivacidadeRoute
   '/quemsomos': typeof QuemsomosRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sobre': typeof SobreRoute
   '/termos': typeof TermosRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/departamento/$slug': typeof DepartamentoSlugRoute
   '/detalhes/$sku': typeof DetalhesSkuRoute
+  '/_authenticated/admin/brands': typeof AuthenticatedAdminBrandsRoute
+  '/_authenticated/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRouteTypes {
@@ -179,12 +208,15 @@ export interface FileRouteTypes {
     | '/localizacao'
     | '/privacidade'
     | '/quemsomos'
+    | '/reset-password'
     | '/sitemap.xml'
     | '/sobre'
     | '/termos'
     | '/admin'
     | '/departamento/$slug'
     | '/detalhes/$sku'
+    | '/admin/brands'
+    | '/admin/categories'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -197,11 +229,14 @@ export interface FileRouteTypes {
     | '/localizacao'
     | '/privacidade'
     | '/quemsomos'
+    | '/reset-password'
     | '/sitemap.xml'
     | '/sobre'
     | '/termos'
     | '/departamento/$slug'
     | '/detalhes/$sku'
+    | '/admin/brands'
+    | '/admin/categories'
     | '/admin'
   id:
     | '__root__'
@@ -215,12 +250,15 @@ export interface FileRouteTypes {
     | '/localizacao'
     | '/privacidade'
     | '/quemsomos'
+    | '/reset-password'
     | '/sitemap.xml'
     | '/sobre'
     | '/termos'
     | '/_authenticated/admin'
     | '/departamento/$slug'
     | '/detalhes/$sku'
+    | '/_authenticated/admin/brands'
+    | '/_authenticated/admin/categories'
     | '/_authenticated/admin/'
   fileRoutesById: FileRoutesById
 }
@@ -235,6 +273,7 @@ export interface RootRouteChildren {
   LocalizacaoRoute: typeof LocalizacaoRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
   QuemsomosRoute: typeof QuemsomosRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SobreRoute: typeof SobreRoute
   TermosRoute: typeof TermosRoute
@@ -263,6 +302,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/quemsomos': {
@@ -363,15 +409,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/categories': {
+      id: '/_authenticated/admin/categories'
+      path: '/categories'
+      fullPath: '/admin/categories'
+      preLoaderRoute: typeof AuthenticatedAdminCategoriesRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/brands': {
+      id: '/_authenticated/admin/brands'
+      path: '/brands'
+      fullPath: '/admin/brands'
+      preLoaderRoute: typeof AuthenticatedAdminBrandsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
   }
 }
 
 interface AuthenticatedAdminRouteRouteChildren {
+  AuthenticatedAdminBrandsRoute: typeof AuthenticatedAdminBrandsRoute
+  AuthenticatedAdminCategoriesRoute: typeof AuthenticatedAdminCategoriesRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
   {
+    AuthenticatedAdminBrandsRoute: AuthenticatedAdminBrandsRoute,
+    AuthenticatedAdminCategoriesRoute: AuthenticatedAdminCategoriesRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   }
 
@@ -402,6 +466,7 @@ const rootRouteChildren: RootRouteChildren = {
   LocalizacaoRoute: LocalizacaoRoute,
   PrivacidadeRoute: PrivacidadeRoute,
   QuemsomosRoute: QuemsomosRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SobreRoute: SobreRoute,
   TermosRoute: TermosRoute,
@@ -411,13 +476,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
