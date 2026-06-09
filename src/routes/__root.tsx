@@ -16,6 +16,7 @@ import CtaButton from "@/components/ui/CtaButton";
 import Eyebrow from "@/components/ui/Eyebrow";
 import { QuoteCartProvider } from "@/components/quote/QuoteCartContext";
 import QuoteFab from "@/components/quote/QuoteFab";
+import WhatsAppFab from "@/components/ui/WhatsAppFab";
 import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
@@ -145,6 +146,7 @@ function RootComponent() {
         <Footer />
         <CookieBanner />
         <QuoteFab />
+        <WhatsAppFab />
         <Toaster position="top-right" />
       </QuoteCartProvider>
     </QueryClientProvider>
