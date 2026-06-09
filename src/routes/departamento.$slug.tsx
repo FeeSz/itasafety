@@ -123,7 +123,7 @@ function DepartamentoPage() {
 
   const setSearch = (next: Partial<DepartamentoSearch>) => {
     navigate({
-      search: (prev) => ({ ...prev, ...next }),
+      search: (prev: DepartamentoSearch) => ({ ...prev, ...next }),
       replace: true,
     });
   };
@@ -174,7 +174,7 @@ function DepartamentoPage() {
               {!search.sub && <Check className="size-3.5" />}
             </button>
           </li>
-          {(cat.subcategories ?? []).map((s) => {
+          {(cat.subcategories ?? []).map((s: string) => {
             const isActive = search.sub === s;
             return (
               <li key={s}>
