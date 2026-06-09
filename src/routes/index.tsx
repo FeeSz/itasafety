@@ -2,8 +2,14 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import HeroSlider from "@/components/sections/HeroSlider";
 import CategoryGrid from "@/components/sections/CategoryGrid";
 import FeaturedProducts from "@/components/sections/FeaturedProducts";
+import WhatsAppBanner from "@/components/sections/WhatsAppBanner";
 import IntermediateBanners from "@/components/sections/IntermediateBanners";
+import PartnersStrip from "@/components/sections/PartnersStrip";
+import Differentials from "@/components/sections/Differentials";
+import Certifications from "@/components/sections/Certifications";
 import TrustSignals from "@/components/sections/TrustSignals";
+import CommercialCTA from "@/components/sections/CommercialCTA";
+import Reveal from "@/components/ui/Reveal";
 import { pageMeta, SITE_URL } from "@/lib/seo";
 
 const HOME_DESC =
@@ -57,48 +63,81 @@ function HomePage() {
     <>
       <HeroSlider />
 
+      {/* Trust signals first — establish confiança */}
+      <Reveal>
+        <TrustSignals />
+      </Reveal>
+
       {/* Categorias */}
       <section className="bg-white py-14">
         <div className="mx-auto max-w-7xl px-6">
-          <div className="mb-8 flex items-end justify-between gap-4">
-            <div>
-              <h2 className="text-2xl font-extrabold text-ink md:text-3xl">
-                Navegue por Categoria
-              </h2>
-              <span className="mt-2 block h-[3px] w-10 bg-brand-blue" />
+          <Reveal>
+            <div className="mb-8 flex items-end justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-extrabold text-ink md:text-3xl">
+                  Navegue por Categoria
+                </h2>
+                <span className="mt-2 block h-[3px] w-10 bg-brand-blue" />
+              </div>
             </div>
-          </div>
-          <CategoryGrid />
+          </Reveal>
+          <Reveal delay={80}>
+            <CategoryGrid />
+          </Reveal>
         </div>
       </section>
 
       {/* Produtos em destaque */}
       <section className="bg-surface-sunken py-14">
         <div className="mx-auto max-w-7xl px-6">
-          <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <h2 className="text-2xl font-extrabold text-ink md:text-3xl">
-                Produtos em Destaque
-              </h2>
-              <p className="mt-2 text-sm text-ink-muted">
-                Seleção dos mais procurados com Certificado de Aprovação.
-              </p>
+          <Reveal>
+            <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <h2 className="text-2xl font-extrabold text-ink md:text-3xl">
+                  Produtos em Destaque
+                </h2>
+                <p className="mt-2 text-sm text-ink-muted">
+                  Seleção dos mais procurados com Certificado de Aprovação.
+                </p>
+              </div>
+              <Link
+                to="/departamento/$slug"
+                params={{ slug: "calcados" }}
+                className="text-sm font-bold text-brand-blue hover:text-brand-blue-hover"
+              >
+                Ver todos →
+              </Link>
             </div>
-            <Link
-              to="/departamento/$slug"
-              params={{ slug: "calcados" }}
-              className="text-sm font-bold text-brand-blue hover:text-brand-blue-hover"
-            >
-              Ver todos →
-            </Link>
-          </div>
-          <FeaturedProducts />
+          </Reveal>
+          <Reveal delay={80}>
+            <FeaturedProducts />
+          </Reveal>
         </div>
       </section>
 
-      <IntermediateBanners />
+      <Reveal>
+        <WhatsAppBanner />
+      </Reveal>
 
-      <TrustSignals />
+      <Reveal>
+        <IntermediateBanners />
+      </Reveal>
+
+      <Reveal>
+        <PartnersStrip />
+      </Reveal>
+
+      <Reveal>
+        <Differentials />
+      </Reveal>
+
+      <Reveal>
+        <Certifications />
+      </Reveal>
+
+      <Reveal>
+        <CommercialCTA />
+      </Reveal>
     </>
   );
 }
