@@ -1,4 +1,4 @@
-import logoSrc from "@/assets/itasafety-logo.png";
+import logoAsset from "@/assets/itasafety-logo-dark.png.asset.json";
 
 type LogoProps = {
   className?: string;
@@ -12,26 +12,18 @@ export default function Logo({ className = "", onDark = false }: LogoProps) {
       aria-label="ItaSafety — Página inicial"
       className={`group inline-flex items-center ${className}`}
     >
-      <span
+      <img
+        src={logoAsset.url}
+        alt="ItaSafety"
+        width={480}
+        height={156}
         className={
           onDark
-            ? "inline-flex items-center rounded-md bg-white/95 px-3 py-1.5 shadow-[0_2px_8px_rgba(0,0,0,0.2)] transition-transform duration-300 group-hover:scale-[1.02]"
-            : "inline-flex items-center transition-transform duration-300 group-hover:scale-[1.02]"
+            ? "h-14 w-auto sm:h-16 md:h-20 lg:h-24 transition-transform duration-300 group-hover:scale-[1.02]"
+            : "h-12 w-auto sm:h-14 md:h-20 lg:h-24 transition-transform duration-300 group-hover:scale-[1.02]"
         }
-      >
-        <img
-          src={logoSrc}
-          alt="ItaSafety"
-          width={320}
-          height={104}
-          className={
-            onDark
-              ? "h-9 w-auto sm:h-10 md:h-12"
-              : "h-12 w-auto sm:h-14 md:h-20 lg:h-24"
-          }
-          style={{ objectFit: "contain" }}
-        />
-      </span>
+        style={{ objectFit: "contain" }}
+      />
     </a>
   );
 }
