@@ -153,7 +153,7 @@ export default function Header() {
 
       {/* Categories nav bar — brand blue */}
       <div className="hidden text-white md:block bg-[#6c6f75]">
-        <div className="mx-auto flex h-11 max-w-7xl items-center gap-3 px-6">
+        <div className="mx-auto flex h-11 max-w-7xl items-center justify-center gap-3 px-6">
           <button
             type="button"
             onClick={() => setMega(true)}
@@ -180,11 +180,6 @@ export default function Header() {
               );
             })}
           </ul>
-          <div className="ml-auto hidden items-center gap-4 text-xs text-white/80 lg:flex">
-            <a href="tel:+551126267417" className="flex items-center gap-1.5 hover:text-white">
-              <Phone className="size-3.5" /> (11) 2626-7417
-            </a>
-          </div>
         </div>
       </div>
 
