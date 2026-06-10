@@ -94,7 +94,7 @@
   --announce-dark: #1A1A2E;
 
   /* shadcn tokens */
-  --background: #FFFFFF;
+  --background: #ECEFF3;
   --foreground: var(--ink);
   --card: #FFFFFF;
   --card-foreground: var(--ink);
