@@ -19,7 +19,7 @@ import { useQuoteCart } from "@/components/quote/QuoteCartContext";
 import { toast } from "sonner";
 import { pageMeta, SITE_URL, abs } from "@/lib/seo";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Reveal } from "@/components/ui/Reveal";
+import Reveal from "@/components/ui/Reveal";
 
 export const Route = createFileRoute("/detalhes/$sku")({
   loader: ({ params }) => {
