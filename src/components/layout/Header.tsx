@@ -56,7 +56,7 @@ export default function Header() {
       <AnnouncementBar />
 
       {/* Main header — dark */}
-      <div className="bg-[#2D3748] text-white">
+      <div className="text-white bg-[#6c6f75]">
         <div className="mx-auto flex min-h-[88px] max-w-7xl items-center gap-4 px-4 py-3 md:gap-6 md:px-6 md:py-4">
           <Logo onDark className="shrink-0" />
 
@@ -200,7 +200,7 @@ export default function Header() {
             className="absolute inset-0 bg-black/60 animate-fade-in"
           />
           <div className="absolute right-0 top-0 flex h-full w-[88%] max-w-sm flex-col bg-white animate-fade-in">
-            <div className="flex items-center justify-between border-b border-hairline bg-[#2D3748] p-4">
+            <div className="flex items-center justify-between border-b border-hairline bg-[#6c6f75] p-4">
               <Logo onDark />
               <button
                 type="button"
