@@ -435,7 +435,7 @@ function DetalhesPage() {
               </Link>
             </div>
             <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
-              {related.map((p, i) => (
+              {related.map((p: Product, i: number) => (
                 <Reveal key={p.sku} delay={i * 60}>
                   <Link
                     to="/detalhes/$sku"
