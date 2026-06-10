@@ -57,7 +57,7 @@ export default function Header() {
 
       {/* Main header — dark */}
       <div className="text-white bg-[#6c6f75]">
-        <div className="mx-auto flex min-h-[88px] max-w-7xl items-center gap-4 px-4 py-3 md:gap-6 md:px-6 md:py-4">
+        <div className="mx-auto flex min-h-[112px] max-w-7xl items-center gap-4 px-4 py-3 md:gap-6 md:px-6 md:py-4">
           <Logo onDark className="shrink-0" />
 
           {/* Search (desktop) */}
