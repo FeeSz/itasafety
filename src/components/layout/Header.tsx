@@ -152,7 +152,7 @@ export default function Header() {
       </div>
 
       {/* Categories nav bar — brand blue */}
-      <div className="hidden bg-[#1B4F8A] text-white md:block">
+      <div className="hidden text-white md:block bg-[#6c6f75]">
         <div className="mx-auto flex h-11 max-w-7xl items-center gap-3 px-6">
           <button
             type="button"
