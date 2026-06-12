@@ -104,7 +104,7 @@ function ProductCard({ p }: { p: Product }) {
           className={`mt-3 inline-flex items-center justify-center gap-2 rounded-md py-2.5 text-[13px] font-semibold text-white transition-all ${
             added
               ? "bg-green-600"
-              : "bg-brand-blue hover:-translate-y-0.5 hover:bg-brand-blue-hover hover:shadow-[0_4px_12px_rgba(27,79,138,0.3)]"
+              : "bg-[#111111] hover:-translate-y-0.5 hover:bg-[#374151] hover:shadow-[0_4px_12px_rgba(0,0,0,0.18)]"
           }`}
         >
           {added ? (

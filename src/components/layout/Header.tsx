@@ -4,31 +4,36 @@ import {
   Menu,
   Search,
   ShoppingCart,
-  User,
   X,
-  ChevronDown,
   Phone,
   Mail,
   MessageCircle,
 } from "lucide-react";
 import Logo from "./Logo";
-import AnnouncementBar from "./AnnouncementBar";
 import MegaMenu from "./MegaMenu";
 import { CATEGORIES } from "@/lib/categories";
 import { useQuoteCart } from "@/components/quote/QuoteCartContext";
 
-const QUICK = ["calcados", "luvas", "capacetes", "protecao-visual", "vestimenta"];
 const WHATSAPP_URL = "https://wa.me/5511988776655";
+
+const NAV_LINKS: { label: string; to: string; hasMenu?: boolean }[] = [
+  { label: "Produtos", to: "/categorias", hasMenu: true },
+  { label: "Categorias", to: "/categorias" },
+  { label: "Quem Somos", to: "/quemsomos" },
+  { label: "Localização", to: "/localizacao" },
+  { label: "Contato", to: "/contato" },
+];
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [drawer, setDrawer] = useState(false);
   const [mega, setMega] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
   const { count, setOpen: setCartOpen } = useQuoteCart();
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
+    const onScroll = () => setScrolled(window.scrollY > 80);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -49,139 +54,102 @@ export default function Header() {
 
   return (
     <header
-      className={`sticky top-0 z-50 transition-shadow duration-300 ${
-        scrolled ? "shadow-strong" : ""
+      className={`absolute left-0 right-0 top-0 z-50 h-16 ${
+        scrolled ? "header-scrolled fixed" : "header-transparent"
       }`}
     >
-      <AnnouncementBar />
-
-      {/* Main header — dark */}
-      <div className="text-white bg-[#6c6f75]">
-        <div className="mx-auto flex min-h-[112px] max-w-7xl items-center gap-4 px-4 py-3 md:gap-6 md:px-6 md:py-4">
-          <Logo onDark className="shrink-0" />
-
-          {/* Search (desktop) */}
-          <form
-            onSubmit={onSearchSubmit}
-            className="mx-2 hidden flex-1 md:flex"
-            role="search"
-          >
-            <div className="flex w-full overflow-hidden rounded-md bg-white/95 ring-1 ring-white/10 transition-all focus-within:ring-2 focus-within:ring-brand-blue-light">
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                type="search"
-                placeholder="O que você está procurando? (luva, capacete, bota...)"
-                aria-label="Buscar produtos"
-                className="flex-1 bg-transparent px-4 py-2.5 text-sm text-ink placeholder:text-ink-soft outline-none"
-              />
-              <button
-                type="submit"
-                aria-label="Buscar"
-                className="flex items-center justify-center bg-brand-blue px-5 text-white transition-colors hover:bg-brand-blue-hover"
-              >
-                <Search className="size-5" />
-              </button>
-            </div>
-          </form>
-
-          {/* Right zone */}
-          <div className="ml-auto flex items-center gap-1 md:gap-2">
-            <a
-              href={WHATSAPP_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden items-center gap-2 rounded-md px-3 py-2 text-xs font-semibold text-white/85 transition-colors hover:bg-white/10 hover:text-white lg:flex"
-              aria-label="WhatsApp"
-            >
-              <MessageCircle className="size-4 text-[#25D366]" />
-              <span>WhatsApp</span>
-            </a>
-            <Link
-              to="/auth"
-              className="hidden items-center gap-2 rounded-md px-3 py-2 text-xs font-semibold text-white/85 transition-colors hover:bg-white/10 hover:text-white md:flex"
-            >
-              <User className="size-4" />
-              <span>Entrar</span>
-            </Link>
-            <button
-              type="button"
-              onClick={() => setCartOpen(true)}
-              className="relative grid size-11 place-items-center rounded-md text-white/85 transition-colors hover:bg-white/10 hover:text-white"
-              aria-label={`Carrinho de cotação (${count} itens)`}
-            >
-              <ShoppingCart className="size-5" />
-              {count > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 grid h-5 min-w-5 place-items-center rounded-full bg-brand-red px-1 text-[10px] font-bold leading-none text-white">
-                  {count}
-                </span>
-              )}
-            </button>
-            <button
-              type="button"
-              onClick={() => setDrawer(true)}
-              className="grid size-11 place-items-center rounded-md text-white/85 hover:bg-white/10 hover:text-white md:hidden"
-              aria-label="Abrir menu"
-            >
-              <Menu className="size-6" />
-            </button>
-          </div>
+      <div className="mx-auto flex h-16 max-w-7xl items-center px-5 md:px-10">
+        {/* Left — Logo */}
+        <div className="flex shrink-0 items-center">
+          <Logo className="!h-9 md:!h-10" />
         </div>
 
-        {/* Mobile search */}
-        <form onSubmit={onSearchSubmit} className="px-4 pb-3 md:hidden">
-          <div className="flex overflow-hidden rounded-md bg-white/95 ring-1 ring-white/10 focus-within:ring-2 focus-within:ring-brand-blue-light">
+        {/* Center — Nav links (desktop) */}
+        <nav className="ml-12 hidden flex-1 items-center justify-center gap-7 md:flex">
+          {NAV_LINKS.map((l) =>
+            l.hasMenu ? (
+              <button
+                key={l.label}
+                type="button"
+                onClick={() => setMega(true)}
+                className="text-[13px] font-semibold text-[#111111] transition-colors duration-150 hover:text-[#1B4F8A]"
+              >
+                {l.label} ↓
+              </button>
+            ) : (
+              <Link
+                key={l.label}
+                to={l.to}
+                className="text-[13px] font-semibold text-[#111111] transition-colors duration-150 hover:text-[#1B4F8A]"
+              >
+                {l.label}
+              </Link>
+            ),
+          )}
+        </nav>
+
+        {/* Right zone */}
+        <div className="ml-auto flex items-center gap-5">
+          <button
+            type="button"
+            onClick={() => setSearchOpen((s) => !s)}
+            aria-label="Buscar"
+            className="hidden text-[#374151] transition-colors hover:text-[#111111] md:block"
+          >
+            <Search className="size-5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => setCartOpen(true)}
+            className="relative text-[#374151] transition-colors hover:text-[#111111]"
+            aria-label={`Carrinho de cotação (${count} itens)`}
+          >
+            <ShoppingCart className="size-5" />
+            {count > 0 && (
+              <span className="absolute -right-2 -top-2 grid h-4 min-w-4 place-items-center rounded-full bg-brand-red px-1 text-[10px] font-bold leading-none text-white">
+                {count}
+              </span>
+            )}
+          </button>
+          <Link
+            to="/auth"
+            className="hidden text-[13px] font-semibold text-[#111111] transition-colors hover:text-[#1B4F8A] md:block"
+          >
+            Entrar
+          </Link>
+          <button
+            type="button"
+            onClick={() => setDrawer(true)}
+            className="grid size-10 place-items-center text-[#111111] md:hidden"
+            aria-label="Abrir menu"
+          >
+            <Menu className="size-6" />
+          </button>
+        </div>
+      </div>
+
+      {/* Search overlay (desktop) */}
+      {searchOpen && (
+        <div className="absolute left-0 right-0 top-16 hidden border-t border-[#F3F4F6] bg-white px-10 py-3 shadow-sm md:block animate-slide-down">
+          <form onSubmit={onSearchSubmit} className="mx-auto flex max-w-3xl">
             <input
+              autoFocus
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               type="search"
-              placeholder="Buscar produtos..."
-              aria-label="Buscar"
-              className="flex-1 bg-transparent px-3 py-2.5 text-base text-ink placeholder:text-ink-soft outline-none"
-              style={{ fontSize: "16px" }}
+              placeholder="O que você está procurando?"
+              aria-label="Buscar produtos"
+              className="flex-1 border-b border-[#111] bg-transparent px-2 py-2 text-sm text-[#111] placeholder:text-[#9CA3AF] outline-none"
             />
             <button
               type="submit"
-              aria-label="Buscar"
-              className="bg-brand-blue px-4 text-white"
+              className="ml-3 rounded-md bg-[#111111] px-5 text-[13px] font-bold text-white hover:bg-[#374151]"
             >
-              <Search className="size-4" />
+              Buscar
             </button>
-          </div>
-        </form>
-      </div>
-
-      {/* Categories nav bar — brand blue */}
-      <div className="hidden text-white md:block bg-[#6c6f75]">
-        <div className="mx-auto flex h-11 max-w-7xl items-center justify-center gap-3 px-6">
-          <button
-            type="button"
-            onClick={() => setMega(true)}
-            className="group flex items-center gap-2 rounded-sm bg-black/20 px-4 py-1.5 text-[12px] font-bold uppercase tracking-wider transition-colors hover:bg-black/35"
-          >
-            <Menu className="size-4" />
-            Todas as Categorias
-            <ChevronDown className="size-3.5 transition-transform group-hover:translate-y-0.5" />
-          </button>
-          <ul className="flex items-center gap-1 text-[13px]">
-            {QUICK.map((slug) => {
-              const cat = CATEGORIES.find((c) => c.slug === slug);
-              if (!cat) return null;
-              return (
-                <li key={slug}>
-                  <Link
-                    to="/departamento/$slug"
-                    params={{ slug }}
-                    className="block rounded px-3 py-1.5 font-medium text-white/95 transition-colors hover:bg-white/10"
-                  >
-                    {cat.title}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
+          </form>
         </div>
-      </div>
+      )}
 
       <MegaMenu open={mega} onClose={() => setMega(false)} />
 
@@ -195,19 +163,18 @@ export default function Header() {
             className="absolute inset-0 bg-black/60 animate-fade-in"
           />
           <div className="absolute right-0 top-0 flex h-full w-[88%] max-w-sm flex-col bg-white animate-fade-in">
-            <div className="flex items-center justify-between border-b border-hairline bg-[#6c6f75] p-4">
-              <Logo onDark />
+            <div className="flex items-center justify-between border-b border-hairline bg-white p-4">
+              <Logo />
               <button
                 type="button"
                 onClick={() => setDrawer(false)}
-                className="grid size-10 place-items-center text-white"
+                className="grid size-10 place-items-center text-[#111]"
                 aria-label="Fechar"
               >
                 <X className="size-6" />
               </button>
             </div>
 
-            {/* Contact strip */}
             <div className="grid grid-cols-3 gap-px bg-hairline">
               <a
                 href={WHATSAPP_URL}
