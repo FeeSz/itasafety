@@ -64,6 +64,8 @@ function HomePage() {
   return (
     <>
       <HeroSlider />
+      <CategoryPills />
+
 
       {/* Trust signals first — establish confiança */}
       <Reveal>
