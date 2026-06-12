@@ -56,58 +56,88 @@ export default function Header() {
     window.location.href = `/departamento/${CATEGORIES[0].slug}?q=${encodeURIComponent(query)}`;
   };
 
-  const showWhite = !isHome || scrolled;
+  const transparent = isHome && !scrolled;
   return (
     <header
-      className={`left-0 right-0 top-0 z-50 h-16 ${
-        isHome ? "absolute" : "sticky"
-      } ${showWhite ? "header-scrolled" : "header-transparent"}`}
+      className={`left-0 right-0 top-0 z-50 ${isHome ? "fixed" : "sticky"}`}
+      style={
+        transparent
+          ? {
+              background:
+                "linear-gradient(to bottom, rgba(5,11,18,0.92), rgba(5,11,18,0.6), transparent)",
+              backdropFilter: "blur(18px)",
+              WebkitBackdropFilter: "blur(18px)",
+              borderBottom: "1px solid rgba(255,255,255,0.04)",
+            }
+          : {
+              background: "#ffffff",
+              boxShadow: "0 1px 0 rgba(0,0,0,0.08)",
+            }
+      }
     >
-      <div className="mx-auto flex h-16 max-w-7xl items-center px-5 md:px-10">
-        {/* Left — Logo */}
+      <div className="mx-auto flex h-16 max-w-[1120px] items-center gap-8 px-6">
         <div className="flex shrink-0 items-center">
-          <Logo className="!h-9 md:!h-10" />
+          <Logo className="!h-9 md:!h-10" onDark={transparent} />
         </div>
 
-        {/* Center — Nav links (desktop) */}
-        <nav className="ml-12 hidden flex-1 items-center justify-center gap-7 md:flex">
-          {NAV_LINKS.map((l) =>
-            l.hasMenu ? (
+        <nav className="hidden flex-1 items-center justify-center gap-6 md:flex">
+          {NAV_LINKS.map((l) => {
+            const baseColor = transparent ? "#A3B1C6" : "#374151";
+            const hoverColor = transparent ? "#ffffff" : "#111111";
+            const cls =
+              "group relative pb-1 text-[14px] font-medium transition-colors duration-150";
+            const underline = (
+              <span
+                aria-hidden
+                className="absolute bottom-0 left-0 h-[2px] w-0 transition-all duration-200 group-hover:w-full"
+                style={{ background: "linear-gradient(90deg, #1E88E5, #00C853)" }}
+              />
+            );
+            return l.hasMenu ? (
               <button
                 key={l.label}
                 type="button"
                 onClick={() => setMega(true)}
-                className="text-[13px] font-semibold text-[#111111] transition-colors duration-150 hover:text-[#1B4F8A]"
+                className={cls}
+                style={{ color: baseColor }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = hoverColor)}
+                onMouseLeave={(e) => (e.currentTarget.style.color = baseColor)}
               >
-                {l.label} ↓
+                {l.label}
+                {underline}
               </button>
             ) : (
               <Link
                 key={l.label}
                 to={l.to}
-                className="text-[13px] font-semibold text-[#111111] transition-colors duration-150 hover:text-[#1B4F8A]"
+                className={cls}
+                style={{ color: baseColor }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = hoverColor)}
+                onMouseLeave={(e) => (e.currentTarget.style.color = baseColor)}
               >
                 {l.label}
+                {underline}
               </Link>
-            ),
-          )}
+            );
+          })}
         </nav>
 
-        {/* Right zone */}
-        <div className="ml-auto flex items-center gap-5">
+        <div className="ml-auto flex items-center gap-3">
           <button
             type="button"
             onClick={() => setSearchOpen((s) => !s)}
             aria-label="Buscar"
-            className="hidden text-[#374151] transition-colors hover:text-[#111111] md:block"
+            className="hidden transition-colors md:block"
+            style={{ color: transparent ? "#A3B1C6" : "#374151" }}
           >
             <Search className="size-5" />
           </button>
           <button
             type="button"
             onClick={() => setCartOpen(true)}
-            className="relative text-[#374151] transition-colors hover:text-[#111111]"
+            className="relative transition-colors"
             aria-label={`Carrinho de cotação (${count} itens)`}
+            style={{ color: transparent ? "#A3B1C6" : "#374151" }}
           >
             <ShoppingCart className="size-5" />
             {count > 0 && (
@@ -116,16 +146,36 @@ export default function Header() {
               </span>
             )}
           </button>
-          <Link
-            to="/auth"
-            className="hidden text-[13px] font-semibold text-[#111111] transition-colors hover:text-[#1B4F8A] md:block"
+          <a
+            href={WHATSAPP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden items-center gap-1.5 rounded-full px-[16px] py-[8px] text-[13px] font-medium md:inline-flex"
+            style={{
+              border: "1px solid rgba(163,177,198,0.5)",
+              color: transparent ? "#f5f7fa" : "#111111",
+              background: transparent ? "rgba(5,11,18,0.4)" : "transparent",
+            }}
           >
-            Entrar
+            <MessageCircle className="size-4" />
+            WhatsApp
+          </a>
+          <Link
+            to="/contato"
+            className="hidden items-center gap-1.5 rounded-full px-[18px] py-[9px] text-[13px] font-semibold md:inline-flex"
+            style={{
+              background: "linear-gradient(135deg, #1E88E5, #00C853)",
+              color: "#050b12",
+              boxShadow: "0 10px 30px rgba(0, 200, 83, 0.25)",
+            }}
+          >
+            Solicitar cotação
           </Link>
           <button
             type="button"
             onClick={() => setDrawer(true)}
-            className="grid size-10 place-items-center text-[#111111] md:hidden"
+            className="grid size-10 place-items-center md:hidden"
+            style={{ color: transparent ? "#f5f7fa" : "#111111" }}
             aria-label="Abrir menu"
           >
             <Menu className="size-6" />
