@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import HeroSlider from "@/components/sections/HeroSlider";
+import CategoryPills from "@/components/sections/CategoryPills";
+
 import CategoryGrid from "@/components/sections/CategoryGrid";
 import FeaturedProducts from "@/components/sections/FeaturedProducts";
 import WhatsAppBanner from "@/components/sections/WhatsAppBanner";
