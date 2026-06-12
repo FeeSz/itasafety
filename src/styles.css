@@ -93,6 +93,14 @@
   --header-dark: #6c6f75;
   --announce-dark: #1A1A2E;
 
+  /* Blush-inspired tokens */
+  --color-ink-900: #111111;
+  --color-hero-bg: #ffffff;
+  --color-cat-pill-bg: #EBF4FF;
+  --color-cat-pill-border: #DBEAFE;
+  --color-cat-pill-text: #1B4F8A;
+
+
   /* shadcn tokens */
   --background: #ECEFF3;
   --foreground: var(--ink);
@@ -175,7 +183,18 @@
     border-color: var(--brand-blue);
     box-shadow: 0 0 0 3px color-mix(in oklab, var(--brand-blue) 15%, transparent);
   }
+
+  .header-transparent {
+    background: transparent;
+    transition: background 200ms ease, box-shadow 200ms ease;
+  }
+  .header-scrolled {
+    background: #ffffff;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.08);
+    transition: background 200ms ease, box-shadow 200ms ease;
+  }
 }
+
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }

@@ -10,6 +10,7 @@ import {
 
 import appCss from "../styles.css?url";
 import Header from "@/components/layout/Header";
+
 import Footer from "@/components/layout/Footer";
 import CookieBanner from "@/components/layout/CookieBanner";
 import CtaButton from "@/components/ui/CtaButton";
