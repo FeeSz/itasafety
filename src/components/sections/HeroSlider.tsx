@@ -17,30 +17,30 @@ const SLIDES: Slide[] = [
     titleStart: "Proteção que não negocia",
     titleEnd: ".",
     subtitle: "EPIs certificados pelo MTE para a segurança do seu time.",
-    ctaPrimary: { label: "Ver Catálogo", to: "/categorias" },
-    ctaSecondary: { label: "Solicitar Cotação →", to: "/contato" },
+    ctaPrimary: { label: "Ver catálogo", to: "/categorias" },
+    ctaSecondary: { label: "Cotação técnica em 24h", to: "/contato" },
   },
   {
     eyebrow: "Destaques da Semana",
     titleStart: "Equipamento certo. Trabalho seguro",
     titleEnd: ".",
     subtitle: "Os EPIs mais procurados pela engenharia de segurança.",
-    ctaPrimary: { label: "Ver Destaques", to: "/departamento/protecao-visual" },
-    ctaSecondary: { label: "Falar com Vendas →", to: "/contato" },
+    ctaPrimary: { label: "Ver destaques", to: "/departamento/protecao-visual" },
+    ctaSecondary: { label: "Falar com vendas", to: "/contato" },
   },
   {
     eyebrow: "100% Certificado",
     titleStart: "Todo CA aprovado pelo MTE",
     titleEnd: ".",
     subtitle: "Cada item entregue com Certificado de Aprovação ativo.",
-    ctaPrimary: { label: "Ver Certificados", to: "/departamento/luvas" },
-    ctaSecondary: { label: "Política de Qualidade →", to: "/quemsomos" },
+    ctaPrimary: { label: "Ver certificados", to: "/departamento/luvas" },
+    ctaSecondary: { label: "Política de qualidade", to: "/quemsomos" },
   },
 ];
 
 const TRUST = [
   { num: "500+", label: "Clientes" },
-  { num: "100%", label: "CA Ativo" },
+  { num: "100%", label: "CA ativo" },
   { num: "24h", label: "Cotação" },
 ];
 
@@ -60,116 +60,117 @@ export default function HeroSlider() {
     <section
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
-      className="relative isolate overflow-hidden bg-white"
-      style={{ height: "520px" }}
+      className="relative isolate overflow-hidden"
+      style={{
+        background:
+          "radial-gradient(circle at top left, #10233a 0, #050b12 55%, #020409 100%)",
+        color: "#f5f7fa",
+      }}
       aria-label="Banner principal"
     >
-      {/* Left image zone */}
-      <div className="absolute inset-y-0 left-0 hidden w-[45%] md:block">
-        <img
-          src={heroImg}
-          alt=""
-          aria-hidden
-          className="size-full object-cover object-center"
-          fetchPriority="high"
-        />
-        {/* Decorative circle */}
-        <div
-          aria-hidden
-          className="absolute z-0"
-          style={{
-            width: 320,
-            height: 320,
-            borderRadius: "50%",
-            background: "#F3F4F6",
-            right: -60,
-            top: "50%",
-            transform: "translateY(-50%)",
-          }}
-        />
-      </div>
-
-      {/* Mobile background image (faded) */}
-      <img
-        src={heroImg}
-        alt=""
+      {/* Ambient glows */}
+      <div
         aria-hidden
-        className="absolute inset-0 size-full object-cover opacity-15 md:hidden"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(600px 400px at 85% 30%, rgba(30,136,229,0.18), transparent 60%), radial-gradient(500px 360px at 75% 80%, rgba(0,200,83,0.12), transparent 60%)",
+        }}
       />
 
-      {/* Right content zone */}
-      <div
-        className="absolute inset-y-0 right-0 z-10 flex w-full flex-col justify-center px-6 md:w-[55%]"
-        style={{ paddingLeft: "5%", paddingRight: "8%" }}
-      >
-        <div key={i} className="max-w-xl animate-fade-in">
-          <p className="mb-4 text-[11px] font-bold uppercase tracking-[0.14em] text-[#9CA3AF]">
+      <div className="relative mx-auto grid max-w-[1120px] grid-cols-1 items-center gap-12 px-6 pb-16 pt-28 md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] md:gap-12 md:pb-20 md:pt-32">
+        {/* Left — copy */}
+        <div key={i} className="animate-fade-in">
+          <p
+            className="mb-3 text-[13px] font-medium uppercase"
+            style={{ letterSpacing: "0.16em", color: "#7ea5ff" }}
+          >
             {slide.eyebrow}
           </p>
           <h1
-            className="font-display text-[36px] font-extrabold leading-[1.1] text-[#111111] md:text-[48px]"
-            style={{ marginBottom: 14 }}
+            className="font-display text-[36px] font-bold leading-[1.05] tracking-[-0.03em] md:text-[44px]"
+            style={{ color: "#f5f7fa", marginBottom: 16 }}
           >
             {slide.titleStart}
-            <span style={{ color: "#C0392B" }}>{slide.titleEnd}</span>
+            <span style={{ color: "#1E88E5" }}>{slide.titleEnd}</span>
           </h1>
-          <p className="mb-7 max-w-sm text-[15px] leading-relaxed text-[#6B7280]">
+          <p className="mb-6 max-w-[420px] text-[16px]" style={{ color: "#c4cfdd" }}>
             {slide.subtitle}
           </p>
-          <div className="flex flex-row items-center gap-4">
+
+          <div className="mb-6 flex flex-wrap items-center gap-3">
             <Link
               to={slide.ctaPrimary.to}
-              className="rounded-md bg-[#111111] px-7 py-3 text-[13px] font-bold text-white transition-colors duration-150 hover:bg-[#374151]"
+              className="inline-flex items-center gap-1.5 rounded-full px-[18px] py-[10px] text-[13px] font-semibold transition-transform hover:-translate-y-[1px]"
+              style={{
+                background: "linear-gradient(135deg, #1E88E5, #00C853)",
+                color: "#050b12",
+                boxShadow: "0 10px 30px rgba(0, 200, 83, 0.25)",
+              }}
             >
               {slide.ctaPrimary.label}
             </Link>
             <Link
               to={slide.ctaSecondary.to}
-              className="text-[13px] font-semibold text-[#111111] underline underline-offset-[3px] transition-colors hover:text-[#1B4F8A]"
+              className="inline-flex items-center gap-1.5 rounded-full px-[18px] py-[10px] text-[13px] font-medium"
+              style={{
+                border: "1px solid rgba(163,177,198,0.5)",
+                color: "#f5f7fa",
+                background: "rgba(5,11,18,0.4)",
+              }}
             >
               {slide.ctaSecondary.label}
             </Link>
           </div>
 
-          {/* Trust numbers */}
-          <div className="mt-8 flex items-center">
-            {TRUST.map((t, idx) => (
-              <div
-                key={t.label}
-                className={`flex flex-col px-5 first:pl-0 ${
-                  idx < TRUST.length - 1 ? "border-r border-[#E5E7EB]" : ""
-                }`}
-              >
-                <span className="text-[20px] font-extrabold text-[#111111]">
+          <div className="flex flex-wrap gap-6 text-[13px]" style={{ color: "#a3b1c6" }}>
+            {TRUST.map((t) => (
+              <div key={t.label}>
+                <strong className="block text-[20px] font-bold" style={{ color: "#f5f7fa" }}>
                   {t.num}
-                </span>
-                <span className="text-[10px] uppercase tracking-[0.08em] text-[#9CA3AF]">
-                  {t.label}
-                </span>
+                </strong>
+                {t.label}
               </div>
             ))}
           </div>
         </div>
-      </div>
 
-      {/* Indicators */}
-      <div
-        className="absolute z-10 flex gap-1.5"
-        style={{ bottom: 18, left: "47%" }}
-      >
-        {SLIDES.map((_, idx) => (
-          <button
-            key={idx}
-            type="button"
-            onClick={() => setI(idx)}
-            aria-label={`Ir para slide ${idx + 1}`}
-            className="h-1 rounded-sm transition-all"
+        {/* Right — EPI card */}
+        <div className="flex justify-center md:justify-end">
+          <div
+            className="relative flex aspect-[4/5] w-[260px] items-center justify-center overflow-hidden rounded-[28px] p-5 md:w-[320px]"
             style={{
-              width: idx === i ? 22 : 7,
-              background: idx === i ? "#111111" : "#D1D5DB",
+              background:
+                "radial-gradient(circle at top left, rgba(30,136,229,0.35), transparent 55%), radial-gradient(circle at bottom right, rgba(0,200,83,0.35), transparent 55%), linear-gradient(145deg, #050b12, #0b1f33)",
+              boxShadow:
+                "0 24px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04)",
             }}
-          />
-        ))}
+          >
+            <img
+              src={heroImg}
+              alt="Equipamentos de proteção individual"
+              className="size-full rounded-[20px] object-cover"
+              style={{ filter: "saturate(0.9) contrast(1.05)" }}
+              fetchPriority="high"
+            />
+            {/* Indicators */}
+            <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-1.5">
+              {SLIDES.map((_, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setI(idx)}
+                  aria-label={`Ir para slide ${idx + 1}`}
+                  className="h-1 rounded-sm transition-all"
+                  style={{
+                    width: idx === i ? 22 : 7,
+                    background: idx === i ? "#1E88E5" : "rgba(245,247,250,0.4)",
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );
