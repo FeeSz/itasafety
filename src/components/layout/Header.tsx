@@ -1,5 +1,6 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+
 import {
   Menu,
   Search,
@@ -31,6 +32,8 @@ export default function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
   const { count, setOpen: setCartOpen } = useQuoteCart();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isHome = pathname === "/";
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 80);
@@ -38,6 +41,7 @@ export default function Header() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
 
   useEffect(() => {
     document.body.style.overflow = drawer || mega ? "hidden" : "";
@@ -52,11 +56,12 @@ export default function Header() {
     window.location.href = `/departamento/${CATEGORIES[0].slug}?q=${encodeURIComponent(query)}`;
   };
 
+  const showWhite = !isHome || scrolled;
   return (
     <header
-      className={`absolute left-0 right-0 top-0 z-50 h-16 ${
-        scrolled ? "header-scrolled fixed" : "header-transparent"
-      }`}
+      className={`left-0 right-0 top-0 z-50 h-16 ${
+        isHome ? "absolute" : "sticky"
+      } ${showWhite ? "header-scrolled" : "header-transparent"}`}
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center px-5 md:px-10">
         {/* Left — Logo */}
