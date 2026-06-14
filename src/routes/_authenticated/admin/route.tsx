@@ -1,8 +1,11 @@
 import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
-import { Package, LogOut, Home, Tag, Award, ShieldAlert } from "lucide-react";
+import { LogOut, Home, Tag, Award, ShieldAlert, LayoutDashboard } from "lucide-react";
 import { toast } from "sonner";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+
+/** Tempo de inatividade em ms antes de encerrar a sessão (15 minutos) */
+const INACTIVITY_TIMEOUT_MS = 15 * 60 * 1000;
 
 export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminLayout,
@@ -11,7 +14,42 @@ export const Route = createFileRoute("/_authenticated/admin")({
 function AdminLayout() {
   const navigate = useNavigate();
   const [mfaAlert, setMfaAlert] = useState(false);
+  const inactivityTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // ── Timeout de inatividade ───────────────────────────────────────────────
+  useEffect(() => {
+    const resetTimer = () => {
+      if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
+      inactivityTimer.current = setTimeout(async () => {
+        await supabase.auth.signOut();
+        toast.warning(
+          "Sessão encerrada por inatividade (15 min). Faça login novamente.",
+          { duration: 6000 },
+        );
+        navigate({ to: "/auth", replace: true });
+      }, INACTIVITY_TIMEOUT_MS);
+    };
+
+    // Eventos que indicam que o usuário está ativo
+    const events: (keyof WindowEventMap)[] = [
+      "mousemove",
+      "mousedown",
+      "keydown",
+      "touchstart",
+      "scroll",
+    ];
+    events.forEach((e) => window.addEventListener(e, resetTimer, { passive: true }));
+
+    // Inicia o timer na montagem
+    resetTimer();
+
+    return () => {
+      events.forEach((e) => window.removeEventListener(e, resetTimer));
+      if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
+    };
+  }, [navigate]);
+
+  // ── Verificação de MFA ───────────────────────────────────────────────────
   useEffect(() => {
     supabase.auth.mfa.getAuthenticatorAssuranceLevel().then(({ data, error }) => {
       if (!error && data) {
@@ -28,6 +66,7 @@ function AdminLayout() {
   }, []);
 
   const signOut = async () => {
+    if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
     await supabase.auth.signOut();
     toast.success("Sessão encerrada");
     navigate({ to: "/auth", replace: true });
@@ -50,7 +89,7 @@ function AdminLayout() {
                 activeProps={activeProps}
                 className={navItem}
               >
-                <Package className="size-4" /> Produtos
+                <LayoutDashboard className="size-4" /> Visão Geral
               </Link>
               <Link to="/admin/categories" activeProps={activeProps} className={navItem}>
                 <Tag className="size-4" /> Categorias
@@ -77,6 +116,7 @@ function AdminLayout() {
           </div>
         </div>
       </div>
+
       {mfaAlert && (
         <div className="bg-amber-50 border-b border-amber-100 px-6 py-3">
           <div className="mx-auto flex max-w-7xl items-center gap-3 text-sm text-amber-800">

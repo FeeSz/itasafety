@@ -45,8 +45,6 @@ function AuthPage() {
   // Estados adicionados para usabilidade avançada
   const [capsLockActive, setCapsLockActive] = useState(false);
   const [emailTouched, setEmailTouched] = useState(false);
-  const [passkeyModalOpen, setPasskeyModalOpen] = useState(false);
-  const [passkeyStep, setPasskeyStep] = useState<"ready" | "scanning" | "success">("ready");
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -115,23 +113,7 @@ function AuthPage() {
     }
   };
 
-  // Simular Fluxo de Passkey (Biometria)
-  const handlePasskeyAuth = () => {
-    setPasskeyModalOpen(true);
-    setPasskeyStep("ready");
 
-    setTimeout(() => {
-      setPasskeyStep("scanning");
-      setTimeout(() => {
-        setPasskeyStep("success");
-        setTimeout(() => {
-          setPasskeyModalOpen(false);
-          toast.success("Autenticado via Passkey!");
-          navigate({ to: "/admin", replace: true });
-        }, 1200);
-      }, 1800);
-    }, 800);
-  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -225,56 +207,7 @@ function AuthPage() {
 
   return (
     <Shell>
-      {/* Modal Simulado de Passkey */}
-      {passkeyModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-300">
-          <div className="mx-4 w-full max-w-sm rounded-2xl border border-white/10 bg-slate-900 p-6 text-center text-white shadow-2xl animate-scale-up">
-            <div className="mx-auto mb-5 flex size-20 items-center justify-center rounded-full bg-brand-blue/10">
-              <span className="relative flex h-12 w-12 items-center justify-center">
-                <span
-                  className={`absolute inline-flex h-full w-full rounded-full bg-brand-blue/30 opacity-75 ${passkeyStep === "scanning" ? "animate-ping" : ""}`}
-                ></span>
-                <svg
-                  className={`relative h-10 w-10 text-brand-blue transition-transform duration-500 ${passkeyStep === "scanning" ? "scale-110" : ""}`}
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={1.5}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 009 11a13.92 13.92 0 01-2.048-6.143L6 4.354m12 6.646a13.921 13.921 0 00-2-3.22m3.053 3.084A13.945 13.945 0 0118 11.83c0 2.29-.425 4.478-1.2 6.495m-4.8-10.99A13.933 13.933 0 0012 11m0 0c0 1.268-.18 2.493-.513 3.651m3.72-6.527a13.9 13.9 0 00-2.22-3.136M9 3.517c.92.512 1.72 1.21 2.348 2.022"
-                  />
-                </svg>
-              </span>
-            </div>
 
-            <h3 className="text-lg font-bold">Chave de Acesso / Passkey</h3>
-            <p className="mt-2 text-xs text-slate-400">
-              {passkeyStep === "ready" && "Iniciando verificação do dispositivo..."}
-              {passkeyStep === "scanning" &&
-                "Toque no leitor de biometria ou olhe para a câmera..."}
-              {passkeyStep === "success" && "Identidade confirmada com sucesso!"}
-            </p>
-
-            <div className="mt-6 flex justify-center">
-              {passkeyStep !== "success" ? (
-                <button
-                  onClick={() => setPasskeyModalOpen(false)}
-                  className="rounded-lg bg-white/10 px-4 py-2 text-xs font-semibold hover:bg-white/20 transition"
-                >
-                  Cancelar
-                </button>
-              ) : (
-                <div className="flex items-center gap-1.5 text-xs text-emerald-500 font-semibold">
-                  <CheckCircle2 className="size-4 animate-bounce" /> Acesso liberado
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
 
       <header className="mb-6">
         <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-hairline bg-brand-blue/5 dark:bg-brand-blue/10 px-3 py-1 text-xs font-semibold text-brand-blue">
@@ -323,28 +256,6 @@ function AuthPage() {
               Apple
             </button>
           </div>
-
-          <button
-            type="button"
-            onClick={handlePasskeyAuth}
-            disabled={loading}
-            className="flex w-full min-h-[48px] items-center justify-center gap-2 rounded-xl border border-dashed border-brand-blue/30 bg-brand-blue/5 px-4 py-3 text-sm font-semibold text-brand-blue shadow-sm transition-all hover:bg-brand-blue/10 hover:border-brand-blue/50 disabled:opacity-50"
-          >
-            <svg
-              className="h-5 w-5 animate-pulse"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={1.5}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 009 11a13.92 13.92 0 01-2.048-6.143L6 4.354m12 6.646a13.921 13.921 0 00-2-3.22m3.053 3.084A13.945 13.945 0 0118 11.83c0 2.29-.425 4.478-1.2 6.495m-4.8-10.99A13.933 13.933 0 0012 11m0 0c0 1.268-.18 2.493-.513 3.651m3.72-6.527a13.9 13.9 0 00-2.22-3.136M9 3.517c.92.512 1.72 1.21 2.348 2.022"
-              />
-            </svg>
-            Entrar com Biometria / Passkey
-          </button>
 
           <div className="relative flex py-2 items-center">
             <div className="flex-grow border-t border-hairline dark:border-white/10"></div>

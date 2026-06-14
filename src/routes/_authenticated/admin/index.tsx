@@ -13,6 +13,15 @@ import {
   Loader2,
   EyeOff,
   Eye,
+  LayoutDashboard,
+  Package,
+  ShieldCheck,
+  AlertTriangle,
+  ImageOff,
+  FileCheck,
+  TrendingUp,
+  CheckCircle2,
+  XCircle,
 } from "lucide-react";
 import {
   Dialog,
@@ -51,8 +60,19 @@ type ProductRow = {
   sort_order: number;
 };
 
+type AuthAttempt = {
+  id: string;
+  email: string;
+  attempt_type: string;
+  success: boolean;
+  created_at: string;
+  ip_address?: string;
+};
+
+type Tab = "dashboard" | "products";
+
 export const Route = createFileRoute("/_authenticated/admin/")({
-  component: AdminProducts,
+  component: AdminPage,
 });
 
 const emptyForm: Omit<ProductRow, "id"> = {
@@ -81,7 +101,340 @@ function slugify(s: string) {
     .replace(/^-|-$/g, "");
 }
 
-function AdminProducts() {
+function AdminPage() {
+  const [tab, setTab] = useState<Tab>("dashboard");
+
+  return (
+    <div className="mx-auto max-w-7xl px-6 py-8">
+      {/* Tab bar */}
+      <div className="mb-8 flex gap-1 rounded-xl border border-hairline bg-white p-1 shadow-card w-fit">
+        <TabBtn
+          active={tab === "dashboard"}
+          onClick={() => setTab("dashboard")}
+          icon={<LayoutDashboard className="size-4" />}
+          label="Visão Geral"
+        />
+        <TabBtn
+          active={tab === "products"}
+          onClick={() => setTab("products")}
+          icon={<Package className="size-4" />}
+          label="Produtos"
+        />
+      </div>
+
+      {tab === "dashboard" ? <DashboardTab /> : <ProductsTab />}
+    </div>
+  );
+}
+
+function TabBtn({
+  active,
+  onClick,
+  icon,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  icon: React.ReactNode;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-200 ${
+        active
+          ? "bg-brand-blue text-white shadow-sm"
+          : "text-ink-muted hover:bg-surface-sunken hover:text-ink"
+      }`}
+    >
+      {icon}
+      {label}
+    </button>
+  );
+}
+
+/* ─────────────────────────────────────────────
+   DASHBOARD TAB
+───────────────────────────────────────────── */
+function DashboardTab() {
+  const { data: products, isLoading: loadingProducts } = useQuery({
+    queryKey: ["admin-products"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .order("sort_order", { ascending: true });
+      if (error) throw error;
+      return data as ProductRow[];
+    },
+  });
+
+  const { data: attempts, isLoading: loadingAttempts } = useQuery({
+    queryKey: ["auth-attempts"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("auth_attempts")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(20);
+      if (error) throw error;
+      return data as AuthAttempt[];
+    },
+    refetchInterval: 30_000, // atualiza a cada 30s
+  });
+
+  const stats = useMemo(() => {
+    if (!products) return null;
+    const total = products.length;
+    const featured = products.filter((p) => p.featured).length;
+    const published = products.filter((p) => p.published).length;
+    const drafts = total - published;
+    const noCA = products.filter((p) => !p.ca_number).length;
+    const noImage = products.filter((p) => !p.image_url).length;
+
+    // Distribuição por categoria
+    const byCat = CATEGORIES.map((cat) => ({
+      slug: cat.slug,
+      title: cat.title,
+      count: products.filter((p) => p.category === cat.slug).length,
+    })).filter((c) => c.count > 0);
+
+    return { total, featured, published, drafts, noCA, noImage, byCat };
+  }, [products]);
+
+  const isLoading = loadingProducts || loadingAttempts;
+
+  return (
+    <div className="space-y-8">
+      {/* Métricas principais */}
+      <section>
+        <h2 className="mb-4 text-xs font-bold uppercase tracking-wider text-ink-muted">
+          Métricas do catálogo
+        </h2>
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="size-6 animate-spin text-ink-soft" />
+          </div>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+            <MetricCard
+              label="Total de EPIs"
+              value={stats?.total ?? 0}
+              icon={<Package className="size-5 text-brand-blue" />}
+              color="blue"
+            />
+            <MetricCard
+              label="Em destaque"
+              value={stats?.featured ?? 0}
+              icon={<Star className="size-5 text-amber-500" />}
+              color="amber"
+            />
+            <MetricCard
+              label="Publicados"
+              value={stats?.published ?? 0}
+              icon={<Eye className="size-5 text-emerald-500" />}
+              color="green"
+            />
+            <MetricCard
+              label="Rascunhos"
+              value={stats?.drafts ?? 0}
+              icon={<EyeOff className="size-5 text-ink-soft" />}
+              color="gray"
+            />
+            <MetricCard
+              label="Sem CA"
+              value={stats?.noCA ?? 0}
+              icon={<FileCheck className="size-5 text-orange-500" />}
+              color="orange"
+              alert={stats?.noCA ? stats.noCA > 0 : false}
+            />
+            <MetricCard
+              label="Sem foto"
+              value={stats?.noImage ?? 0}
+              icon={<ImageOff className="size-5 text-red-500" />}
+              color="red"
+              alert={stats?.noImage ? stats.noImage > 0 : false}
+            />
+          </div>
+        )}
+      </section>
+
+      {/* Distribuição por categoria */}
+      {stats && stats.byCat.length > 0 && (
+        <section>
+          <h2 className="mb-4 text-xs font-bold uppercase tracking-wider text-ink-muted">
+            Distribuição por categoria
+          </h2>
+          <div className="overflow-hidden rounded-xl border border-hairline bg-white p-6 shadow-card">
+            <div className="space-y-4">
+              {stats.byCat
+                .sort((a, b) => b.count - a.count)
+                .map((cat) => (
+                  <div key={cat.slug}>
+                    <div className="mb-1.5 flex items-center justify-between text-sm">
+                      <span className="font-medium text-ink">{cat.title}</span>
+                      <span className="text-xs font-semibold text-ink-muted">
+                        {cat.count} produto{cat.count !== 1 ? "s" : ""}
+                      </span>
+                    </div>
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-surface-sunken">
+                      <div
+                        className="h-full rounded-full bg-brand-blue transition-all duration-700"
+                        style={{
+                          width: `${Math.round((cat.count / (stats.total || 1)) * 100)}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Auditoria de segurança */}
+      <section>
+        <div className="mb-4 flex items-center gap-2">
+          <ShieldCheck className="size-4 text-brand-blue" />
+          <h2 className="text-xs font-bold uppercase tracking-wider text-ink-muted">
+            Auditoria de acesso (últimas 20 tentativas)
+          </h2>
+          {loadingAttempts && (
+            <Loader2 className="size-3.5 animate-spin text-ink-soft" />
+          )}
+        </div>
+        <div className="overflow-hidden rounded-xl border border-hairline bg-white shadow-card">
+          {!loadingAttempts && (!attempts || attempts.length === 0) ? (
+            <div className="flex flex-col items-center gap-2 px-6 py-10 text-center text-ink-soft">
+              <TrendingUp className="size-8 opacity-30" />
+              <p className="text-sm">Nenhum registro de acesso encontrado.</p>
+              <p className="text-xs">
+                Verifique se a tabela{" "}
+                <code className="rounded bg-surface-sunken px-1">
+                  auth_attempts
+                </code>{" "}
+                existe no Supabase.
+              </p>
+            </div>
+          ) : (
+            <table className="w-full text-sm">
+              <thead className="border-b border-hairline bg-surface-sunken text-left text-[11px] font-bold uppercase tracking-wider text-ink-muted">
+                <tr>
+                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3">E-mail</th>
+                  <th className="px-4 py-3">Tipo</th>
+                  <th className="px-4 py-3">Data / Hora</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-hairline">
+                {loadingAttempts &&
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <tr key={i}>
+                      <td colSpan={4} className="px-4 py-3">
+                        <div className="h-4 w-full animate-pulse rounded bg-surface-sunken" />
+                      </td>
+                    </tr>
+                  ))}
+                {attempts?.map((a) => (
+                  <tr
+                    key={a.id}
+                    className={`transition-colors ${
+                      a.success ? "hover:bg-emerald-50/30" : "hover:bg-red-50/30"
+                    }`}
+                  >
+                    <td className="px-4 py-3">
+                      <span
+                        className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
+                          a.success
+                            ? "bg-emerald-50 text-emerald-700"
+                            : "bg-red-50 text-red-700"
+                        }`}
+                      >
+                        {a.success ? (
+                          <CheckCircle2 className="size-3" />
+                        ) : (
+                          <XCircle className="size-3" />
+                        )}
+                        {a.success ? "Sucesso" : "Falha"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 font-mono text-xs text-ink-muted">
+                      {a.email}
+                    </td>
+                    <td className="px-4 py-3 capitalize text-ink-muted">
+                      {a.attempt_type === "login"
+                        ? "Login"
+                        : a.attempt_type === "signup"
+                          ? "Cadastro"
+                          : "Recuperação"}
+                    </td>
+                    <td className="px-4 py-3 text-xs text-ink-soft">
+                      {new Date(a.created_at).toLocaleString("pt-BR", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function MetricCard({
+  label,
+  value,
+  icon,
+  color,
+  alert = false,
+}: {
+  label: string;
+  value: number;
+  icon: React.ReactNode;
+  color: "blue" | "amber" | "green" | "gray" | "orange" | "red";
+  alert?: boolean;
+}) {
+  const bg: Record<typeof color, string> = {
+    blue: "bg-blue-50",
+    amber: "bg-amber-50",
+    green: "bg-emerald-50",
+    gray: "bg-slate-50",
+    orange: "bg-orange-50",
+    red: "bg-red-50",
+  };
+
+  return (
+    <div
+      className={`relative overflow-hidden rounded-xl border border-hairline bg-white p-5 shadow-card transition-shadow hover:shadow-md`}
+    >
+      {alert && value > 0 && (
+        <span className="absolute right-3 top-3">
+          <AlertTriangle className="size-3.5 text-amber-500" />
+        </span>
+      )}
+      <div
+        className={`mb-3 flex size-10 items-center justify-center rounded-lg ${bg[color]}`}
+      >
+        {icon}
+      </div>
+      <p className="text-2xl font-bold tabular-nums text-ink">{value}</p>
+      <p className="mt-0.5 text-xs font-medium text-ink-muted">{label}</p>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────
+   PRODUCTS TAB (mantém toda a lógica existente)
+───────────────────────────────────────────── */
+function ProductsTab() {
   const qc = useQueryClient();
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState<ProductRow | null>(null);
@@ -134,8 +487,7 @@ function AdminProducts() {
         .eq("id", p.id);
       if (error) throw error;
     },
-    onSuccess: () =>
-      qc.invalidateQueries({ queryKey: ["admin-products"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-products"] }),
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -147,13 +499,12 @@ function AdminProducts() {
         .eq("id", p.id);
       if (error) throw error;
     },
-    onSuccess: () =>
-      qc.invalidateQueries({ queryKey: ["admin-products"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-products"] }),
     onError: (e: Error) => toast.error(e.message),
   });
 
   return (
-    <div className="mx-auto max-w-7xl px-6 py-8">
+    <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-2xl font-bold text-ink">Produtos</h2>
