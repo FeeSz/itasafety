@@ -1,12 +1,15 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
-import { Menu, Search, ShoppingCart, X, Phone, Mail, MessageCircle } from "lucide-react";
+import { Menu, Search, ShoppingCart, X, Phone, Mail, MessageCircle, LayoutDashboard, LogOut, ChevronDown, User } from "lucide-react";
 import Logo from "./Logo";
 import MegaMenu from "./MegaMenu";
 import SearchBox from "./SearchBox";
 import { CATEGORIES } from "@/lib/categories";
 import { useQuoteCart } from "@/components/quote/QuoteCartContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const WHATSAPP_URL = "https://wa.me/5511988776655";
 
@@ -18,7 +21,26 @@ const NAV_LINKS: { label: string; to: string; hasMenu?: boolean }[] = [
   { label: "Contato", to: "/contato" },
 ];
 
+const getFirstName = (email?: string, fullName?: string) => {
+  if (fullName) {
+    const first = fullName.trim().split(/\s+/)[0];
+    if (first) return first.charAt(0).toUpperCase() + first.slice(1).toLowerCase();
+  }
+  if (!email) return "Usuário";
+  const username = email.split("@")[0].toLowerCase();
+  if (username.includes("felype")) return "Felype";
+  const cleanPart = username.split(/[^a-zA-Z]/)[0];
+  if (cleanPart) {
+    if (cleanPart.startsWith("felypelopes")) return "Felype";
+    return cleanPart.charAt(0).toUpperCase() + cleanPart.slice(1).toLowerCase();
+  }
+  return "Usuário";
+};
+
 export default function Header() {
+  const { user, isAdmin, loading } = useAuth();
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
   const [scrolled, setScrolled] = useState(false);
   const [drawer, setDrawer] = useState(false);
   const [mega, setMega] = useState(false);
@@ -27,11 +49,25 @@ export default function Header() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isHome = pathname === "/";
 
+  const fullName = user?.user_metadata?.full_name || user?.user_metadata?.name;
+  const avatarUrl = user?.user_metadata?.avatar_url || user?.user_metadata?.picture;
+  const firstName = getFirstName(user?.email, fullName);
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 80);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   useEffect(() => {
@@ -105,12 +141,85 @@ export default function Header() {
               </span>
             )}
           </button>
-          <Link
-            to="/auth"
-            className="hidden rounded-full border border-[#111111] px-5 py-2 text-[14px] font-semibold text-[#111111] transition-all duration-150 hover:bg-[#111111] hover:text-white hover:scale-105 active:scale-95 md:block"
-          >
-            Entrar
-          </Link>
+          {!loading && user ? (
+            <div className="relative" ref={userMenuRef}>
+              <button
+                type="button"
+                onClick={() => setUserMenuOpen((o) => !o)}
+                className="flex items-center gap-2 rounded-full border border-hairline bg-white/50 px-3 py-1.5 transition-all hover:bg-slate-50 hover:shadow-sm"
+                aria-haspopup="true"
+                aria-expanded={userMenuOpen}
+              >
+                {avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt={firstName}
+                    className="size-7 rounded-full object-cover border border-slate-200"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = "none";
+                    }}
+                  />
+                ) : (
+                  <div className="size-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 border border-slate-200">
+                    <User className="size-4" />
+                  </div>
+                )}
+                <span className="hidden md:inline text-sm font-semibold text-[#111111]">
+                  Olá, {firstName}
+                </span>
+                <ChevronDown className={`size-3.5 text-slate-500 transition-transform duration-200 hidden md:block ${userMenuOpen ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {userMenuOpen && (
+                <div className="absolute right-0 mt-2 w-56 rounded-xl border border-hairline bg-white py-1.5 shadow-lg z-50 animate-slide-down animate-in fade-in slide-in-from-top-1 duration-150">
+                  <div className="border-b border-hairline px-4 py-2 mb-1.5">
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-brand-blue">
+                      Sua Conta
+                    </p>
+                    <p className="text-xs font-bold text-ink truncate mt-0.5">
+                      {fullName || `Olá, ${firstName}`}
+                    </p>
+                    <p className="text-[10px] text-ink-muted truncate">
+                      {user.email}
+                    </p>
+                  </div>
+                  
+                  {isAdmin && (
+                    <Link
+                      to="/admin"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex w-full items-center gap-2 px-4 py-2 text-xs font-semibold text-[#111111] hover:bg-slate-50 transition-colors"
+                    >
+                      <LayoutDashboard className="size-4 text-brand-blue" />
+                      Painel do Administrador
+                    </Link>
+                  )}
+                  
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setUserMenuOpen(false);
+                      await supabase.auth.signOut();
+                      toast.success("Sessão encerrada");
+                    }}
+                    className="flex w-full items-center gap-2 px-4 py-2 text-xs font-semibold text-brand-red hover:bg-red-50 transition-colors"
+                  >
+                    <LogOut className="size-4" />
+                    Sair
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : !loading ? (
+            <Link
+              to="/auth"
+              className="hidden rounded-full border border-[#111111] px-5 py-2 text-[14px] font-semibold text-[#111111] transition-all duration-150 hover:bg-[#111111] hover:text-white hover:scale-105 active:scale-95 md:block"
+            >
+              Entrar
+            </Link>
+          ) : (
+            <div className="hidden h-[38px] w-[80px] md:block bg-slate-50 border border-slate-100 rounded-full animate-pulse" />
+          )}
           <button
             type="button"
             onClick={() => setDrawer(true)}
@@ -253,15 +362,64 @@ export default function Header() {
               </ul>
             </div>
 
-            {/* Sticky CTA: Entrar/Cadastrar */}
+            {/* Sticky CTA: Entrar ou Perfil no Mobile Drawer */}
             <div className="border-t border-hairline bg-white p-4">
-              <Link
-                to="/auth"
-                onClick={() => setDrawer(false)}
-                className="block w-full rounded-full bg-[#111111] py-3 text-center text-[14px] font-bold text-white transition-colors hover:bg-[#374151]"
-              >
-                Entrar / Cadastrar
-              </Link>
+              {user ? (
+                <div>
+                  <div className="flex items-center gap-3 mb-4">
+                    {avatarUrl ? (
+                      <img
+                        src={avatarUrl}
+                        alt={firstName}
+                        className="size-11 rounded-full object-cover border border-hairline"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      <div className="size-11 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 border border-hairline">
+                        <User className="size-6" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-ink truncate">Olá, {firstName}</p>
+                      <p className="text-xs text-ink-muted truncate">{user.email}</p>
+                    </div>
+                  </div>
+                  
+                  {isAdmin && (
+                    <Link
+                      to="/admin"
+                      onClick={() => setDrawer(false)}
+                      className="flex w-full items-center justify-center gap-2 rounded-full border border-[#111111] py-2.5 text-center text-[14px] font-semibold text-[#111111] hover:bg-slate-50 transition-colors mb-2"
+                    >
+                      <LayoutDashboard className="size-4" />
+                      Painel Administrador
+                    </Link>
+                  )}
+                  
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setDrawer(false);
+                      await supabase.auth.signOut();
+                      toast.success("Sessão encerrada");
+                    }}
+                    className="flex w-full items-center justify-center gap-2 rounded-full bg-brand-red py-2.5 text-center text-[14px] font-bold text-white hover:bg-red-600 transition-colors"
+                  >
+                    <LogOut className="size-4" />
+                    Sair
+                  </button>
+                </div>
+              ) : (
+                <Link
+                  to="/auth"
+                  onClick={() => setDrawer(false)}
+                  className="block w-full rounded-full bg-[#111111] py-3 text-center text-[14px] font-bold text-white transition-colors hover:bg-[#374151]"
+                >
+                  Entrar / Cadastrar
+                </Link>
+              )}
             </div>
           </div>
         </div>

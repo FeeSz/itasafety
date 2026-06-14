@@ -29,7 +29,7 @@ function clientIp() {
 }
 
 export const checkAuthRateLimit = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => checkSchema.parse(d))
+  .validator((d: unknown) => checkSchema.parse(d))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const since = new Date(Date.now() - RATE_WINDOW_MIN * 60_000).toISOString();
@@ -70,7 +70,7 @@ export const checkAuthRateLimit = createServerFn({ method: "POST" })
   });
 
 export const recordAuthAttempt = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => recordSchema.parse(d))
+  .validator((d: unknown) => recordSchema.parse(d))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const ip = clientIp();
