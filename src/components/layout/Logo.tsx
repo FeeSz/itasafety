@@ -3,34 +3,32 @@ import logoAsset from "@/assets/itasafety-logo-dark.png.asset.json";
 type LogoProps = {
   className?: string;
   onDark?: boolean;
-  /** Inline height override in px — bypasses Tailwind class specificity issues */
-  heightPx?: number;
 };
 
-export default function Logo({ className = "", onDark = false, heightPx }: LogoProps) {
-  // className controls the anchor (for display breakpoints like hidden/inline-flex)
-  // heightPx controls the img height directly via inline style
-  const defaultHeightClass = onDark
-    ? "h-14 sm:h-16 md:h-20 lg:h-24"
-    : "h-10 sm:h-12 md:h-20 lg:h-24";
-
+/**
+ * Logo responsivo — escala de forma fluida usando CSS clamp().
+ * Sem breakpoints fixos: a logo cresce proporcionalmente com a viewport.
+ *   mobile pequeno (~375px)  →  ~52px
+ *   mobile grande (~768px)   →  ~80px
+ *   desktop (≥1280px)        →  120px
+ */
+export default function Logo({ className = "", onDark = false }: LogoProps) {
   return (
     <a
       href="/"
       aria-label="ItaSafety — Página inicial"
-      className={`group items-center ${className || "inline-flex"}`}
+      className={`group inline-flex items-center ${className}`}
     >
       <img
         src={logoAsset.url}
         alt="ItaSafety"
         width={480}
         height={156}
-        className={`w-auto transition-transform duration-300 group-hover:scale-[1.02] ${
-          heightPx ? "" : defaultHeightClass
-        }`}
+        className="w-auto transition-transform duration-300 group-hover:scale-[1.02]"
         style={{
           objectFit: "contain",
-          ...(heightPx ? { height: `${heightPx}px` } : {}),
+          /* Escala fluida: mín 52px → 8vw → máx 120px */
+          height: "clamp(52px, 8vw, 120px)",
         }}
       />
     </a>
