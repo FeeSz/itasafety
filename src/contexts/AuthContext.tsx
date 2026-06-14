@@ -21,47 +21,71 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(() => {
+    if (typeof window !== "undefined") {
+      return sessionStorage.getItem("ita_is_admin") === "true";
+    }
+    return false;
+  });
 
   useEffect(() => {
     let previousUser: User | null = null;
 
     // Buscar sessão inicial
-    supabase.auth.getSession().then(async ({ data: { session: initialSession } }) => {
+    supabase.auth.getSession().then(({ data: { session: initialSession } }) => {
       setSession(initialSession);
       const currentUser = initialSession?.user ?? null;
       setUser(currentUser);
       previousUser = currentUser;
 
       if (currentUser) {
-        const { data: roles } = await supabase
+        // Resolve loading immediately for the user state
+        setLoading(false);
+
+        // Fetch roles in the background
+        supabase
           .from("user_roles")
           .select("role")
-          .eq("user_id", currentUser.id);
-        setIsAdmin((roles ?? []).some((r) => r.role === "admin"));
+          .eq("user_id", currentUser.id)
+          .then(({ data: roles }) => {
+            const adminStatus = (roles ?? []).some((r) => r.role === "admin");
+            setIsAdmin(adminStatus);
+            sessionStorage.setItem("ita_is_admin", adminStatus ? "true" : "false");
+          });
+      } else {
+        setIsAdmin(false);
+        sessionStorage.removeItem("ita_is_admin");
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     // Escutar mudanças no estado de autenticação
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, newSession) => {
+    } = supabase.auth.onAuthStateChange((event, newSession) => {
       setSession(newSession);
       const currentUser = newSession?.user ?? null;
       setUser(currentUser);
 
       if (currentUser) {
-        const { data: roles } = await supabase
+        // Resolve loading immediately
+        setLoading(false);
+
+        // Fetch roles in background
+        supabase
           .from("user_roles")
           .select("role")
-          .eq("user_id", currentUser.id);
-        setIsAdmin((roles ?? []).some((r) => r.role === "admin"));
+          .eq("user_id", currentUser.id)
+          .then(({ data: roles }) => {
+            const adminStatus = (roles ?? []).some((r) => r.role === "admin");
+            setIsAdmin(adminStatus);
+            sessionStorage.setItem("ita_is_admin", adminStatus ? "true" : "false");
+          });
       } else {
         setIsAdmin(false);
+        sessionStorage.removeItem("ita_is_admin");
+        setLoading(false);
       }
-
-      setLoading(false);
 
       // Detectar login (SIGNED_IN e transição de nulo para usuário)
       if (event === "SIGNED_IN" && currentUser && !previousUser) {

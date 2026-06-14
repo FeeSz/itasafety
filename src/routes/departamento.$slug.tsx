@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import {
   ChevronRight,
@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { CATEGORIES } from "@/lib/categories";
 import { FEATURED_PRODUCTS, type Product } from "@/lib/products";
 import { useQuoteCart } from "@/components/quote/QuoteCartContext";
+import { useAuth } from "@/contexts/AuthContext";
 import Reveal from "@/components/ui/Reveal";
 import { pageMeta } from "@/lib/seo";
 
@@ -448,6 +449,8 @@ function FilterChip({
 
 function ProductCard({ p }: { p: Product }) {
   const { add } = useQuoteCart();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const isNew = p.tags?.includes("novo");
   return (
     <article className="group flex flex-col overflow-hidden rounded-xl border border-hairline bg-white shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-blue-soft hover:shadow-lift">
@@ -488,6 +491,11 @@ function ProductCard({ p }: { p: Product }) {
         <button
           type="button"
           onClick={() => {
+            if (!user) {
+              toast.error("Por favor, faça login para solicitar uma cotação.");
+              navigate({ to: "/auth" });
+              return;
+            }
             add(p, 1);
             toast.success("Adicionado à lista de cotação", {
               description: p.name,

@@ -135,7 +135,7 @@ function AuthPage() {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: `${window.location.origin}/admin` },
+          options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
         });
         await recordAttempt({ data: { email, attempt_type, success: !error } });
         if (error) throw error;
@@ -147,13 +147,29 @@ function AuthPage() {
         await recordAttempt({ data: { email, attempt_type, success: !error } });
         setSuccessView("forgot");
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password });
         await recordAttempt({ data: { email, attempt_type, success: !error } });
         if (error) throw error;
+
+        let userIsAdmin = false;
+        if (authData?.user) {
+          const { data: roles } = await supabase
+            .from("user_roles")
+            .select("role")
+            .eq("user_id", authData.user.id);
+          userIsAdmin = (roles ?? []).some((r) => r.role === "admin");
+          sessionStorage.setItem("ita_is_admin", userIsAdmin ? "true" : "false");
+        }
+
         if (remember) localStorage.setItem("ita_remember_email", email);
         else localStorage.removeItem("ita_remember_email");
         toast.success("Bem-vindo!");
-        navigate({ to: "/admin", replace: true });
+
+        if (userIsAdmin) {
+          navigate({ to: "/admin", replace: true });
+        } else {
+          navigate({ to: "/", replace: true });
+        }
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Erro ao processar";

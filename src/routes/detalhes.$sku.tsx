@@ -1,5 +1,6 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   ChevronRight,
   ShoppingCart,
@@ -117,6 +118,8 @@ const NORMAS_POR_CATEGORIA: Record<string, string[]> = {
 function DetalhesPage() {
   const { product, related } = Route.useLoaderData();
   const { add } = useQuoteCart();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [qty, setQty] = useState(1);
   const [imgIdx, setImgIdx] = useState(0);
 
@@ -288,6 +291,11 @@ function DetalhesPage() {
             <button
               type="button"
               onClick={() => {
+                if (!user) {
+                  toast.error("Por favor, faça login para adicionar itens à cotação.");
+                  navigate({ to: "/auth" });
+                  return;
+                }
                 add(product, qty);
                 toast.success(`${qty}× adicionado à cotação`);
               }}

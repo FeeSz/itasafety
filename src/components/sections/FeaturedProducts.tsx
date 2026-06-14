@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { Check, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 import { FEATURED_PRODUCTS, type Product } from "@/lib/products";
 import { useQuoteCart } from "@/components/quote/QuoteCartContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 type Tab = "todos" | "mais-vendido" | "novo" | "certificado";
 
@@ -54,9 +55,16 @@ export default function FeaturedProducts() {
 
 function ProductCard({ p }: { p: Product }) {
   const { add } = useQuoteCart();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [added, setAdded] = useState(false);
 
   const onAdd = () => {
+    if (!user) {
+      toast.error("Por favor, faça login para solicitar uma cotação.");
+      navigate({ to: "/auth" });
+      return;
+    }
     add(p, 1);
     setAdded(true);
     toast.success("Adicionado à lista de cotação", { description: p.name });
