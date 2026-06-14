@@ -83,7 +83,7 @@ export default function HeroSlider() {
       className="relative isolate overflow-hidden bg-white"
       aria-label="Banner principal"
     >
-      <div className="mx-auto grid max-w-7xl items-center gap-10 px-6 pb-16 pt-28 md:grid-cols-2 md:gap-12 md:pb-24 md:pt-36">
+      <div className="mx-auto grid max-w-7xl items-center gap-10 px-6 pb-10 pt-16 md:grid-cols-2 md:gap-12 md:pb-24 md:pt-36">
         {/* Left content with smooth crossfade */}
         <div
           className="max-w-xl"
