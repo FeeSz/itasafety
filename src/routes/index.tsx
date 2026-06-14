@@ -73,7 +73,7 @@ function HomePage() {
       </Reveal>
 
       {/* Categorias */}
-      <section className="bg-white py-14">
+      <section className="bg-white py-8 md:py-14">
         <div className="mx-auto max-w-7xl px-6">
           <Reveal>
             <div className="mb-8 flex items-end justify-between gap-4">
