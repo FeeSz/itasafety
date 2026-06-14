@@ -59,25 +59,25 @@ export default function Header() {
   const showWhite = !isHome || scrolled;
   return (
     <header
-      className={`left-0 right-0 top-0 z-50 h-16 ${
+      className={`left-0 right-0 top-0 z-50 h-20 ${
         isHome ? "absolute" : "sticky"
       } ${showWhite ? "header-scrolled" : "header-transparent"}`}
     >
-      <div className="mx-auto flex h-16 max-w-7xl items-center px-5 md:px-10">
-        {/* Left — Logo */}
+      <div className="mx-auto flex h-20 max-w-7xl items-center px-5 md:px-10">
+        {/* Left — Logo (evidence) */}
         <div className="flex shrink-0 items-center">
-          <Logo className="!h-9 md:!h-10" />
+          <Logo className="!h-12 md:!h-14 lg:!h-16" />
         </div>
 
         {/* Center — Nav links (desktop) */}
-        <nav className="ml-12 hidden flex-1 items-center justify-center gap-7 md:flex">
+        <nav className="ml-12 hidden flex-1 items-center justify-center gap-8 md:flex">
           {NAV_LINKS.map((l) =>
             l.hasMenu ? (
               <button
                 key={l.label}
                 type="button"
                 onClick={() => setMega(true)}
-                className="text-[13px] font-semibold text-[#111111] transition-colors duration-150 hover:text-[#1B4F8A]"
+                className="text-[15px] font-semibold text-[#111111] transition-colors duration-150 hover:text-[#1B4F8A]"
               >
                 {l.label} ↓
               </button>
@@ -85,7 +85,7 @@ export default function Header() {
               <Link
                 key={l.label}
                 to={l.to}
-                className="text-[13px] font-semibold text-[#111111] transition-colors duration-150 hover:text-[#1B4F8A]"
+                className="text-[15px] font-semibold text-[#111111] transition-colors duration-150 hover:text-[#1B4F8A]"
               >
                 {l.label}
               </Link>
@@ -94,14 +94,14 @@ export default function Header() {
         </nav>
 
         {/* Right zone */}
-        <div className="ml-auto flex items-center gap-5">
+        <div className="ml-auto flex items-center gap-6">
           <button
             type="button"
             onClick={() => setSearchOpen((s) => !s)}
             aria-label="Buscar"
             className="hidden text-[#374151] transition-colors hover:text-[#111111] md:block"
           >
-            <Search className="size-5" />
+            <Search className="size-[22px]" />
           </button>
           <button
             type="button"
@@ -109,33 +109,33 @@ export default function Header() {
             className="relative text-[#374151] transition-colors hover:text-[#111111]"
             aria-label={`Carrinho de cotação (${count} itens)`}
           >
-            <ShoppingCart className="size-5" />
+            <ShoppingCart className="size-[22px]" />
             {count > 0 && (
-              <span className="absolute -right-2 -top-2 grid h-4 min-w-4 place-items-center rounded-full bg-brand-red px-1 text-[10px] font-bold leading-none text-white">
+              <span className="absolute -right-2 -top-2 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-brand-red px-1 text-[11px] font-bold leading-none text-white">
                 {count}
               </span>
             )}
           </button>
           <Link
             to="/auth"
-            className="hidden text-[13px] font-semibold text-[#111111] transition-colors hover:text-[#1B4F8A] md:block"
+            className="hidden rounded-full border border-[#111111] px-5 py-2 text-[14px] font-semibold text-[#111111] transition-colors hover:bg-[#111111] hover:text-white md:block"
           >
             Entrar
           </Link>
           <button
             type="button"
             onClick={() => setDrawer(true)}
-            className="grid size-10 place-items-center text-[#111111] md:hidden"
+            className="grid size-11 place-items-center text-[#111111] md:hidden"
             aria-label="Abrir menu"
           >
-            <Menu className="size-6" />
+            <Menu className="size-7" />
           </button>
         </div>
       </div>
 
       {/* Search overlay (desktop) */}
       {searchOpen && (
-        <div className="absolute left-0 right-0 top-16 hidden border-t border-[#F3F4F6] bg-white px-10 py-3 shadow-sm md:block animate-slide-down">
+        <div className="absolute left-0 right-0 top-20 hidden border-t border-[#F3F4F6] bg-white px-10 py-3 shadow-sm md:block animate-slide-down">
           <form onSubmit={onSearchSubmit} className="mx-auto flex max-w-3xl">
             <input
               autoFocus
