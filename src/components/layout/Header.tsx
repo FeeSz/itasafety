@@ -130,25 +130,16 @@ export default function Header() {
       {/* Search overlay (desktop) */}
       {searchOpen && (
         <div className="absolute left-0 right-0 top-20 hidden border-t border-[#F3F4F6] bg-white px-10 py-3 shadow-sm md:block animate-slide-down">
-          <form onSubmit={onSearchSubmit} className="mx-auto flex max-w-3xl">
-            <input
-              autoFocus
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              type="search"
-              placeholder="O que você está procurando?"
-              aria-label="Buscar produtos"
-              className="flex-1 border-b border-[#111] bg-transparent px-2 py-2 text-sm text-[#111] placeholder:text-[#9CA3AF] outline-none"
-            />
-            <button
-              type="submit"
-              className="ml-3 rounded-md bg-[#111111] px-5 text-[13px] font-bold text-white hover:bg-[#374151]"
-            >
-              Buscar
-            </button>
-          </form>
+          <div className="mx-auto max-w-3xl">
+            <SearchBox autoFocus onNavigate={() => setSearchOpen(false)} />
+          </div>
         </div>
       )}
+
+      {/* Mobile search bar — always visible */}
+      <div className="border-t border-[#F3F4F6] bg-white px-4 py-2 md:hidden">
+        <SearchBox size="sm" />
+      </div>
 
       <MegaMenu open={mega} onClose={() => setMega(false)} />
 
