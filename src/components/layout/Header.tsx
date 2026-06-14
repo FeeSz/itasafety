@@ -226,8 +226,18 @@ export default function Header() {
                 <li><Link to="/localizacao" onClick={() => setDrawer(false)} className="block py-2 text-ink">Localização</Link></li>
                 <li><Link to="/contato" onClick={() => setDrawer(false)} className="block py-2 text-ink">Contato</Link></li>
                 <li><Link to="/carrinho" onClick={() => setDrawer(false)} className="block py-2 text-ink">Lista de Cotação</Link></li>
-                <li><Link to="/auth" onClick={() => setDrawer(false)} className="block py-2 text-brand-blue font-semibold">Entrar / Cadastrar</Link></li>
               </ul>
+            </div>
+
+            {/* Sticky CTA: Entrar/Cadastrar */}
+            <div className="border-t border-hairline bg-white p-4">
+              <Link
+                to="/auth"
+                onClick={() => setDrawer(false)}
+                className="block w-full rounded-full bg-[#111111] py-3 text-center text-[14px] font-bold text-white transition-colors hover:bg-[#374151]"
+              >
+                Entrar / Cadastrar
+              </Link>
             </div>
           </div>
         </div>
