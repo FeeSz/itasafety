@@ -145,7 +145,7 @@ export default function HeroSlider() {
         </div>
 
         {/* Right visual — transparent 3D with hover animation */}
-        <div className="hero-3d group relative flex items-center justify-center">
+        <div className="hero-3d group relative hidden items-center justify-center md:flex">
           <img
             src={heroImg}
             alt="Equipamentos de proteção individual: capacete, óculos e luvas"
