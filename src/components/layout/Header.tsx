@@ -44,14 +44,14 @@ export default function Header() {
   const showWhite = !isHome || scrolled;
   return (
     <header
-      className={`left-0 right-0 top-0 z-50 h-16 md:h-[136px] ${
+      className={`left-0 right-0 top-0 z-50 h-20 md:h-[136px] ${
         isHome ? "absolute" : "sticky"
       } ${showWhite ? "header-scrolled" : "header-transparent"}`}
     >
-      <div className="mx-auto flex h-16 md:h-[136px] max-w-7xl items-center px-5 md:px-10">
+      <div className="mx-auto flex h-20 md:h-[136px] max-w-7xl items-center px-5 md:px-10">
         {/* Left — Logo (evidence) */}
         <div className="flex shrink-0 items-center">
-          <Logo className="md:hidden" heightPx={40} />
+          <Logo className="md:hidden" heightPx={64} />
           <Logo className="hidden md:inline-flex" heightPx={128} />
         </div>
 
@@ -121,7 +121,7 @@ export default function Header() {
 
       {/* Search overlay (desktop) */}
       {searchOpen && (
-        <div className="absolute left-0 right-0 top-16 md:top-[136px] hidden border-t border-[#F3F4F6] bg-white px-10 py-3 shadow-sm md:block animate-slide-down">
+        <div className="absolute left-0 right-0 top-20 md:top-[136px] hidden border-t border-[#F3F4F6] bg-white px-10 py-3 shadow-sm md:block animate-slide-down">
           <div className="mx-auto max-w-3xl">
             <SearchBox autoFocus onNavigate={() => setSearchOpen(false)} />
           </div>
