@@ -3,7 +3,7 @@ import { CATEGORIES } from "@/lib/categories";
 
 export default function CategoryPills() {
   return (
-    <div className="w-full border-y border-[#F3F4F6] bg-white">
+    <div className="hidden w-full border-y border-[#F3F4F6] bg-white md:block">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-2 px-5 py-3.5 md:px-10">
         <span className="mr-3 text-[11px] font-bold uppercase tracking-[0.1em] text-[#9CA3AF]">
           Categorias

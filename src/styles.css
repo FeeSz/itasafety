@@ -60,9 +60,9 @@
   --radius-lg: 8px;
   --radius-xl: 12px;
 
-  --shadow-card: 0 2px 8px rgba(0,0,0,0.06);
-  --shadow-lift: 0 8px 24px rgba(27,79,138,0.12);
-  --shadow-strong: 0 12px 32px rgba(27,79,138,0.18);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-lift: 0 8px 24px rgba(27, 79, 138, 0.12);
+  --shadow-strong: 0 12px 32px rgba(27, 79, 138, 0.18);
 
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
   --ease-enter: cubic-bezier(0, 0, 0.2, 1);
@@ -70,54 +70,53 @@
 
 :root {
   /* Azul institucional (10%) */
-  --brand-blue: #1B4F8A;
-  --brand-blue-hover: #2563A8;
-  --brand-blue-active: #0F3566;
-  --brand-blue-light: #3B7DD8;
-  --brand-blue-soft: #DBEAFE;
-  --brand-blue-tint: #EBF4FF;
+  --brand-blue: #1b4f8a;
+  --brand-blue-hover: #2563a8;
+  --brand-blue-active: #0f3566;
+  --brand-blue-light: #3b7dd8;
+  --brand-blue-soft: #dbeafe;
+  --brand-blue-tint: #ebf4ff;
 
   /* Vermelho — apenas alertas/urgência */
-  --brand-red: #C0392B;
-  --brand-red-dark: #A93226;
+  --brand-red: #c0392b;
+  --brand-red-dark: #a93226;
 
   /* Cinzas (30%) */
-  --ink: #1A1A2E;
-  --ink-muted: #4A5568;
-  --ink-soft: #5C6B7E;
-  --surface: #FFFFFF;
-  --surface-sunken: #ECEFF3;
-  --surface-raised: #F7FAFC;
-  --hairline: #D8DEE6;
+  --ink: #1a1a2e;
+  --ink-muted: #4a5568;
+  --ink-soft: #5c6b7e;
+  --surface: #ffffff;
+  --surface-sunken: #eceff3;
+  --surface-raised: #f7fafc;
+  --hairline: #d8dee6;
 
   --header-dark: #6c6f75;
-  --announce-dark: #1A1A2E;
+  --announce-dark: #1a1a2e;
 
   /* Blush-inspired tokens */
   --color-ink-900: #111111;
   --color-hero-bg: #ffffff;
-  --color-cat-pill-bg: #EBF4FF;
-  --color-cat-pill-border: #DBEAFE;
-  --color-cat-pill-text: #1B4F8A;
-
+  --color-cat-pill-bg: #ebf4ff;
+  --color-cat-pill-border: #dbeafe;
+  --color-cat-pill-text: #1b4f8a;
 
   /* shadcn tokens */
-  --background: #ECEFF3;
+  --background: #eceff3;
   --foreground: var(--ink);
-  --card: #FFFFFF;
+  --card: #ffffff;
   --card-foreground: var(--ink);
-  --popover: #FFFFFF;
+  --popover: #ffffff;
   --popover-foreground: var(--ink);
   --primary: var(--brand-blue);
-  --primary-foreground: #FFFFFF;
+  --primary-foreground: #ffffff;
   --secondary: var(--surface-sunken);
   --secondary-foreground: var(--ink);
   --muted: var(--surface-sunken);
   --muted-foreground: var(--ink-muted);
   --accent: var(--brand-blue);
-  --accent-foreground: #FFFFFF;
+  --accent-foreground: #ffffff;
   --destructive: var(--brand-red);
-  --destructive-foreground: #FFFFFF;
+  --destructive-foreground: #ffffff;
   --border: var(--hairline);
   --input: var(--hairline);
   --ring: var(--brand-blue);
@@ -125,22 +124,62 @@
 }
 
 @keyframes reveal-up {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
-@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 @keyframes slide-down {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
 @layer base {
-  * { border-color: var(--color-border); }
+  * {
+    border-color: var(--color-border);
+  }
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -151,17 +190,38 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
   }
-  ::selection { background-color: var(--brand-blue); color: white; }
-  :focus-visible { outline: 2px solid var(--brand-blue); outline-offset: 2px; }
+  ::selection {
+    background-color: var(--brand-blue);
+    color: white;
+  }
+  :focus-visible {
+    outline: 2px solid var(--brand-blue);
+    outline-offset: 2px;
+  }
 }
 
 @layer utilities {
-  .animate-reveal { animation: reveal-up 0.6s var(--ease-standard) both; }
-  .animate-fade-in { animation: fade-in 0.3s var(--ease-standard) both; }
-  .animate-marquee { animation: marquee 35s linear infinite; }
-  .animate-slide-down { animation: slide-down 200ms var(--ease-standard) both; }
-  .text-balance { text-wrap: balance; }
-  .text-pretty { text-wrap: pretty; }
+  .animate-reveal {
+    animation: reveal-up 0.6s var(--ease-standard) both;
+  }
+  .animate-fade-in {
+    animation: fade-in 0.3s var(--ease-standard) both;
+  }
+  .animate-marquee {
+    animation: marquee 35s linear infinite;
+  }
+  .animate-slide-down {
+    animation: slide-down 200ms var(--ease-standard) both;
+  }
+  .animate-slide-in-right {
+    animation: slide-in-right 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .text-balance {
+    text-wrap: balance;
+  }
+  .text-pretty {
+    text-wrap: pretty;
+  }
   .skeleton {
     background: linear-gradient(90deg, #f0f0f0 25%, #e4e4e4 50%, #f0f0f0 75%);
     background-size: 200% 100%;
@@ -177,7 +237,9 @@
     font-size: 0.875rem;
     color: var(--ink);
     outline: none;
-    transition: border-color 150ms, box-shadow 150ms;
+    transition:
+      border-color 150ms,
+      box-shadow 150ms;
   }
   .input:focus {
     border-color: var(--brand-blue);
@@ -186,16 +248,24 @@
 
   .header-transparent {
     background: transparent;
-    transition: background 200ms ease, box-shadow 200ms ease;
+    transition:
+      background 200ms ease,
+      box-shadow 200ms ease;
   }
   .header-scrolled {
     background: #ffffff;
-    box-shadow: 0 1px 0 rgba(0,0,0,0.08);
-    transition: background 200ms ease, box-shadow 200ms ease;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+    transition:
+      background 200ms ease,
+      box-shadow 200ms ease;
   }
 }
 
-
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

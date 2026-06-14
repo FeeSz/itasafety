@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Link } from "@tanstack/react-router";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import heroImg from "@/assets/hero-epi-3d.png";
@@ -57,6 +57,9 @@ export default function HeroSlider() {
   const [visible, setVisible] = useState(true);
   const [paused, setPaused] = useState(false);
 
+  const touchStartX = useRef<number | null>(null);
+  const touchEndX = useRef<number | null>(null);
+
   // Auto rotate
   useEffect(() => {
     if (paused) return;
@@ -74,16 +77,45 @@ export default function HeroSlider() {
     }, TRANSITION_MS);
   };
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchEndX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartX.current === null || touchEndX.current === null) return;
+    const diffX = touchStartX.current - touchEndX.current;
+    const threshold = 50;
+
+    if (diffX > threshold) {
+      // Swipe left -> next slide
+      changeTo((i + 1) % SLIDES.length);
+    } else if (diffX < -threshold) {
+      // Swipe right -> previous slide
+      changeTo((i - 1 + SLIDES.length) % SLIDES.length);
+    }
+
+    touchStartX.current = null;
+    touchEndX.current = null;
+  };
+
   const slide = SLIDES[i];
 
   return (
     <section
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
-      className="relative isolate overflow-hidden bg-white"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      className="relative isolate overflow-hidden bg-white touch-pan-y"
       aria-label="Banner principal"
     >
-      <div className="mx-auto grid max-w-7xl items-center gap-10 px-6 pb-10 pt-16 md:grid-cols-2 md:gap-12 md:pb-24 md:pt-36">
+      <div className="mx-auto grid max-w-7xl items-center gap-10 px-6 pb-10 pt-32 md:grid-cols-2 md:gap-12 md:pb-24 md:pt-36">
         {/* Left content with smooth crossfade */}
         <div
           className="max-w-xl"
@@ -112,13 +144,13 @@ export default function HeroSlider() {
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link
               to={slide.ctaPrimary.to}
-              className="rounded-full bg-[#111111] px-7 py-3.5 text-[14px] font-bold text-white transition-colors duration-150 hover:bg-[#374151]"
+              className="rounded-full bg-[#111111] px-7 py-3.5 text-[14px] font-bold text-white transition-all duration-150 hover:bg-[#374151] hover:scale-105 active:scale-95"
             >
               {slide.ctaPrimary.label}
             </Link>
             <Link
               to={slide.ctaSecondary.to}
-              className="rounded-full border border-[#E5E7EB] bg-white px-7 py-3.5 text-[14px] font-bold text-[#111111] transition-colors hover:border-[#111111]"
+              className="rounded-full border border-[#E5E7EB] bg-white px-7 py-3.5 text-[14px] font-bold text-[#111111] transition-all duration-150 hover:border-[#111111] hover:scale-105 active:scale-95"
             >
               {slide.ctaSecondary.label}
             </Link>
@@ -133,9 +165,7 @@ export default function HeroSlider() {
                   idx < TRUST.length - 1 ? "border-r border-[#E5E7EB]" : ""
                 }`}
               >
-                <span className="text-[22px] font-extrabold text-[#111111]">
-                  {t.num}
-                </span>
+                <span className="text-[22px] font-extrabold text-[#111111]">{t.num}</span>
                 <span className="text-[10px] uppercase tracking-[0.1em] text-[#9CA3AF]">
                   {t.label}
                 </span>

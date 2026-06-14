@@ -44,14 +44,14 @@ export default function Header() {
   const showWhite = !isHome || scrolled;
   return (
     <header
-      className={`left-0 right-0 top-0 z-50 h-20 ${
+      className={`left-0 right-0 top-0 z-50 h-24 md:h-20 ${
         isHome ? "absolute" : "sticky"
       } ${showWhite ? "header-scrolled" : "header-transparent"}`}
     >
-      <div className="mx-auto flex h-20 max-w-7xl items-center px-5 md:px-10">
+      <div className="mx-auto flex h-24 md:h-20 max-w-7xl items-center px-5 md:px-10">
         {/* Left — Logo (evidence) */}
         <div className="flex shrink-0 items-center">
-          <Logo className="!h-12 md:!h-14 lg:!h-16" />
+          <Logo className="!h-16 md:!h-14 lg:!h-16" />
         </div>
 
         {/* Center — Nav links (desktop) */}
@@ -84,14 +84,14 @@ export default function Header() {
             type="button"
             onClick={() => setSearchOpen((s) => !s)}
             aria-label="Buscar"
-            className="hidden text-[#374151] transition-colors hover:text-[#111111] md:block"
+            className="hidden text-[#374151] transition-all duration-150 hover:text-[#111111] hover:scale-105 active:scale-90 md:block"
           >
             <Search className="size-[22px]" />
           </button>
           <button
             type="button"
             onClick={() => setCartOpen(true)}
-            className="relative text-[#374151] transition-colors hover:text-[#111111]"
+            className="relative text-[#374151] transition-all duration-150 hover:text-[#111111] hover:scale-105 active:scale-90"
             aria-label={`Carrinho de cotação (${count} itens)`}
           >
             <ShoppingCart className="size-[22px]" />
@@ -103,14 +103,14 @@ export default function Header() {
           </button>
           <Link
             to="/auth"
-            className="hidden rounded-full border border-[#111111] px-5 py-2 text-[14px] font-semibold text-[#111111] transition-colors hover:bg-[#111111] hover:text-white md:block"
+            className="hidden rounded-full border border-[#111111] px-5 py-2 text-[14px] font-semibold text-[#111111] transition-all duration-150 hover:bg-[#111111] hover:text-white hover:scale-105 active:scale-95 md:block"
           >
             Entrar
           </Link>
           <button
             type="button"
             onClick={() => setDrawer(true)}
-            className="grid size-11 place-items-center text-[#111111] md:hidden"
+            className="grid size-11 place-items-center text-[#111111] md:hidden transition-all duration-150 hover:scale-105 active:scale-90"
             aria-label="Abrir menu"
           >
             <Menu className="size-7" />
@@ -138,13 +138,13 @@ export default function Header() {
             onClick={() => setDrawer(false)}
             className="absolute inset-0 bg-black/60 animate-fade-in"
           />
-          <div className="absolute right-0 top-0 flex h-full w-[88%] max-w-sm flex-col bg-white animate-fade-in">
+          <div className="absolute right-0 top-0 flex h-full w-[88%] max-w-sm flex-col bg-white animate-slide-in-right">
             <div className="flex items-center justify-between border-b border-hairline bg-white p-4">
               <Logo />
               <button
                 type="button"
                 onClick={() => setDrawer(false)}
-                className="grid size-10 place-items-center text-[#111]"
+                className="grid size-10 place-items-center text-[#111] transition-all duration-150 hover:scale-110 active:scale-90"
                 aria-label="Fechar"
               >
                 <X className="size-6" />
