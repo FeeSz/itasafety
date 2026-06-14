@@ -19,6 +19,7 @@ import { QuoteCartProvider } from "@/components/quote/QuoteCartContext";
 import QuoteFab from "@/components/quote/QuoteFab";
 import WhatsAppFab from "@/components/ui/WhatsAppFab";
 import { Toaster } from "@/components/ui/sonner";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 function NotFoundComponent() {
   return (
@@ -28,9 +29,7 @@ function NotFoundComponent() {
         <h1 className="mt-4 font-display text-5xl font-bold tracking-tight text-ink md:text-6xl">
           Página não encontrada
         </h1>
-        <p className="mt-4 text-sm text-ink-muted">
-          O endereço acessado não existe ou foi movido.
-        </p>
+        <p className="mt-4 text-sm text-ink-muted">O endereço acessado não existe ou foi movido.</p>
         <CtaButton as={Link} to="/" size="sm" className="mt-8">
           Voltar ao início
         </CtaButton>
@@ -92,11 +91,31 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:title", content: "ITASAFETY - Equipamentos de Proteção Individual Ltda" },
       { name: "twitter:title", content: "ITASAFETY - Equipamentos de Proteção Individual Ltda" },
-      { name: "description", content: "ItaSafety - Equipamentos de proteção individual. Fornecemos as melhores marcas com a melhor qualidade e toda atenção que nossos clientes merecem." },
-      { property: "og:description", content: "ItaSafety - Equipamentos de proteção individual. Fornecemos as melhores marcas com a melhor qualidade e toda atenção que nossos clientes merecem." },
-      { name: "twitter:description", content: "ItaSafety - Equipamentos de proteção individual. Fornecemos as melhores marcas com a melhor qualidade e toda atenção que nossos clientes merecem." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/1ab0672f-beb8-43f3-b9c9-967b0d2d7287/id-preview-aa10ea5d--da39f44e-909c-475c-b71a-c8842452812c.lovable.app-1780193247403.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/1ab0672f-beb8-43f3-b9c9-967b0d2d7287/id-preview-aa10ea5d--da39f44e-909c-475c-b71a-c8842452812c.lovable.app-1780193247403.png" },
+      {
+        name: "description",
+        content:
+          "ItaSafety - Equipamentos de proteção individual. Fornecemos as melhores marcas com a melhor qualidade e toda atenção que nossos clientes merecem.",
+      },
+      {
+        property: "og:description",
+        content:
+          "ItaSafety - Equipamentos de proteção individual. Fornecemos as melhores marcas com a melhor qualidade e toda atenção que nossos clientes merecem.",
+      },
+      {
+        name: "twitter:description",
+        content:
+          "ItaSafety - Equipamentos de proteção individual. Fornecemos as melhores marcas com a melhor qualidade e toda atenção que nossos clientes merecem.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/1ab0672f-beb8-43f3-b9c9-967b0d2d7287/id-preview-aa10ea5d--da39f44e-909c-475c-b71a-c8842452812c.lovable.app-1780193247403.png",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/1ab0672f-beb8-43f3-b9c9-967b0d2d7287/id-preview-aa10ea5d--da39f44e-909c-475c-b71a-c8842452812c.lovable.app-1780193247403.png",
+      },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -133,23 +152,25 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
-      <QuoteCartProvider>
-        <a
-          href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:bg-brand-blue focus:px-4 focus:py-2 focus:text-xs focus:font-bold focus:uppercase focus:tracking-wider focus:text-white"
-        >
-          Ir para o conteúdo
-        </a>
-        <Header />
-        <main id="main">
-          <Outlet />
-        </main>
-        <Footer />
-        <CookieBanner />
-        <QuoteFab />
-        <WhatsAppFab />
-        <Toaster position="top-right" />
-      </QuoteCartProvider>
+      <AuthProvider>
+        <QuoteCartProvider>
+          <a
+            href="#main"
+            className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:bg-brand-blue focus:px-4 focus:py-2 focus:text-xs focus:font-bold focus:uppercase focus:tracking-wider focus:text-white"
+          >
+            Ir para o conteúdo
+          </a>
+          <Header />
+          <main id="main">
+            <Outlet />
+          </main>
+          <Footer />
+          <CookieBanner />
+          <QuoteFab />
+          <WhatsAppFab />
+          <Toaster position="top-right" />
+        </QuoteCartProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

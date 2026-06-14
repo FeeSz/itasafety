@@ -15,6 +15,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as QuemsomosRouteImport } from './routes/quemsomos'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as LocalizacaoRouteImport } from './routes/localizacao'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as ContatoRouteImport } from './routes/contato'
@@ -23,8 +24,10 @@ import { Route as CarrinhoRouteImport } from './routes/carrinho'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthIndexRouteImport } from './routes/auth.index'
 import { Route as DetalhesSkuRouteImport } from './routes/detalhes.$sku'
 import { Route as DepartamentoSlugRouteImport } from './routes/departamento.$slug'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_authenticated/admin/categories'
@@ -58,6 +61,11 @@ const QuemsomosRoute = QuemsomosRouteImport.update({
 const PrivacidadeRoute = PrivacidadeRouteImport.update({
   id: '/privacidade',
   path: '/privacidade',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LocalizacaoRoute = LocalizacaoRouteImport.update({
@@ -99,6 +107,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthIndexRoute = AuthIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthRoute,
+} as any)
 const DetalhesSkuRoute = DetalhesSkuRouteImport.update({
   id: '/detalhes/$sku',
   path: '/detalhes/$sku',
@@ -108,6 +121,11 @@ const DepartamentoSlugRoute = DepartamentoSlugRouteImport.update({
   id: '/departamento/$slug',
   path: '/departamento/$slug',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/callback',
+  path: '/callback',
+  getParentRoute: () => AuthRoute,
 } as any)
 const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
   id: '/admin',
@@ -134,12 +152,13 @@ const AuthenticatedAdminBrandsRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/carrinho': typeof CarrinhoRoute
   '/categorias': typeof CategoriasRoute
   '/contato': typeof ContatoRoute
   '/cookies': typeof CookiesRoute
   '/localizacao': typeof LocalizacaoRoute
+  '/login': typeof LoginRoute
   '/privacidade': typeof PrivacidadeRoute
   '/quemsomos': typeof QuemsomosRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -147,28 +166,32 @@ export interface FileRoutesByFullPath {
   '/sobre': typeof SobreRoute
   '/termos': typeof TermosRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/auth/callback': typeof AuthCallbackRoute
   '/departamento/$slug': typeof DepartamentoSlugRoute
   '/detalhes/$sku': typeof DetalhesSkuRoute
+  '/auth/': typeof AuthIndexRoute
   '/admin/brands': typeof AuthenticatedAdminBrandsRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/auth': typeof AuthRoute
   '/carrinho': typeof CarrinhoRoute
   '/categorias': typeof CategoriasRoute
   '/contato': typeof ContatoRoute
   '/cookies': typeof CookiesRoute
   '/localizacao': typeof LocalizacaoRoute
+  '/login': typeof LoginRoute
   '/privacidade': typeof PrivacidadeRoute
   '/quemsomos': typeof QuemsomosRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sobre': typeof SobreRoute
   '/termos': typeof TermosRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/departamento/$slug': typeof DepartamentoSlugRoute
   '/detalhes/$sku': typeof DetalhesSkuRoute
+  '/auth': typeof AuthIndexRoute
   '/admin/brands': typeof AuthenticatedAdminBrandsRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -177,12 +200,13 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
-  '/auth': typeof AuthRoute
+  '/auth': typeof AuthRouteWithChildren
   '/carrinho': typeof CarrinhoRoute
   '/categorias': typeof CategoriasRoute
   '/contato': typeof ContatoRoute
   '/cookies': typeof CookiesRoute
   '/localizacao': typeof LocalizacaoRoute
+  '/login': typeof LoginRoute
   '/privacidade': typeof PrivacidadeRoute
   '/quemsomos': typeof QuemsomosRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -190,8 +214,10 @@ export interface FileRoutesById {
   '/sobre': typeof SobreRoute
   '/termos': typeof TermosRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/auth/callback': typeof AuthCallbackRoute
   '/departamento/$slug': typeof DepartamentoSlugRoute
   '/detalhes/$sku': typeof DetalhesSkuRoute
+  '/auth/': typeof AuthIndexRoute
   '/_authenticated/admin/brands': typeof AuthenticatedAdminBrandsRoute
   '/_authenticated/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -206,6 +232,7 @@ export interface FileRouteTypes {
     | '/contato'
     | '/cookies'
     | '/localizacao'
+    | '/login'
     | '/privacidade'
     | '/quemsomos'
     | '/reset-password'
@@ -213,28 +240,32 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/termos'
     | '/admin'
+    | '/auth/callback'
     | '/departamento/$slug'
     | '/detalhes/$sku'
+    | '/auth/'
     | '/admin/brands'
     | '/admin/categories'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/auth'
     | '/carrinho'
     | '/categorias'
     | '/contato'
     | '/cookies'
     | '/localizacao'
+    | '/login'
     | '/privacidade'
     | '/quemsomos'
     | '/reset-password'
     | '/sitemap.xml'
     | '/sobre'
     | '/termos'
+    | '/auth/callback'
     | '/departamento/$slug'
     | '/detalhes/$sku'
+    | '/auth'
     | '/admin/brands'
     | '/admin/categories'
     | '/admin'
@@ -248,6 +279,7 @@ export interface FileRouteTypes {
     | '/contato'
     | '/cookies'
     | '/localizacao'
+    | '/login'
     | '/privacidade'
     | '/quemsomos'
     | '/reset-password'
@@ -255,8 +287,10 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/termos'
     | '/_authenticated/admin'
+    | '/auth/callback'
     | '/departamento/$slug'
     | '/detalhes/$sku'
+    | '/auth/'
     | '/_authenticated/admin/brands'
     | '/_authenticated/admin/categories'
     | '/_authenticated/admin/'
@@ -265,12 +299,13 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
-  AuthRoute: typeof AuthRoute
+  AuthRoute: typeof AuthRouteWithChildren
   CarrinhoRoute: typeof CarrinhoRoute
   CategoriasRoute: typeof CategoriasRoute
   ContatoRoute: typeof ContatoRoute
   CookiesRoute: typeof CookiesRoute
   LocalizacaoRoute: typeof LocalizacaoRoute
+  LoginRoute: typeof LoginRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
   QuemsomosRoute: typeof QuemsomosRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -323,6 +358,13 @@ declare module '@tanstack/react-router' {
       path: '/privacidade'
       fullPath: '/privacidade'
       preLoaderRoute: typeof PrivacidadeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/localizacao': {
@@ -381,6 +423,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/': {
+      id: '/auth/'
+      path: '/'
+      fullPath: '/auth/'
+      preLoaderRoute: typeof AuthIndexRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/detalhes/$sku': {
       id: '/detalhes/$sku'
       path: '/detalhes/$sku'
@@ -394,6 +443,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/departamento/$slug'
       preLoaderRoute: typeof DepartamentoSlugRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof AuthRoute
     }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
@@ -455,15 +511,28 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface AuthRouteChildren {
+  AuthCallbackRoute: typeof AuthCallbackRoute
+  AuthIndexRoute: typeof AuthIndexRoute
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthCallbackRoute: AuthCallbackRoute,
+  AuthIndexRoute: AuthIndexRoute,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
-  AuthRoute: AuthRoute,
+  AuthRoute: AuthRouteWithChildren,
   CarrinhoRoute: CarrinhoRoute,
   CategoriasRoute: CategoriasRoute,
   ContatoRoute: ContatoRoute,
   CookiesRoute: CookiesRoute,
   LocalizacaoRoute: LocalizacaoRoute,
+  LoginRoute: LoginRoute,
   PrivacidadeRoute: PrivacidadeRoute,
   QuemsomosRoute: QuemsomosRoute,
   ResetPasswordRoute: ResetPasswordRoute,
