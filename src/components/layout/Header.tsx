@@ -50,8 +50,7 @@ export default function Header() {
     };
   }, [drawer, mega]);
 
-  const showWhite0 = !isHome || scrolled;
-  void showWhite0;
+  const showWhite = !isHome || scrolled;
 
   const showWhite = !isHome || scrolled;
   return (
