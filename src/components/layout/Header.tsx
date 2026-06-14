@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import Logo from "./Logo";
 import MegaMenu from "./MegaMenu";
+import SearchBox from "./SearchBox";
 import { CATEGORIES } from "@/lib/categories";
 import { useQuoteCart } from "@/components/quote/QuoteCartContext";
 
@@ -30,7 +31,6 @@ export default function Header() {
   const [drawer, setDrawer] = useState(false);
   const [mega, setMega] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [query, setQuery] = useState("");
   const { count, setOpen: setCartOpen } = useQuoteCart();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isHome = pathname === "/";
@@ -49,12 +49,6 @@ export default function Header() {
       document.body.style.overflow = "";
     };
   }, [drawer, mega]);
-
-  const onSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!query.trim()) return;
-    window.location.href = `/departamento/${CATEGORIES[0].slug}?q=${encodeURIComponent(query)}`;
-  };
 
   const showWhite = !isHome || scrolled;
   return (
@@ -136,25 +130,16 @@ export default function Header() {
       {/* Search overlay (desktop) */}
       {searchOpen && (
         <div className="absolute left-0 right-0 top-20 hidden border-t border-[#F3F4F6] bg-white px-10 py-3 shadow-sm md:block animate-slide-down">
-          <form onSubmit={onSearchSubmit} className="mx-auto flex max-w-3xl">
-            <input
-              autoFocus
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              type="search"
-              placeholder="O que você está procurando?"
-              aria-label="Buscar produtos"
-              className="flex-1 border-b border-[#111] bg-transparent px-2 py-2 text-sm text-[#111] placeholder:text-[#9CA3AF] outline-none"
-            />
-            <button
-              type="submit"
-              className="ml-3 rounded-md bg-[#111111] px-5 text-[13px] font-bold text-white hover:bg-[#374151]"
-            >
-              Buscar
-            </button>
-          </form>
+          <div className="mx-auto max-w-3xl">
+            <SearchBox autoFocus onNavigate={() => setSearchOpen(false)} />
+          </div>
         </div>
       )}
+
+      {/* Mobile search bar — always visible */}
+      <div className="border-t border-[#F3F4F6] bg-white px-4 py-2 md:hidden">
+        <SearchBox size="sm" />
+      </div>
 
       <MegaMenu open={mega} onClose={() => setMega(false)} />
 
@@ -179,6 +164,11 @@ export default function Header() {
                 <X className="size-6" />
               </button>
             </div>
+
+            <div className="border-b border-hairline bg-white px-4 py-3">
+              <SearchBox size="sm" onNavigate={() => setDrawer(false)} />
+            </div>
+
 
             <div className="grid grid-cols-3 gap-px bg-hairline">
               <a
@@ -236,8 +226,18 @@ export default function Header() {
                 <li><Link to="/localizacao" onClick={() => setDrawer(false)} className="block py-2 text-ink">Localização</Link></li>
                 <li><Link to="/contato" onClick={() => setDrawer(false)} className="block py-2 text-ink">Contato</Link></li>
                 <li><Link to="/carrinho" onClick={() => setDrawer(false)} className="block py-2 text-ink">Lista de Cotação</Link></li>
-                <li><Link to="/auth" onClick={() => setDrawer(false)} className="block py-2 text-brand-blue font-semibold">Entrar / Cadastrar</Link></li>
               </ul>
+            </div>
+
+            {/* Sticky CTA: Entrar/Cadastrar */}
+            <div className="border-t border-hairline bg-white p-4">
+              <Link
+                to="/auth"
+                onClick={() => setDrawer(false)}
+                className="block w-full rounded-full bg-[#111111] py-3 text-center text-[14px] font-bold text-white transition-colors hover:bg-[#374151]"
+              >
+                Entrar / Cadastrar
+              </Link>
             </div>
           </div>
         </div>

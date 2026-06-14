@@ -83,7 +83,7 @@ export default function HeroSlider() {
       className="relative isolate overflow-hidden bg-white"
       aria-label="Banner principal"
     >
-      <div className="mx-auto grid max-w-7xl items-center gap-10 px-6 pb-16 pt-28 md:grid-cols-2 md:gap-12 md:pb-24 md:pt-36">
+      <div className="mx-auto grid max-w-7xl items-center gap-10 px-6 pb-10 pt-16 md:grid-cols-2 md:gap-12 md:pb-24 md:pt-36">
         {/* Left content with smooth crossfade */}
         <div
           className="max-w-xl"
@@ -145,7 +145,7 @@ export default function HeroSlider() {
         </div>
 
         {/* Right visual — transparent 3D with hover animation */}
-        <div className="hero-3d group relative flex items-center justify-center">
+        <div className="hero-3d group relative hidden items-center justify-center md:flex">
           <img
             src={heroImg}
             alt="Equipamentos de proteção individual: capacete, óculos e luvas"
