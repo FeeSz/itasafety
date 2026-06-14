@@ -24,8 +24,10 @@ export const Route = createFileRoute("/localizacao")({
             email: "contato@itasafety.com.br",
             address: {
               "@type": "PostalAddress",
+              streetAddress: "Rua Caraguatatuba, 97",
               addressLocality: "São Paulo",
               addressRegion: "SP",
+              postalCode: "08110-120",
               addressCountry: "BR",
             },
             openingHoursSpecification: {
@@ -57,7 +59,9 @@ function LocalizacaoPage() {
               <MapPin className="mt-0.5 size-5 text-brand-blue" />
               <div>
                 <p className="font-bold text-ink">Endereço</p>
-                <p className="text-ink-muted">São Paulo, SP — Brasil</p>
+                <p className="text-ink-muted">Rua Caraguatatuba, 97</p>
+                <p className="text-ink-muted">São Paulo / SP</p>
+                <p className="text-ink-muted">CEP: 08110-120</p>
               </div>
             </li>
             <li className="flex items-start gap-3">
@@ -91,7 +95,7 @@ function LocalizacaoPage() {
         <div className="overflow-hidden rounded-xl border border-hairline bg-surface-sunken">
           <iframe
             title="Mapa ItaSafety"
-            src="https://www.openstreetmap.org/export/embed.html?bbox=-46.7%2C-23.65%2C-46.55%2C-23.5&layer=mapnik"
+            src="https://www.openstreetmap.org/export/embed.html?bbox=-46.4850%2C-23.5350%2C-46.4550%2C-23.5150&layer=mapnik&marker=-23.5249%2C-46.4700"
             className="h-[400px] w-full"
             loading="lazy"
           />
