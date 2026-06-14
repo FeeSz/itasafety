@@ -96,8 +96,21 @@ function AuthPage() {
       });
       if (error) throw error;
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Erro ao conectar com provedor social";
-      toast.error(msg);
+      const msg = err instanceof Error ? err.message : "";
+
+      // Captura erro amigável de provedor não ativado no console do Supabase
+      if (
+        msg.toLowerCase().includes("provider is not enabled") ||
+        msg.toLowerCase().includes("unsupported provider") ||
+        msg.toLowerCase().includes("validation_failed")
+      ) {
+        toast.error(
+          `O login via ${provider === "google" ? "Google" : "Apple"} não está ativo no painel do Supabase. Ative-o em Authentication > Providers no painel administrativo.`,
+          { duration: 6000 }
+        );
+      } else {
+        toast.error(msg || "Erro ao conectar com provedor social");
+      }
       setLoading(false);
     }
   };
