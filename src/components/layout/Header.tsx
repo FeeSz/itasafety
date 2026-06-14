@@ -31,7 +31,6 @@ export default function Header() {
   const [drawer, setDrawer] = useState(false);
   const [mega, setMega] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [query, setQuery] = useState("");
   const { count, setOpen: setCartOpen } = useQuoteCart();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isHome = pathname === "/";
