@@ -1,15 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
-import {
-  Menu,
-  Search,
-  ShoppingCart,
-  X,
-  Phone,
-  Mail,
-  MessageCircle,
-} from "lucide-react";
+import { Menu, Search, ShoppingCart, X, Phone, Mail, MessageCircle } from "lucide-react";
 import Logo from "./Logo";
 import MegaMenu from "./MegaMenu";
 import SearchBox from "./SearchBox";
@@ -41,7 +33,6 @@ export default function Header() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
 
   useEffect(() => {
     document.body.style.overflow = drawer || mega ? "hidden" : "";
@@ -136,11 +127,6 @@ export default function Header() {
         </div>
       )}
 
-      {/* Mobile search bar — always visible */}
-      <div className="border-t border-[#F3F4F6] bg-white px-4 py-2 md:hidden">
-        <SearchBox size="sm" />
-      </div>
-
       <MegaMenu open={mega} onClose={() => setMega(false)} />
 
       {/* Mobile drawer */}
@@ -168,7 +154,6 @@ export default function Header() {
             <div className="border-b border-hairline bg-white px-4 py-3">
               <SearchBox size="sm" onNavigate={() => setDrawer(false)} />
             </div>
-
 
             <div className="grid grid-cols-3 gap-px bg-hairline">
               <a
@@ -222,10 +207,42 @@ export default function Header() {
                 Institucional
               </p>
               <ul className="space-y-1 text-sm">
-                <li><Link to="/quemsomos" onClick={() => setDrawer(false)} className="block py-2 text-ink">Quem Somos</Link></li>
-                <li><Link to="/localizacao" onClick={() => setDrawer(false)} className="block py-2 text-ink">Localização</Link></li>
-                <li><Link to="/contato" onClick={() => setDrawer(false)} className="block py-2 text-ink">Contato</Link></li>
-                <li><Link to="/carrinho" onClick={() => setDrawer(false)} className="block py-2 text-ink">Lista de Cotação</Link></li>
+                <li>
+                  <Link
+                    to="/quemsomos"
+                    onClick={() => setDrawer(false)}
+                    className="block py-2 text-ink"
+                  >
+                    Quem Somos
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/localizacao"
+                    onClick={() => setDrawer(false)}
+                    className="block py-2 text-ink"
+                  >
+                    Localização
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/contato"
+                    onClick={() => setDrawer(false)}
+                    className="block py-2 text-ink"
+                  >
+                    Contato
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/carrinho"
+                    onClick={() => setDrawer(false)}
+                    className="block py-2 text-ink"
+                  >
+                    Lista de Cotação
+                  </Link>
+                </li>
               </ul>
             </div>
 
