@@ -92,7 +92,7 @@ function HomePage() {
       </section>
 
       {/* Produtos em destaque */}
-      <section className="bg-surface-sunken py-14">
+      <section className="bg-surface-sunken py-8 md:py-14">
         <div className="mx-auto max-w-7xl px-6">
           <Reveal>
             <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
