@@ -1,7 +1,8 @@
 import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
-import { Package, LogOut, Home, Tag, Award } from "lucide-react";
+import { Package, LogOut, Home, Tag, Award, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
+import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminLayout,
@@ -9,6 +10,23 @@ export const Route = createFileRoute("/_authenticated/admin")({
 
 function AdminLayout() {
   const navigate = useNavigate();
+  const [mfaAlert, setMfaAlert] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.mfa.getAuthenticatorAssuranceLevel().then(({ data, error }) => {
+      if (!error && data) {
+        supabase.auth.mfa.listFactors().then(({ data: factorsData, error: factorsError }) => {
+          if (!factorsError && factorsData) {
+            const hasActiveFactor = factorsData.all.some((f) => f.status === "verified");
+            if (!hasActiveFactor) {
+              setMfaAlert(true);
+            }
+          }
+        });
+      }
+    });
+  }, []);
+
   const signOut = async () => {
     await supabase.auth.signOut();
     toast.success("Sessão encerrada");
@@ -26,7 +44,12 @@ function AdminLayout() {
           <div className="flex items-center gap-6">
             <h1 className="text-lg font-bold text-ink">Painel administrativo</h1>
             <nav className="flex items-center gap-1 text-sm">
-              <Link to="/admin" activeOptions={{ exact: true }} activeProps={activeProps} className={navItem}>
+              <Link
+                to="/admin"
+                activeOptions={{ exact: true }}
+                activeProps={activeProps}
+                className={navItem}
+              >
                 <Package className="size-4" /> Produtos
               </Link>
               <Link to="/admin/categories" activeProps={activeProps} className={navItem}>
@@ -38,7 +61,10 @@ function AdminLayout() {
             </nav>
           </div>
           <div className="flex items-center gap-2">
-            <Link to="/" className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-ink-muted hover:bg-surface-sunken">
+            <Link
+              to="/"
+              className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-ink-muted hover:bg-surface-sunken"
+            >
               <Home className="size-4" /> Ver site
             </Link>
             <button
@@ -51,6 +77,25 @@ function AdminLayout() {
           </div>
         </div>
       </div>
+      {mfaAlert && (
+        <div className="bg-amber-50 border-b border-amber-100 px-6 py-3">
+          <div className="mx-auto flex max-w-7xl items-center gap-3 text-sm text-amber-800">
+            <ShieldAlert className="size-5 shrink-0 text-amber-600" />
+            <div className="flex-1">
+              <span className="font-semibold">Recomendação de Segurança (MFA):</span> Sua conta
+              administrativa não possui Autenticação de Dois Fatores (MFA) configurada. Habilite o
+              MFA no console do Supabase para garantir conformidade com as diretrizes de acesso
+              seguro.
+            </div>
+            <button
+              onClick={() => setMfaAlert(false)}
+              className="ml-auto text-xs font-semibold text-amber-600 hover:text-amber-800"
+            >
+              Dispensar
+            </button>
+          </div>
+        </div>
+      )}
       <Outlet />
     </div>
   );
