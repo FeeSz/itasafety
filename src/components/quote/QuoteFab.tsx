@@ -1,32 +1,12 @@
 import { Link } from "@tanstack/react-router";
-import { ShoppingCart, X, Trash2, ChevronUp } from "lucide-react";
-import { useEffect, useState } from "react";
+import { ShoppingCart, X, Trash2 } from "lucide-react";
 import { useQuoteCart } from "./QuoteCartContext";
 
 export default function QuoteFab() {
   const { items, count, remove, setQty, open, setOpen } = useQuoteCart();
-  const [showTop, setShowTop] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => setShowTop(window.scrollY > 300);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   return (
     <>
-      {/* Scroll to top */}
-      {showTop && (
-        <button
-          type="button"
-          aria-label="Voltar ao topo"
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="fixed bottom-24 right-5 z-40 grid size-11 place-items-center rounded-full bg-header-dark text-white shadow-lift transition-colors hover:bg-brand-blue animate-fade-in"
-        >
-          <ChevronUp className="size-5" />
-        </button>
-      )}
-
       {/* FAB */}
       <button
         type="button"
@@ -54,9 +34,7 @@ export default function QuoteFab() {
           <aside className="absolute right-0 top-0 flex h-full w-full max-w-md flex-col bg-white shadow-strong animate-fade-in">
             <header className="flex items-center justify-between border-b border-hairline bg-header-dark p-5 text-white">
               <div>
-                <p className="text-xs uppercase tracking-wider text-white/60">
-                  Minha lista
-                </p>
+                <p className="text-xs uppercase tracking-wider text-white/60">Minha lista</p>
                 <h2 className="text-lg font-bold">Lista de Cotação</h2>
               </div>
               <button
@@ -73,9 +51,7 @@ export default function QuoteFab() {
               {items.length === 0 ? (
                 <div className="flex h-full flex-col items-center justify-center text-center">
                   <ShoppingCart className="size-12 text-ink-soft" />
-                  <p className="mt-4 font-semibold text-ink">
-                    Sua lista está vazia
-                  </p>
+                  <p className="mt-4 font-semibold text-ink">Sua lista está vazia</p>
                   <p className="mt-2 text-sm text-ink-muted">
                     Adicione produtos para solicitar uma cotação personalizada.
                   </p>
@@ -83,10 +59,7 @@ export default function QuoteFab() {
               ) : (
                 <ul className="space-y-3">
                   {items.map((i) => (
-                    <li
-                      key={i.sku}
-                      className="flex gap-3 rounded-md border border-hairline p-3"
-                    >
+                    <li key={i.sku} className="flex gap-3 rounded-md border border-hairline p-3">
                       <img
                         src={i.image}
                         alt=""
@@ -96,17 +69,13 @@ export default function QuoteFab() {
                         <p className="text-[11px] uppercase tracking-wider text-brand-blue-light">
                           {i.category}
                         </p>
-                        <p className="text-sm font-semibold text-ink line-clamp-2">
-                          {i.name}
-                        </p>
+                        <p className="text-sm font-semibold text-ink line-clamp-2">{i.name}</p>
                         <div className="mt-2 flex items-center gap-2">
                           <input
                             type="number"
                             min={1}
                             value={i.qty}
-                            onChange={(e) =>
-                              setQty(i.sku, parseInt(e.target.value || "1", 10))
-                            }
+                            onChange={(e) => setQty(i.sku, parseInt(e.target.value || "1", 10))}
                             aria-label="Quantidade"
                             className="w-16 rounded-sm border border-hairline px-2 py-1 text-sm"
                           />
