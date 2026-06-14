@@ -56,6 +56,8 @@ export default function HeroSlider() {
   const [i, setI] = useState(0);
   const [visible, setVisible] = useState(true);
   const [paused, setPaused] = useState(false);
+  const [tilt, setTilt] = useState({ x: 0, y: 0, px: 50, py: 50, active: false });
+  const [ctaHovered, setCtaHovered] = useState(false);
 
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
@@ -103,12 +105,32 @@ export default function HeroSlider() {
     touchEndX.current = null;
   };
 
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const px = (x / rect.width) * 100;
+    const py = (y / rect.height) * 100;
+
+    // Max tilt 6 degrees
+    const tiltY = (x / rect.width - 0.5) * 12; // -6 to 6
+    const tiltX = -((y / rect.height - 0.5) * 12); // -6 to 6
+
+    setTilt({ x: tiltX, y: tiltY, px, py, active: true });
+  };
+
+  const handleMouseLeave = () => {
+    setPaused(false);
+    setTilt({ x: 0, y: 0, px: 50, py: 50, active: false });
+  };
+
   const slide = SLIDES[i];
 
   return (
     <section
       onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
+      onMouseLeave={handleMouseLeave}
+      onMouseMove={handleMouseMove}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -141,7 +163,11 @@ export default function HeroSlider() {
             {slide.subtitle}
           </p>
 
-          <div className="mt-8 flex flex-wrap items-center gap-3">
+          <div
+            onMouseEnter={() => setCtaHovered(true)}
+            onMouseLeave={() => setCtaHovered(false)}
+            className="mt-8 flex flex-wrap items-center gap-3"
+          >
             <Link
               to={slide.ctaPrimary.to}
               className="rounded-full bg-[#111111] px-7 py-3.5 text-[14px] font-bold text-white transition-all duration-150 hover:bg-[#374151] hover:scale-105 active:scale-95"
@@ -175,16 +201,59 @@ export default function HeroSlider() {
         </div>
 
         {/* Right visual — transparent 3D with hover animation */}
-        <div className="hero-3d group relative hidden items-center justify-center md:flex">
-          <img
-            src={heroImg}
-            alt="Equipamentos de proteção individual: capacete, óculos e luvas"
-            width={1024}
-            height={1024}
-            fetchPriority="high"
-            className="hero-3d__img w-full max-w-[560px] select-none object-contain drop-shadow-[0_30px_40px_rgba(0,0,0,0.18)]"
-            draggable={false}
-          />
+        <div
+          className="hero-3d group relative hidden items-center justify-center md:flex hero-3d__entrance-wrapper"
+          style={{ perspective: "1000px" }}
+        >
+          {/* Translation wrapper (breathing/idle) */}
+          <div className={`w-full max-w-[560px] ${tilt.active ? "" : "hero-3d__breathing"}`}>
+            {/* Rotation/Tilt wrapper (mouse move & hover) */}
+            <div
+              className="relative w-full select-none"
+              style={{
+                transform: tilt.active
+                  ? `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale(${ctaHovered ? 1.08 : 1.04})`
+                  : ctaHovered
+                    ? "rotateX(4deg) rotateY(-8deg) scale(1.08)"
+                    : "rotateX(0deg) rotateY(0deg) scale(1)",
+                filter: ctaHovered
+                  ? "drop-shadow(0 20px 50px rgba(27, 79, 138, 0.28))"
+                  : "drop-shadow(0 30px 40px rgba(0, 0, 0, 0.18))",
+                transition: tilt.active
+                  ? "transform 150ms ease-out, filter 300ms ease"
+                  : "transform 600ms ease, filter 300ms ease",
+              }}
+            >
+              {/* The 3D Image */}
+              <img
+                src={heroImg}
+                alt="Equipamentos de proteção individual: capacete, óculos e luvas"
+                width={1024}
+                height={1024}
+                fetchPriority="high"
+                className="w-full object-contain"
+                draggable={false}
+              />
+
+              {/* Dynamic Glint/Reflection clipped to image outline */}
+              <div
+                className={`absolute inset-0 pointer-events-none mix-blend-color-dodge transition-opacity duration-300 ${
+                  tilt.active ? "opacity-75" : "opacity-0"
+                }`}
+                style={{
+                  background: `radial-gradient(circle at ${tilt.px}% ${tilt.py}%, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0) 40%)`,
+                  maskImage: `url(${heroImg})`,
+                  WebkitMaskImage: `url(${heroImg})`,
+                  maskSize: "contain",
+                  WebkitMaskSize: "contain",
+                  maskRepeat: "no-repeat",
+                  WebkitMaskRepeat: "no-repeat",
+                  maskPosition: "center",
+                  WebkitMaskPosition: "center",
+                }}
+              />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -226,24 +295,40 @@ export default function HeroSlider() {
       </div>
 
       <style>{`
-        @keyframes hero3dFloat {
-          0%   { transform: translateY(0) rotate(0deg); }
-          25%  { transform: translateY(-6px) rotate(-1.2deg); }
-          50%  { transform: translateY(0) rotate(0deg); }
-          75%  { transform: translateY(-4px) rotate(1.2deg); }
-          100% { transform: translateY(0) rotate(0deg); }
+        @keyframes hero3dEntrance {
+          0% {
+            opacity: 0;
+            transform: scale(0.85) rotate(12deg) translateY(20px);
+          }
+          100% {
+            opacity: 1;
+            transform: scale(1) rotate(0deg) translateY(0);
+          }
         }
-        .hero-3d__img {
-          transition: transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
-          transform-origin: center center;
-          will-change: transform;
+        @keyframes heroIdleFloat {
+          0% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-8px);
+          }
+          100% {
+            transform: translateY(0);
+          }
         }
-        .hero-3d:hover .hero-3d__img {
-          transform: scale(1.06);
-          animation: hero3dFloat 2.4s ease-in-out infinite;
+        .hero-3d__entrance-wrapper {
+          animation: hero3dEntrance 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        .hero-3d__breathing {
+          animation: heroIdleFloat 5s ease-in-out infinite;
         }
         @media (prefers-reduced-motion: reduce) {
-          .hero-3d:hover .hero-3d__img { animation: none; transform: scale(1.02); }
+          .hero-3d__entrance-wrapper {
+            animation: none;
+          }
+          .hero-3d__breathing {
+            animation: none;
+          }
         }
       `}</style>
     </section>
