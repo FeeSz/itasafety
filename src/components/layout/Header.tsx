@@ -165,6 +165,11 @@ export default function Header() {
               </button>
             </div>
 
+            <div className="border-b border-hairline bg-white px-4 py-3">
+              <SearchBox size="sm" onNavigate={() => setDrawer(false)} />
+            </div>
+
+
             <div className="grid grid-cols-3 gap-px bg-hairline">
               <a
                 href={WHATSAPP_URL}
