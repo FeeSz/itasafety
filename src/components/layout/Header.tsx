@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import Logo from "./Logo";
 import MegaMenu from "./MegaMenu";
+import SearchBox from "./SearchBox";
 import { CATEGORIES } from "@/lib/categories";
 import { useQuoteCart } from "@/components/quote/QuoteCartContext";
 
