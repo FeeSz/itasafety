@@ -50,11 +50,8 @@ export default function Header() {
     };
   }, [drawer, mega]);
 
-  const onSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!query.trim()) return;
-    window.location.href = `/departamento/${CATEGORIES[0].slug}?q=${encodeURIComponent(query)}`;
-  };
+  const showWhite0 = !isHome || scrolled;
+  void showWhite0;
 
   const showWhite = !isHome || scrolled;
   return (
