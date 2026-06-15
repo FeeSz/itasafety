@@ -540,7 +540,7 @@ function Field({
       <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-ink-muted dark:text-slate-400">
         {label}
       </span>
-      <div className="flex items-center gap-3 rounded-xl border border-hairline bg-white/70 px-4 transition-all duration-300 focus-within:border-brand-blue focus-within:bg-white focus-within:ring-4 focus-within:ring-brand-blue/10 dark:border-white/10 dark:bg-slate-900/50 dark:focus-within:bg-slate-900 dark:focus-within:ring-brand-blue/20">
+      <div className="flex items-center gap-3 rounded-xl border border-hairline bg-white/70 px-4 transition-all duration-300 focus-within:border-brand-blue focus-within:bg-white focus-within:ring-4 focus-within:ring-brand-blue/10 dark:border-white/10 dark:bg-slate-900/50 dark:focus-within:bg-slate-900 dark:focus-within:ring-brand-blue/20 min-h-[48px]">
         {icon}
         {children}
         {trailing}
