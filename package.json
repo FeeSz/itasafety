@@ -3,7 +3,8 @@
   "private": true,
   "sideEffects": [
     "src/lib/error-capture.ts",
-    "*.css"
+    "*.css",
+    "dist/server/**/*.js"
   ],
   "type": "module",
   "scripts": {
