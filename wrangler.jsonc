@@ -4,6 +4,10 @@
   "compatibility_date": "2025-09-24",
   "compatibility_flags": ["nodejs_compat"],
   "main": "dist/server/server.js",
+  "vars": {
+    "SITE_URL": "https://itasafety.com.br",
+    "VITE_SITE_URL": "https://itasafety.com.br"
+  },
   "assets": {
     "directory": "dist/client"
   }

@@ -2,8 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 import { CATEGORIES } from "@/lib/categories";
 import { FEATURED_PRODUCTS } from "@/lib/products";
-
-const BASE_URL = "https://itasafety.lovable.app";
+import { SITE_URL } from "@/lib/seo";
 
 interface SitemapEntry {
   path: string;
@@ -41,7 +40,7 @@ export const Route = createFileRoute("/sitemap.xml")({
         const urls = entries
           .map(
             (e) =>
-              `  <url>\n    <loc>${BASE_URL}${e.path}</loc>\n    <changefreq>${e.changefreq}</changefreq>\n    <priority>${e.priority}</priority>\n  </url>`,
+              `  <url>\n    <loc>${SITE_URL}${e.path}</loc>\n    <changefreq>${e.changefreq}</changefreq>\n    <priority>${e.priority}</priority>\n  </url>`,
           )
           .join("\n");
 

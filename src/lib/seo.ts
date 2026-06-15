@@ -1,4 +1,18 @@
-export const SITE_URL = "https://itasafety.lovable.app";
+const DEFAULT_SITE_URL = "https://itasafety.com.br";
+
+function readPublicEnv(name: string) {
+  const viteEnv = import.meta.env as Record<string, string | undefined>;
+  const processEnv =
+    typeof process !== "undefined" ? (process.env as Record<string, string | undefined>) : {};
+
+  return viteEnv[`VITE_${name}`] || processEnv[name] || processEnv[`VITE_${name}`];
+}
+
+function normalizeSiteUrl(url: string) {
+  return url.replace(/\/+$/, "");
+}
+
+export const SITE_URL = normalizeSiteUrl(readPublicEnv("SITE_URL") || DEFAULT_SITE_URL);
 
 export function abs(path: string) {
   return `${SITE_URL}${path.startsWith("/") ? path : `/${path}`}`;
