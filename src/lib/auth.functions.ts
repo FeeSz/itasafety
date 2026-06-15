@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getRequestIP, getRequestHeader } from "@tanstack/react-start/server";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const RATE_WINDOW_MIN = 15;
 const MAX_ATTEMPTS_EMAIL = 5;
@@ -11,8 +12,9 @@ const checkSchema = z.object({
   attempt_type: z.enum(["login", "signup", "reset"]),
 });
 
-const recordSchema = checkSchema.extend({
-  success: z.boolean(),
+const recordSchema = z.object({
+  attempt_type: z.enum(["login", "signup", "reset"]),
+  success: z.literal(true).optional(),
 });
 
 function clientIp() {
@@ -101,8 +103,9 @@ export const checkAuthRateLimit = createServerFn({ method: "POST" })
   });
 
 export const recordAuthAttempt = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((d: unknown) => recordSchema.parse(d))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     try {
       const supabaseAdmin = await getSafeSupabaseAdmin();
       
@@ -112,12 +115,13 @@ export const recordAuthAttempt = createServerFn({ method: "POST" })
         return { ok: true };
       }
 
+      const { claims } = context as { claims?: { email?: string } };
       const ip = clientIp();
       await supabaseAdmin.from("auth_attempts").insert({
-        email: data.email?.toLowerCase() ?? null,
+        email: claims?.email?.toLowerCase() ?? null,
         ip,
         attempt_type: data.attempt_type,
-        success: data.success,
+        success: true,
       });
       return { ok: true };
     } catch (error) {

@@ -17,6 +17,7 @@ import {
 import { checkAuthRateLimit, recordAuthAttempt } from "@/lib/auth.functions";
 
 type Mode = "login" | "signup" | "forgot";
+type AuthAttemptType = "login" | "signup" | "reset";
 
 export const Route = createFileRoute("/auth/")({
   head: () =>
@@ -156,22 +157,22 @@ function AuthPage() {
           password,
           options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
         });
-        await recordAttempt({ email, attempt_type, success: !error });
         if (error) throw error;
+        await recordAuthenticatedAttempt(recordAttempt, attempt_type);
         setSuccessView("signup");
       } else if (mode === "forgot") {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
           redirectTo: `${window.location.origin}/reset-password`,
         });
-        await recordAttempt({ email, attempt_type, success: !error });
+        if (error) throw error;
         setSuccessView("forgot");
       } else {
         const { data: authData, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
-        await recordAttempt({ email, attempt_type, success: !error });
         if (error) throw error;
+        await recordAuthenticatedAttempt(recordAttempt, attempt_type);
 
         const userIsAdmin = authData?.user ? await getUserIsAdmin(authData.user.id) : false;
         sessionStorage.setItem("ita_is_admin", userIsAdmin ? "true" : "false");
@@ -471,6 +472,17 @@ function AuthPage() {
       </Link>
     </Shell>
   );
+}
+
+async function recordAuthenticatedAttempt(
+  recordAttempt: (input: { attempt_type: AuthAttemptType; success?: true }) => Promise<{ ok: boolean }>,
+  attempt_type: AuthAttemptType,
+) {
+  try {
+    await recordAttempt({ attempt_type, success: true });
+  } catch (error) {
+    console.warn("[Auth] Skipping authenticated attempt audit:", error);
+  }
 }
 
 async function getUserIsAdmin(userId: string) {
