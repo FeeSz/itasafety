@@ -1,4 +1,4 @@
-import logoAsset from "@/assets/itasafety-logo-dark.png.asset.json";
+import logo from "@/assets/itasafety-logo.png";
 
 type LogoProps = {
   className?: string;
@@ -20,7 +20,7 @@ export default function Logo({ className = "", onDark = false }: LogoProps) {
       className={`group inline-flex items-center ${className}`}
     >
       <img
-        src={logoAsset.url}
+        src={logo}
         alt="ItaSafety"
         width={480}
         height={156}

@@ -28,57 +28,101 @@ function clientIp() {
   }
 }
 
+// Helper to safely get supabaseAdmin or return graceful degradation response
+async function getSafeSupabaseAdmin() {
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    return supabaseAdmin;
+  } catch (error) {
+    console.warn("[Auth] Supabase Admin client not available - rate limiting disabled");
+    return null;
+  }
+}
+
 export const checkAuthRateLimit = createServerFn({ method: "POST" })
   .validator((d: unknown) => checkSchema.parse(d))
   .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const since = new Date(Date.now() - RATE_WINDOW_MIN * 60_000).toISOString();
-    const ip = clientIp();
+    try {
+      const supabaseAdmin = await getSafeSupabaseAdmin();
+      
+      // If admin client not available, allow request to proceed (graceful degradation)
+      if (!supabaseAdmin) {
+        return {
+          blocked: false,
+          retry_after_min: 0,
+          reason: null,
+        };
+      }
 
-    const failedByEmail = data.email
-      ? await supabaseAdmin
-          .from("auth_attempts")
-          .select("id", { count: "exact", head: true })
-          .eq("email", data.email.toLowerCase())
-          .eq("attempt_type", data.attempt_type)
-          .eq("success", false)
-          .gte("created_at", since)
-      : { count: 0, error: null };
+      const since = new Date(Date.now() - RATE_WINDOW_MIN * 60_000).toISOString();
+      const ip = clientIp();
 
-    const failedByIp = ip
-      ? await supabaseAdmin
-          .from("auth_attempts")
-          .select("id", { count: "exact", head: true })
-          .eq("ip", ip)
-          .eq("success", false)
-          .gte("created_at", since)
-      : { count: 0, error: null };
+      const failedByEmail = data.email
+        ? await supabaseAdmin
+            .from("auth_attempts")
+            .select("id", { count: "exact", head: true })
+            .eq("email", data.email.toLowerCase())
+            .eq("attempt_type", data.attempt_type)
+            .eq("success", false)
+            .gte("created_at", since)
+        : { count: 0, error: null };
 
-    const emailCount = failedByEmail.count ?? 0;
-    const ipCount = failedByIp.count ?? 0;
+      const failedByIp = ip
+        ? await supabaseAdmin
+            .from("auth_attempts")
+            .select("id", { count: "exact", head: true })
+            .eq("ip", ip)
+            .eq("success", false)
+            .gte("created_at", since)
+        : { count: 0, error: null };
 
-    const blocked = emailCount >= MAX_ATTEMPTS_EMAIL || ipCount >= MAX_ATTEMPTS_IP;
-    return {
-      blocked,
-      retry_after_min: blocked ? RATE_WINDOW_MIN : 0,
-      reason: blocked
-        ? emailCount >= MAX_ATTEMPTS_EMAIL
-          ? "Muitas tentativas para este e-mail. Tente novamente em alguns minutos."
-          : "Muitas tentativas a partir do seu IP. Tente novamente em alguns minutos."
-        : null,
-    };
+      const emailCount = failedByEmail.count ?? 0;
+      const ipCount = failedByIp.count ?? 0;
+
+      const blocked = emailCount >= MAX_ATTEMPTS_EMAIL || ipCount >= MAX_ATTEMPTS_IP;
+      return {
+        blocked,
+        retry_after_min: blocked ? RATE_WINDOW_MIN : 0,
+        reason: blocked
+          ? emailCount >= MAX_ATTEMPTS_EMAIL
+            ? "Muitas tentativas para este e-mail. Tente novamente em alguns minutos."
+            : "Muitas tentativas a partir do seu IP. Tente novamente em alguns minutos."
+          : null,
+      };
+    } catch (error) {
+      console.error("[Auth] Error checking rate limit:", error);
+      // Gracefully degrade on error
+      return {
+        blocked: false,
+        retry_after_min: 0,
+        reason: null,
+      };
+    }
   });
 
 export const recordAuthAttempt = createServerFn({ method: "POST" })
   .validator((d: unknown) => recordSchema.parse(d))
   .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const ip = clientIp();
-    await supabaseAdmin.from("auth_attempts").insert({
-      email: data.email?.toLowerCase() ?? null,
-      ip,
-      attempt_type: data.attempt_type,
-      success: data.success,
-    });
-    return { ok: true };
+    try {
+      const supabaseAdmin = await getSafeSupabaseAdmin();
+      
+      // If admin client not available, silently skip recording
+      if (!supabaseAdmin) {
+        console.warn("[Auth] Skipping attempt recording - admin client unavailable");
+        return { ok: true };
+      }
+
+      const ip = clientIp();
+      await supabaseAdmin.from("auth_attempts").insert({
+        email: data.email?.toLowerCase() ?? null,
+        ip,
+        attempt_type: data.attempt_type,
+        success: data.success,
+      });
+      return { ok: true };
+    } catch (error) {
+      console.error("[Auth] Error recording auth attempt:", error);
+      // Silently fail - don't block auth because of logging error
+      return { ok: true };
+    }
   });
