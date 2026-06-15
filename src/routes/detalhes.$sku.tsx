@@ -62,9 +62,7 @@ export const Route = createFileRoute("/detalhes/$sku")({
             image,
             category: product.category,
             brand: { "@type": "Brand", name: "ItaSafety" },
-            additionalProperty: [
-              { "@type": "PropertyValue", name: "CA", value: product.ca },
-            ],
+            additionalProperty: [{ "@type": "PropertyValue", name: "CA", value: product.ca }],
             offers: {
               "@type": "Offer",
               url: `${SITE_URL}/detalhes/${product.sku}`,

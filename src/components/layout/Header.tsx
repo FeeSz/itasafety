@@ -1,7 +1,19 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState, useRef } from "react";
 
-import { Menu, Search, ShoppingCart, X, Phone, Mail, MessageCircle, LayoutDashboard, LogOut, ChevronDown, User } from "lucide-react";
+import {
+  Menu,
+  Search,
+  ShoppingCart,
+  X,
+  Phone,
+  Mail,
+  MessageCircle,
+  LayoutDashboard,
+  LogOut,
+  ChevronDown,
+  User,
+} from "lucide-react";
 import Logo from "./Logo";
 import MegaMenu from "./MegaMenu";
 import SearchBox from "./SearchBox";
@@ -169,9 +181,11 @@ export default function Header() {
                 <span className="hidden md:inline text-sm font-semibold text-[#111111]">
                   Olá, {firstName}
                 </span>
-                <ChevronDown className={`size-3.5 text-slate-500 transition-transform duration-200 hidden md:block ${userMenuOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown
+                  className={`size-3.5 text-slate-500 transition-transform duration-200 hidden md:block ${userMenuOpen ? "rotate-180" : ""}`}
+                />
               </button>
-              
+
               {userMenuOpen && (
                 <div className="absolute right-0 mt-2 w-56 rounded-xl border border-hairline bg-white py-1.5 shadow-lg z-50 animate-slide-down animate-in fade-in slide-in-from-top-1 duration-150">
                   <div className="border-b border-hairline px-4 py-2 mb-1.5">
@@ -181,11 +195,9 @@ export default function Header() {
                     <p className="text-xs font-bold text-ink truncate mt-0.5">
                       {fullName || `Olá, ${firstName}`}
                     </p>
-                    <p className="text-[10px] text-ink-muted truncate">
-                      {user.email}
-                    </p>
+                    <p className="text-[10px] text-ink-muted truncate">{user.email}</p>
                   </div>
-                  
+
                   {isAdmin && (
                     <Link
                       to="/admin"
@@ -196,7 +208,7 @@ export default function Header() {
                       Painel do Administrador
                     </Link>
                   )}
-                  
+
                   <button
                     type="button"
                     onClick={async () => {
@@ -390,7 +402,7 @@ export default function Header() {
                       <p className="text-xs text-ink-muted truncate">{user.email}</p>
                     </div>
                   </div>
-                  
+
                   {isAdmin && (
                     <Link
                       to="/admin"
@@ -401,7 +413,7 @@ export default function Header() {
                       Painel Administrador
                     </Link>
                   )}
-                  
+
                   <button
                     type="button"
                     onClick={async () => {

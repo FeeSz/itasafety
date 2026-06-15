@@ -13,14 +13,12 @@ const cta = cva(
       variant: {
         primary:
           "bg-brand-red text-white hover:bg-brand-red-dark shadow-[0_2px_0_oklch(0.40_0.18_25)] hover:shadow-none focus-visible:ring-brand-red",
-        navy:
-          "bg-brand-navy text-white hover:bg-brand-navy-deep focus-visible:ring-brand-navy",
+        navy: "bg-brand-navy text-white hover:bg-brand-navy-deep focus-visible:ring-brand-navy",
         outline:
           "border border-hairline text-ink hover:border-brand-navy hover:text-brand-navy focus-visible:ring-brand-navy",
         outlineLight:
           "border border-white/30 text-white hover:bg-white hover:text-brand-navy-deep focus-visible:ring-white",
-        ghost:
-          "text-ink hover:text-brand-red focus-visible:ring-brand-navy",
+        ghost: "text-ink hover:text-brand-red focus-visible:ring-brand-navy",
       },
       size: {
         sm: "px-4 py-2.5 text-[11px]",

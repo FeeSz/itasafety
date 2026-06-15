@@ -19,9 +19,7 @@ export default function FeaturedProducts() {
   const [tab, setTab] = useState<Tab>("todos");
   const products = useMemo(
     () =>
-      tab === "todos"
-        ? FEATURED_PRODUCTS
-        : FEATURED_PRODUCTS.filter((p) => p.tags?.includes(tab)),
+      tab === "todos" ? FEATURED_PRODUCTS : FEATURED_PRODUCTS.filter((p) => p.tags?.includes(tab)),
     [tab],
   );
 
@@ -92,11 +90,7 @@ function ProductCard({ p }: { p: Product }) {
         )}
       </div>
       <div className="flex flex-1 flex-col p-3">
-        <Link
-          to="/detalhes/$sku"
-          params={{ sku: p.sku }}
-          className="block"
-        >
+        <Link to="/detalhes/$sku" params={{ sku: p.sku }} className="block">
           <p className="text-[11px] font-bold uppercase tracking-wider text-brand-blue-light">
             {p.category}
           </p>

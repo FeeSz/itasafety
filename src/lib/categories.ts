@@ -47,12 +47,7 @@ export const CATEGORIES: ReadonlyArray<Category> = [
     slug: "luvas",
     title: "Luvas",
     icon: Hand,
-    subcategories: [
-      "Aventais",
-      "Capas",
-      "Nitrílica / Látex / Neoprene",
-      "Raspa / Vaqueta / Malha",
-    ],
+    subcategories: ["Aventais", "Capas", "Nitrílica / Látex / Neoprene", "Raspa / Vaqueta / Malha"],
   },
   { slug: "protecao-auditiva", title: "Proteção Auditiva", icon: Ear },
   { slug: "protecao-respiratoria", title: "Proteção Respiratória", icon: Wind },

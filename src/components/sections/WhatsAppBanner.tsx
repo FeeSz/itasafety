@@ -24,8 +24,8 @@ export default function WhatsAppBanner() {
               Fale com um especialista no WhatsApp
             </h3>
             <p className="mt-1.5 max-w-xl text-sm text-white/85">
-              Cotação rápida, suporte técnico e indicação de EPI por função
-              operacional — resposta em até 1h em horário comercial.
+              Cotação rápida, suporte técnico e indicação de EPI por função operacional — resposta
+              em até 1h em horário comercial.
             </p>
           </div>
           <span className="inline-flex items-center gap-2 rounded-md bg-white px-5 py-3 text-sm font-bold text-[#128C7E] transition-transform group-hover:translate-x-1">

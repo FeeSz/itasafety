@@ -96,12 +96,8 @@ function ContactItem({
         {icon}
       </div>
       <div>
-        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-soft">
-          {label}
-        </p>
-        <p className="mt-1 font-display text-lg font-bold tracking-tight text-ink">
-          {value}
-        </p>
+        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-soft">{label}</p>
+        <p className="mt-1 font-display text-lg font-bold tracking-tight text-ink">{value}</p>
       </div>
     </>
   );

@@ -72,9 +72,8 @@ export default function CookieBanner() {
               Privacidade · LGPD
             </p>
             <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-white/75">
-              Usamos cookies essenciais para operar o site e cookies opcionais
-              de analytics para entender uso agregado. Você pode aceitar ou
-              manter apenas os essenciais.
+              Usamos cookies essenciais para operar o site e cookies opcionais de analytics para
+              entender uso agregado. Você pode aceitar ou manter apenas os essenciais.
             </p>
           </div>
         </div>

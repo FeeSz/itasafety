@@ -300,9 +300,7 @@ function DashboardTab() {
           <h2 className="text-xs font-bold uppercase tracking-wider text-ink-muted">
             Auditoria de acesso (últimas 20 tentativas)
           </h2>
-          {loadingAttempts && (
-            <Loader2 className="size-3.5 animate-spin text-ink-soft" />
-          )}
+          {loadingAttempts && <Loader2 className="size-3.5 animate-spin text-ink-soft" />}
         </div>
         <div className="overflow-hidden rounded-xl border border-hairline bg-white shadow-card">
           {!loadingAttempts && (!attempts || attempts.length === 0) ? (
@@ -311,10 +309,8 @@ function DashboardTab() {
               <p className="text-sm">Nenhum registro de acesso encontrado.</p>
               <p className="text-xs">
                 Verifique se a tabela{" "}
-                <code className="rounded bg-surface-sunken px-1">
-                  auth_attempts
-                </code>{" "}
-                existe no Supabase.
+                <code className="rounded bg-surface-sunken px-1">auth_attempts</code> existe no
+                Supabase.
               </p>
             </div>
           ) : (
@@ -346,9 +342,7 @@ function DashboardTab() {
                     <td className="px-4 py-3">
                       <span
                         className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
-                          a.success
-                            ? "bg-emerald-50 text-emerald-700"
-                            : "bg-red-50 text-red-700"
+                          a.success ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"
                         }`}
                       >
                         {a.success ? (
@@ -359,9 +353,7 @@ function DashboardTab() {
                         {a.success ? "Sucesso" : "Falha"}
                       </span>
                     </td>
-                    <td className="px-4 py-3 font-mono text-xs text-ink-muted">
-                      {a.email}
-                    </td>
+                    <td className="px-4 py-3 font-mono text-xs text-ink-muted">{a.email}</td>
                     <td className="px-4 py-3 capitalize text-ink-muted">
                       {a.attempt_type === "login"
                         ? "Login"
@@ -420,9 +412,7 @@ function MetricCard({
           <AlertTriangle className="size-3.5 text-amber-500" />
         </span>
       )}
-      <div
-        className={`mb-3 flex size-10 items-center justify-center rounded-lg ${bg[color]}`}
-      >
+      <div className={`mb-3 flex size-10 items-center justify-center rounded-lg ${bg[color]}`}>
         {icon}
       </div>
       <p className="text-2xl font-bold tabular-nums text-ink">{value}</p>
@@ -508,9 +498,7 @@ function ProductsTab() {
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-2xl font-bold text-ink">Produtos</h2>
-          <p className="text-sm text-ink-muted">
-            {products?.length ?? 0} cadastrados
-          </p>
+          <p className="text-sm text-ink-muted">{products?.length ?? 0} cadastrados</p>
         </div>
         <button
           type="button"
@@ -567,28 +555,20 @@ function ProductsTab() {
                   <div className="flex items-center gap-3">
                     <div className="size-12 shrink-0 overflow-hidden rounded-md border border-hairline bg-white">
                       {p.image_url ? (
-                        <img
-                          src={p.image_url}
-                          alt={p.name}
-                          className="size-full object-contain"
-                        />
+                        <img src={p.image_url} alt={p.name} className="size-full object-contain" />
                       ) : (
                         <div className="size-full bg-surface-sunken" />
                       )}
                     </div>
                     <div className="min-w-0">
                       <p className="truncate font-semibold text-ink">{p.name}</p>
-                      <p className="truncate text-xs text-ink-soft">
-                        {p.short_description}
-                      </p>
+                      <p className="truncate text-xs text-ink-soft">{p.short_description}</p>
                     </div>
                   </div>
                 </td>
                 <td className="px-4 py-3 font-mono text-xs text-ink-muted">
                   <div>{p.sku}</div>
-                  {p.ca_number && (
-                    <div className="text-brand-blue">CA {p.ca_number}</div>
-                  )}
+                  {p.ca_number && <div className="text-brand-blue">CA {p.ca_number}</div>}
                 </td>
                 <td className="px-4 py-3 text-ink-muted">{p.category}</td>
                 <td className="px-4 py-3 text-center">
@@ -599,9 +579,7 @@ function ProductsTab() {
                   >
                     <Star
                       className={`size-5 ${
-                        p.featured
-                          ? "fill-brand-blue text-brand-blue"
-                          : "text-ink-soft"
+                        p.featured ? "fill-brand-blue text-brand-blue" : "text-ink-soft"
                       }`}
                     />
                   </button>
@@ -649,19 +627,13 @@ function ProductsTab() {
         </table>
       </div>
 
-      <ProductFormDialog
-        open={showForm}
-        onClose={() => setShowForm(false)}
-        editing={editing}
-      />
+      <ProductFormDialog open={showForm} onClose={() => setShowForm(false)} editing={editing} />
 
       <AlertDialog open={!!deleteId} onOpenChange={(o) => !o && setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Excluir produto?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta ação não pode ser desfeita.
-            </AlertDialogDescription>
+            <AlertDialogDescription>Esta ação não pode ser desfeita.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
@@ -726,10 +698,7 @@ function ProductFormDialog({
           .filter(Boolean),
       };
       if (editing) {
-        const { error } = await supabase
-          .from("products")
-          .update(payload)
-          .eq("id", editing.id);
+        const { error } = await supabase.from("products").update(payload).eq("id", editing.id);
         if (error) throw error;
       } else {
         const { error } = await supabase.from("products").insert(payload);
@@ -752,9 +721,7 @@ function ProductFormDialog({
       <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{editing ? "Editar produto" : "Novo produto"}</DialogTitle>
-          <DialogDescription>
-            Os campos com * são obrigatórios.
-          </DialogDescription>
+          <DialogDescription>Os campos com * são obrigatórios.</DialogDescription>
         </DialogHeader>
 
         <form
@@ -917,13 +884,7 @@ function ProductFormDialog({
 const inputCls =
   "w-full rounded-md border border-hairline bg-white px-3 py-2 text-sm outline-none focus:border-brand-blue";
 
-function Field({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
       <span className="mb-1 block text-xs font-semibold uppercase tracking-wider text-ink-muted">

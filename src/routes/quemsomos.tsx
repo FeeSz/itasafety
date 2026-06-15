@@ -25,9 +25,9 @@ function QuemSomosPage() {
             Segurança que protege quem produz
           </h1>
           <p className="mt-4 max-w-2xl text-white/85">
-            A ItaSafety é especializada em Equipamentos de Proteção Individual
-            (EPI) certificados pelo MTE, atendendo empresas de todo o Brasil
-            com qualidade, suporte técnico e entrega ágil.
+            A ItaSafety é especializada em Equipamentos de Proteção Individual (EPI) certificados
+            pelo MTE, atendendo empresas de todo o Brasil com qualidade, suporte técnico e entrega
+            ágil.
           </p>
         </div>
       </section>
@@ -37,32 +37,32 @@ function QuemSomosPage() {
           <Target className="size-9 text-brand-blue" />
           <h2 className="mt-4 text-xl font-bold text-ink">Missão</h2>
           <p className="mt-2 text-sm text-ink-muted">
-            Garantir segurança e bem-estar no ambiente de trabalho fornecendo
-            EPIs de alta qualidade, com atendimento técnico personalizado.
+            Garantir segurança e bem-estar no ambiente de trabalho fornecendo EPIs de alta
+            qualidade, com atendimento técnico personalizado.
           </p>
         </div>
         <div className="rounded-xl border border-hairline bg-white p-7">
           <Award className="size-9 text-brand-blue" />
           <h2 className="mt-4 text-xl font-bold text-ink">Visão</h2>
           <p className="mt-2 text-sm text-ink-muted">
-            Ser referência nacional em distribuição de EPIs, reconhecida pela
-            confiabilidade dos produtos e pela parceria com seus clientes.
+            Ser referência nacional em distribuição de EPIs, reconhecida pela confiabilidade dos
+            produtos e pela parceria com seus clientes.
           </p>
         </div>
         <div className="rounded-xl border border-hairline bg-white p-7">
           <ShieldCheck className="size-9 text-brand-blue" />
           <h2 className="mt-4 text-xl font-bold text-ink">Valores</h2>
           <p className="mt-2 text-sm text-ink-muted">
-            Compromisso com a vida, ética, qualidade certificada e respeito ao
-            cliente e ao trabalhador.
+            Compromisso com a vida, ética, qualidade certificada e respeito ao cliente e ao
+            trabalhador.
           </p>
         </div>
         <div className="rounded-xl border border-hairline bg-white p-7">
           <Users className="size-9 text-brand-blue" />
           <h2 className="mt-4 text-xl font-bold text-ink">Atendimento</h2>
           <p className="mt-2 text-sm text-ink-muted">
-            Equipe técnica preparada para orientar na escolha correta de cada
-            EPI conforme a NR aplicável.
+            Equipe técnica preparada para orientar na escolha correta de cada EPI conforme a NR
+            aplicável.
           </p>
         </div>
       </section>

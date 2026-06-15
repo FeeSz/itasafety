@@ -12,12 +12,7 @@ type Props = {
  * Wraps children with an intersection-observer driven fade/translate reveal.
  * Respects prefers-reduced-motion (handled in styles.css).
  */
-export default function Reveal({
-  children,
-  as: Tag = "div",
-  delay = 0,
-  className = "",
-}: Props) {
+export default function Reveal({ children, as: Tag = "div", delay = 0, className = "" }: Props) {
   const { ref, visible } = useReveal<HTMLDivElement>();
   const style: CSSProperties = { animationDelay: `${delay}ms` };
   return (

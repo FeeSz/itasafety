@@ -17,16 +17,13 @@ export default function HeroIndustrial() {
             Proteção que não{" "}
             <span className="relative inline-block">
               <span className="relative z-10 text-brand-red">negocia.</span>
-              <span
-                className="absolute -bottom-1 left-0 h-3 w-full bg-brand-red/10"
-                aria-hidden
-              />
+              <span className="absolute -bottom-1 left-0 h-3 w-full bg-brand-red/10" aria-hidden />
             </span>
           </h1>
           <p className="mt-7 max-w-xl text-pretty text-lg leading-relaxed text-ink-muted">
-            Distribuição enterprise de equipamentos de proteção individual e
-            engenharia de segurança para complexos industriais de alta
-            criticidade. Conformidade NR-06, NR-10, NR-35 e ISO 9001.
+            Distribuição enterprise de equipamentos de proteção individual e engenharia de segurança
+            para complexos industriais de alta criticidade. Conformidade NR-06, NR-10, NR-35 e ISO
+            9001.
           </p>
 
           <div className="mt-10 flex flex-wrap items-center gap-4">
@@ -94,10 +91,7 @@ export default function HeroIndustrial() {
             className="absolute -bottom-4 -right-4 -z-10 h-32 w-32 border-2 border-brand-red"
             aria-hidden
           />
-          <div
-            className="absolute -top-4 -left-4 -z-10 h-24 w-24 bg-brand-navy/5"
-            aria-hidden
-          />
+          <div className="absolute -top-4 -left-4 -z-10 h-24 w-24 bg-brand-navy/5" aria-hidden />
         </div>
       </Container>
     </section>

@@ -46,9 +46,7 @@ export const Route = createFileRoute("/departamento/$slug")({
     return { cat };
   },
   head: ({ loaderData, params }) => {
-    const title = loaderData
-      ? `${loaderData.cat.title} — EPIs ItaSafety`
-      : "Categoria — ItaSafety";
+    const title = loaderData ? `${loaderData.cat.title} — EPIs ItaSafety` : "Categoria — ItaSafety";
     const description = loaderData
       ? `${loaderData.cat.title}: EPIs certificados (CA ativo) com pronta entrega para indústrias. Solicite cotação na ItaSafety.`
       : "Categoria de EPIs ItaSafety.";
@@ -145,9 +143,7 @@ function DepartamentoPage() {
           <input
             type="search"
             defaultValue={search.q ?? ""}
-            onChange={(e) =>
-              setSearch({ q: e.target.value.trim() || undefined })
-            }
+            onChange={(e) => setSearch({ q: e.target.value.trim() || undefined })}
             placeholder="SKU, CA, nome..."
             className="flex-1 bg-transparent px-2 py-2 text-sm outline-none"
             aria-label="Buscar produtos"
@@ -203,16 +199,14 @@ function DepartamentoPage() {
           Filtros rápidos
         </h2>
         <div className="mt-3 flex flex-wrap gap-2">
-          {["CA Ativo", "Pronta entrega", "Novidade", "Mais vendido"].map(
-            (tag) => (
-              <span
-                key={tag}
-                className="rounded-full border border-hairline px-3 py-1 text-[11px] font-semibold text-ink-muted"
-              >
-                {tag}
-              </span>
-            ),
-          )}
+          {["CA Ativo", "Pronta entrega", "Novidade", "Mais vendido"].map((tag) => (
+            <span
+              key={tag}
+              className="rounded-full border border-hairline px-3 py-1 text-[11px] font-semibold text-ink-muted"
+            >
+              {tag}
+            </span>
+          ))}
         </div>
       </div>
 
@@ -270,8 +264,8 @@ function DepartamentoPage() {
           <div>
             <h1 className="text-3xl font-extrabold text-ink">{cat.title}</h1>
             <p className="mt-1 text-sm text-ink-muted">
-              EPIs certificados (CA ativo) para indústria, construção e
-              serviços. Solicite cotação técnica.
+              EPIs certificados (CA ativo) para indústria, construção e serviços. Solicite cotação
+              técnica.
             </p>
           </div>
         </div>
@@ -301,8 +295,8 @@ function DepartamentoPage() {
               </button>
 
               <p className="text-sm text-ink-muted">
-                <span className="font-bold text-ink">{filtered.length}</span>{" "}
-                produto{filtered.length === 1 ? "" : "s"}
+                <span className="font-bold text-ink">{filtered.length}</span> produto
+                {filtered.length === 1 ? "" : "s"}
                 {search.q && (
                   <>
                     {" "}
@@ -321,9 +315,7 @@ function DepartamentoPage() {
                 <select
                   id="sort"
                   value={search.sort ?? "relevance"}
-                  onChange={(e) =>
-                    setSearch({ sort: e.target.value as SortKey })
-                  }
+                  onChange={(e) => setSearch({ sort: e.target.value as SortKey })}
                   className="rounded-md border border-hairline bg-white px-3 py-2 text-sm font-semibold text-ink outline-none focus:border-brand-blue"
                 >
                   {SORTS.map((s) => (
@@ -345,10 +337,7 @@ function DepartamentoPage() {
                   />
                 )}
                 {search.sub && (
-                  <FilterChip
-                    label={search.sub}
-                    onClear={() => setSearch({ sub: undefined })}
-                  />
+                  <FilterChip label={search.sub} onClear={() => setSearch({ sub: undefined })} />
                 )}
               </div>
             )}
@@ -356,17 +345,13 @@ function DepartamentoPage() {
             {/* Grid */}
             {filtered.length === 0 ? (
               <div className="rounded-xl border border-dashed border-hairline bg-white p-12 text-center">
-                <p className="font-semibold text-ink">
-                  Nenhum produto encontrado
-                </p>
+                <p className="font-semibold text-ink">Nenhum produto encontrado</p>
                 <p className="mt-2 text-sm text-ink-muted">
                   Tente ajustar a busca ou remover filtros.
                 </p>
                 <button
                   type="button"
-                  onClick={() =>
-                    setSearch({ q: undefined, sub: undefined })
-                  }
+                  onClick={() => setSearch({ q: undefined, sub: undefined })}
                   className="mt-5 inline-block rounded-md bg-brand-blue px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-blue-hover"
                 >
                   Limpar filtros
@@ -387,11 +372,7 @@ function DepartamentoPage() {
 
       {/* Mobile filter drawer */}
       {drawerOpen && (
-        <div
-          className="fixed inset-0 z-[60] lg:hidden"
-          role="dialog"
-          aria-modal="true"
-        >
+        <div className="fixed inset-0 z-[60] lg:hidden" role="dialog" aria-modal="true">
           <button
             type="button"
             aria-label="Fechar filtros"
@@ -425,13 +406,7 @@ function DepartamentoPage() {
   );
 }
 
-function FilterChip({
-  label,
-  onClear,
-}: {
-  label: string;
-  onClear: () => void;
-}) {
+function FilterChip({ label, onClear }: { label: string; onClear: () => void }) {
   return (
     <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-blue-tint px-3 py-1 text-xs font-semibold text-brand-blue">
       {label}
@@ -485,9 +460,7 @@ function ProductCard({ p }: { p: Product }) {
         >
           {p.name}
         </Link>
-        <p className="mt-1 font-mono text-[11px] text-ink-soft">
-          Ref: {p.sku}
-        </p>
+        <p className="mt-1 font-mono text-[11px] text-ink-soft">Ref: {p.sku}</p>
         <button
           type="button"
           onClick={() => {

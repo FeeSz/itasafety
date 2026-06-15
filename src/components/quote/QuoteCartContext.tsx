@@ -56,9 +56,7 @@ export function QuoteCartProvider({ children }: { children: ReactNode }) {
     setItems((prev) => {
       const existing = prev.find((i) => i.sku === p.sku);
       if (existing) {
-        return prev.map((i) =>
-          i.sku === p.sku ? { ...i, qty: i.qty + qty } : i,
-        );
+        return prev.map((i) => (i.sku === p.sku ? { ...i, qty: i.qty + qty } : i));
       }
       return [
         ...prev,
@@ -78,9 +76,7 @@ export function QuoteCartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const setQty = useCallback((sku: string, qty: number) => {
-    setItems((prev) =>
-      prev.map((i) => (i.sku === sku ? { ...i, qty: Math.max(1, qty) } : i)),
-    );
+    setItems((prev) => prev.map((i) => (i.sku === sku ? { ...i, qty: Math.max(1, qty) } : i)));
   }, []);
 
   const clear = useCallback(() => setItems([]), []);
@@ -99,11 +95,7 @@ export function QuoteCartProvider({ children }: { children: ReactNode }) {
     [items, add, remove, setQty, clear, open],
   );
 
-  return (
-    <QuoteCartContext.Provider value={value}>
-      {children}
-    </QuoteCartContext.Provider>
-  );
+  return <QuoteCartContext.Provider value={value}>{children}</QuoteCartContext.Provider>;
 }
 
 export function useQuoteCart() {

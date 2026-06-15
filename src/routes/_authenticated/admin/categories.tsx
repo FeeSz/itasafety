@@ -64,7 +64,10 @@ function CategoriesAdmin() {
 
   const toggleActive = useMutation({
     mutationFn: async (r: Row) => {
-      const { error } = await supabase.from("categories").update({ active: !r.active }).eq("id", r.id);
+      const { error } = await supabase
+        .from("categories")
+        .update({ active: !r.active })
+        .eq("id", r.id);
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-categories"] }),
@@ -116,7 +119,10 @@ function CategoriesAdmin() {
             </thead>
             <tbody>
               {(data ?? []).map((r) => (
-                <tr key={r.id} className="border-b border-hairline last:border-0 hover:bg-surface-sunken/40">
+                <tr
+                  key={r.id}
+                  className="border-b border-hairline last:border-0 hover:bg-surface-sunken/40"
+                >
                   <td className="px-4 py-3 font-medium text-ink">{r.name}</td>
                   <td className="px-4 py-3 font-mono text-xs text-ink-muted">{r.slug}</td>
                   <td className="px-4 py-3 text-ink-muted">{r.sort_order}</td>
@@ -185,7 +191,9 @@ function CategoriesAdmin() {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => deleteId && remove.mutate(deleteId, { onSettled: () => setDeleteId(null) })}
+              onClick={() =>
+                deleteId && remove.mutate(deleteId, { onSettled: () => setDeleteId(null) })
+              }
               className="bg-red-600 hover:bg-red-700"
             >
               Remover
@@ -215,7 +223,6 @@ function CategoryDialog({
   const [sortOrder, setSortOrder] = useState(row?.sort_order ?? 0);
   const [active, setActive] = useState(row?.active ?? true);
   const [saving, setSaving] = useState(false);
-
 
   const save = async () => {
     if (!name.trim()) return toast.error("Nome obrigatório.");
@@ -300,7 +307,10 @@ function CategoryDialog({
           </div>
         </div>
         <DialogFooter>
-          <button onClick={onClose} className="rounded-md border border-hairline px-4 py-2 text-sm hover:bg-surface-sunken">
+          <button
+            onClick={onClose}
+            className="rounded-md border border-hairline px-4 py-2 text-sm hover:bg-surface-sunken"
+          >
             Cancelar
           </button>
           <button

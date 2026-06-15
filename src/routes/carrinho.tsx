@@ -51,10 +51,7 @@ function CarrinhoPage() {
             <div className="p-10 text-center">
               <ShoppingCart className="mx-auto size-12 text-ink-soft" />
               <p className="mt-4 font-semibold text-ink">Nenhum item na lista</p>
-              <Link
-                to="/"
-                className="mt-4 inline-block text-sm font-semibold text-brand-blue"
-              >
+              <Link to="/" className="mt-4 inline-block text-sm font-semibold text-brand-blue">
                 Continuar comprando →
               </Link>
             </div>
@@ -98,10 +95,7 @@ function CarrinhoPage() {
         </div>
 
         {/* Form */}
-        <form
-          onSubmit={onSubmit}
-          className="h-fit rounded-xl border border-hairline bg-white p-6"
-        >
+        <form onSubmit={onSubmit} className="h-fit rounded-xl border border-hairline bg-white p-6">
           <h2 className="text-lg font-bold text-ink">Seus dados</h2>
           <p className="mt-1 text-sm text-ink-muted">
             Preencha para receber a cotação personalizada.
@@ -114,9 +108,7 @@ function CarrinhoPage() {
               { k: "telefone", label: "Telefone / WhatsApp", type: "tel" },
             ].map((f) => (
               <label key={f.k} className="block">
-                <span className="mb-1 block text-xs font-semibold text-ink">
-                  {f.label}
-                </span>
+                <span className="mb-1 block text-xs font-semibold text-ink">{f.label}</span>
                 <input
                   type={f.type}
                   required
@@ -127,9 +119,7 @@ function CarrinhoPage() {
               </label>
             ))}
             <label className="block">
-              <span className="mb-1 block text-xs font-semibold text-ink">
-                Observações
-              </span>
+              <span className="mb-1 block text-xs font-semibold text-ink">Observações</span>
               <textarea
                 rows={3}
                 value={form.obs}

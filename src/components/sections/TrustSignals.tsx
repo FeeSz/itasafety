@@ -37,9 +37,7 @@ export default function TrustSignals() {
             >
               <Icon className="mx-auto size-12 text-brand-blue" strokeWidth={1.6} />
               <h3 className="mt-3 text-base font-bold text-ink">{it.title}</h3>
-              <p className="mx-auto mt-2 max-w-[240px] text-sm text-ink-soft">
-                {it.text}
-              </p>
+              <p className="mx-auto mt-2 max-w-[240px] text-sm text-ink-soft">{it.text}</p>
             </div>
           );
         })}

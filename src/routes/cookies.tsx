@@ -39,9 +39,8 @@ function CookiesPage() {
               text="Atualmente não utilizados. Caso passem a ser, exigirão consentimento explícito e novo aviso."
             />
             <p className="rounded-sm border-l-[3px] border-brand-red bg-surface-sunken p-6 text-ink">
-              Você pode revogar consentimento a qualquer momento limpando os
-              dados do site no navegador. Suas preferências são salvas apenas no
-              seu dispositivo.
+              Você pode revogar consentimento a qualquer momento limpando os dados do site no
+              navegador. Suas preferências são salvas apenas no seu dispositivo.
             </p>
           </div>
         </Container>

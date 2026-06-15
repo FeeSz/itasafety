@@ -15,8 +15,8 @@ export default function Footer() {
               <Logo />
             </div>
             <p className="mt-5 text-sm leading-relaxed text-white/65">
-              Equipamentos de Proteção Individual com qualidade e certificação.
-              Fornecendo segurança para empresas de todo o Brasil.
+              Equipamentos de Proteção Individual com qualidade e certificação. Fornecendo segurança
+              para empresas de todo o Brasil.
             </p>
             <div className="mt-5 flex gap-3">
               {[Linkedin, Instagram, Facebook].map((Icon, i) => (
@@ -58,10 +58,26 @@ export default function Footer() {
               Institucional
             </h2>
             <ul className="space-y-2 text-sm text-white/70">
-              <li><Link to="/quemsomos" className="hover:text-white">Quem Somos</Link></li>
-              <li><Link to="/localizacao" className="hover:text-white">Localização</Link></li>
-              <li><Link to="/contato" className="hover:text-white">Contato</Link></li>
-              <li><Link to="/privacidade" className="hover:text-white">Política de Privacidade</Link></li>
+              <li>
+                <Link to="/quemsomos" className="hover:text-white">
+                  Quem Somos
+                </Link>
+              </li>
+              <li>
+                <Link to="/localizacao" className="hover:text-white">
+                  Localização
+                </Link>
+              </li>
+              <li>
+                <Link to="/contato" className="hover:text-white">
+                  Contato
+                </Link>
+              </li>
+              <li>
+                <Link to="/privacidade" className="hover:text-white">
+                  Política de Privacidade
+                </Link>
+              </li>
               <li>
                 <a
                   href="https://consultaca.com/"

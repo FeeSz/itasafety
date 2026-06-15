@@ -8,11 +8,7 @@ type EyebrowProps = HTMLAttributes<HTMLSpanElement> & {
 /**
  * Section/label microtype. Single canonical style with three tone options.
  */
-export default function Eyebrow({
-  tone = "accent",
-  className,
-  ...rest
-}: EyebrowProps) {
+export default function Eyebrow({ tone = "accent", className, ...rest }: EyebrowProps) {
   return (
     <span
       className={cn(

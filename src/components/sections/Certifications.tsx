@@ -18,14 +18,16 @@ export default function Certifications() {
     <section className="border-y border-hairline bg-surface-sunken py-24 md:py-28">
       <Container>
         <div className="mx-auto max-w-2xl text-center">
-          <div className="inline-flex"><Eyebrow>Certificações &amp; Normas</Eyebrow></div>
+          <div className="inline-flex">
+            <Eyebrow>Certificações &amp; Normas</Eyebrow>
+          </div>
           <h2 className="mt-5 text-balance font-display text-3xl font-bold leading-[1.1] tracking-tight text-ink md:text-4xl">
             Conformidade auditável em cada entrega.
           </h2>
           <p className="mt-5 text-pretty leading-relaxed text-ink-muted">
-            Cada equipamento sai com Certificado de Aprovação ativo, ficha
-            técnica e laudo de ensaio. Preparados para auditorias do MTE,
-            Ministério Público do Trabalho e perícias judiciais.
+            Cada equipamento sai com Certificado de Aprovação ativo, ficha técnica e laudo de
+            ensaio. Preparados para auditorias do MTE, Ministério Público do Trabalho e perícias
+            judiciais.
           </p>
         </div>
 

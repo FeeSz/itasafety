@@ -15,13 +15,15 @@ export default function CommercialCTA() {
       <Container className="relative">
         <div className="grid items-center gap-12 lg:grid-cols-[1.4fr_1fr]">
           <div>
-            <div className="text-white"><Eyebrow tone="onDark">Cotação Técnica</Eyebrow></div>
+            <div className="text-white">
+              <Eyebrow tone="onDark">Cotação Técnica</Eyebrow>
+            </div>
             <h2 className="mt-5 text-balance font-display text-4xl font-bold leading-[1.05] tracking-tight text-white md:text-5xl lg:text-6xl">
               Vamos dimensionar a proteção da sua planta?
             </h2>
             <p className="mt-6 max-w-xl text-pretty text-lg leading-relaxed text-white/70">
-              Fale com um engenheiro de aplicação. Levantamento de risco, lista
-              técnica e proposta personalizada — sem custo, em até 24h úteis.
+              Fale com um engenheiro de aplicação. Levantamento de risco, lista técnica e proposta
+              personalizada — sem custo, em até 24h úteis.
             </p>
             <div className="mt-10 flex flex-wrap gap-4">
               <CtaButton as={Link} to="/contato" size="lg">
@@ -57,9 +59,7 @@ export default function CommercialCTA() {
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="bg-brand-navy-deep p-6 md:p-8">
-      <dt className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/50">
-        {label}
-      </dt>
+      <dt className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/50">{label}</dt>
       <dd className="mt-3 font-display text-4xl font-bold tracking-tight text-white md:text-5xl">
         {value}
       </dd>

@@ -32,21 +32,20 @@ function AboutPage() {
         <Container className="grid gap-12 lg:grid-cols-[2fr_1fr]">
           <div className="space-y-6 text-lg leading-relaxed text-ink-muted">
             <p>
-              A ItaSafety nasceu da convicção de que segurança do trabalho não
-              é commodity. Cada item de EPI faz parte de uma cadeia de
-              responsabilidade técnica — do Certificado de Aprovação emitido
-              pelo Ministério do Trabalho ao treinamento do operador.
+              A ItaSafety nasceu da convicção de que segurança do trabalho não é commodity. Cada
+              item de EPI faz parte de uma cadeia de responsabilidade técnica — do Certificado de
+              Aprovação emitido pelo Ministério do Trabalho ao treinamento do operador.
             </p>
             <p>
-              Operamos como extensão da equipe de SSMA dos nossos clientes:
-              especificamos, dimensionamos, validamos e entregamos. Trabalhamos
-              com as marcas líderes mundiais — MSA, Honeywell, 3M, Dystar,
-              DuPont, Ansell — e mantemos rastreabilidade total por lote.
+              Operamos como extensão da equipe de SSMA dos nossos clientes: especificamos,
+              dimensionamos, validamos e entregamos. Trabalhamos com as marcas líderes mundiais —
+              MSA, Honeywell, 3M, Dystar, DuPont, Ansell — e mantemos rastreabilidade total por
+              lote.
             </p>
             <p>
-              Atendemos hoje mais de 500 clientes industriais ativos no Brasil,
-              em segmentos que vão de óleo &amp; gás e mineração a alimentos,
-              farmacêutica e construção civil de grande porte.
+              Atendemos hoje mais de 500 clientes industriais ativos no Brasil, em segmentos que vão
+              de óleo &amp; gás e mineração a alimentos, farmacêutica e construção civil de grande
+              porte.
             </p>
           </div>
 
@@ -105,12 +104,8 @@ function AboutPage() {
 function Fact({ label, value }: { label: string; value: string }) {
   return (
     <div className="bg-white p-6">
-      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-ink-soft">
-        {label}
-      </p>
-      <p className="mt-2 font-display text-3xl font-bold tracking-tight text-ink">
-        {value}
-      </p>
+      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-ink-soft">{label}</p>
+      <p className="mt-2 font-display text-3xl font-bold tracking-tight text-ink">{value}</p>
     </div>
   );
 }
@@ -118,12 +113,8 @@ function Fact({ label, value }: { label: string; value: string }) {
 function Commitment({ n, title, text }: { n: string; title: string; text: string }) {
   return (
     <div className="bg-white p-10">
-      <p className="font-mono text-xs font-semibold tracking-[0.18em] text-brand-red">
-        {n}
-      </p>
-      <h3 className="mt-4 font-display text-xl font-bold tracking-tight text-ink">
-        {title}
-      </h3>
+      <p className="font-mono text-xs font-semibold tracking-[0.18em] text-brand-red">{n}</p>
+      <h3 className="mt-4 font-display text-xl font-bold tracking-tight text-ink">{title}</h3>
       <p className="mt-3 text-sm leading-relaxed text-ink-muted">{text}</p>
     </div>
   );

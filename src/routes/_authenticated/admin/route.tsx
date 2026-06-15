@@ -22,10 +22,9 @@ function AdminLayout() {
       if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
       inactivityTimer.current = setTimeout(async () => {
         await supabase.auth.signOut();
-        toast.warning(
-          "Sessão encerrada por inatividade (15 min). Faça login novamente.",
-          { duration: 6000 },
-        );
+        toast.warning("Sessão encerrada por inatividade (15 min). Faça login novamente.", {
+          duration: 6000,
+        });
         navigate({ to: "/auth", replace: true });
       }, INACTIVITY_TIMEOUT_MS);
     };

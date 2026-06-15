@@ -1,11 +1,4 @@
-import {
-  ShieldCheck,
-  Truck,
-  BadgeCheck,
-  Microscope,
-  Headset,
-  FileBarChart,
-} from "lucide-react";
+import { ShieldCheck, Truck, BadgeCheck, Microscope, Headset, FileBarChart } from "lucide-react";
 import Container from "@/components/ui/Container";
 import Eyebrow from "@/components/ui/Eyebrow";
 
@@ -54,9 +47,8 @@ export default function Differentials() {
             </h2>
           </div>
           <p className="text-lg leading-relaxed text-ink-muted lg:max-w-md lg:justify-self-end">
-            Operamos como extensão da equipe de SSMA dos nossos clientes — da
-            especificação à reposição. Cada decisão é técnica, documentada e
-            auditável.
+            Operamos como extensão da equipe de SSMA dos nossos clientes — da especificação à
+            reposição. Cada decisão é técnica, documentada e auditável.
           </p>
         </div>
 

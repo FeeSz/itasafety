@@ -117,7 +117,10 @@ function BrandsAdmin() {
             </thead>
             <tbody>
               {(data ?? []).map((r) => (
-                <tr key={r.id} className="border-b border-hairline last:border-0 hover:bg-surface-sunken/40">
+                <tr
+                  key={r.id}
+                  className="border-b border-hairline last:border-0 hover:bg-surface-sunken/40"
+                >
                   <td className="px-4 py-3">
                     {r.logo_url ? (
                       <img src={r.logo_url} alt={r.name} className="h-8 w-auto object-contain" />
@@ -132,7 +135,9 @@ function BrandsAdmin() {
                     <button
                       onClick={() => toggleActive.mutate(r)}
                       className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${
-                        r.active ? "bg-emerald-50 text-emerald-700" : "bg-surface-sunken text-ink-soft"
+                        r.active
+                          ? "bg-emerald-50 text-emerald-700"
+                          : "bg-surface-sunken text-ink-soft"
                       }`}
                     >
                       {r.active ? <Eye className="size-3" /> : <EyeOff className="size-3" />}
@@ -189,7 +194,9 @@ function BrandsAdmin() {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => deleteId && remove.mutate(deleteId, { onSettled: () => setDeleteId(null) })}
+              onClick={() =>
+                deleteId && remove.mutate(deleteId, { onSettled: () => setDeleteId(null) })
+              }
               className="bg-red-600 hover:bg-red-700"
             >
               Remover
@@ -219,8 +226,6 @@ function BrandDialog({
   const [sortOrder, setSortOrder] = useState(row?.sort_order ?? 0);
   const [active, setActive] = useState(row?.active ?? true);
   const [saving, setSaving] = useState(false);
-
-
 
   const save = async () => {
     if (!name.trim()) return toast.error("Nome obrigatório.");
@@ -304,7 +309,10 @@ function BrandDialog({
           </div>
         </div>
         <DialogFooter>
-          <button onClick={onClose} className="rounded-md border border-hairline px-4 py-2 text-sm hover:bg-surface-sunken">
+          <button
+            onClick={onClose}
+            className="rounded-md border border-hairline px-4 py-2 text-sm hover:bg-surface-sunken"
+          >
             Cancelar
           </button>
           <button

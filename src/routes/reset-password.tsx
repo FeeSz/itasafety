@@ -91,12 +91,9 @@ function ResetPasswordPage() {
   const confirmMismatch = confirm.length > 0 && password !== confirm;
 
   const strengthLabel =
-    strength === 0 ? "" :
-    strength <= 2 ? "Fraca" :
-    strength === 3 ? "Boa" : "Forte";
+    strength === 0 ? "" : strength <= 2 ? "Fraca" : strength === 3 ? "Boa" : "Forte";
   const strengthColor =
-    strength <= 2 ? "bg-red-500" :
-    strength === 3 ? "bg-brand-blue" : "bg-emerald-500";
+    strength <= 2 ? "bg-red-500" : strength === 3 ? "bg-brand-blue" : "bg-emerald-500";
 
   // ── Submit ─────────────────────────────────────────────────────────────
   const submit = async (e: React.FormEvent) => {
@@ -139,9 +136,7 @@ function ResetPasswordPage() {
             <span className="absolute inset-0 animate-ping rounded-full bg-emerald-200 opacity-30" />
           </div>
 
-          <h1 className="text-2xl font-bold text-ink sm:text-3xl">
-            Senha redefinida!
-          </h1>
+          <h1 className="text-2xl font-bold text-ink sm:text-3xl">Senha redefinida!</h1>
           <p className="mt-3 text-sm leading-relaxed text-ink-muted max-w-xs">
             Sua nova senha foi salva com sucesso. Você já pode fazer login com ela agora.
           </p>
@@ -378,12 +373,8 @@ function ResetPasswordPage() {
               {showConfirm ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
             </button>
             {/* Ícone inline de validação */}
-            {confirmMatch && (
-              <CheckCircle2 className="size-4 shrink-0 text-emerald-500" />
-            )}
-            {confirmMismatch && (
-              <X className="size-4 shrink-0 text-red-500" />
-            )}
+            {confirmMatch && <CheckCircle2 className="size-4 shrink-0 text-emerald-500" />}
+            {confirmMismatch && <X className="size-4 shrink-0 text-red-500" />}
           </div>
           {/* Hint de erro em tempo real */}
           {confirmMismatch && (

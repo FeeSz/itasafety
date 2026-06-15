@@ -70,9 +70,7 @@ export default function MegaMenu({ open, onClose }: Props) {
               </span>
               <div>
                 <h3 className="font-bold text-lg text-ink">{activeCat.title}</h3>
-                <p className="text-xs text-ink-soft">
-                  Subcategorias disponíveis
-                </p>
+                <p className="text-xs text-ink-soft">Subcategorias disponíveis</p>
               </div>
             </div>
             {activeCat.subcategories?.length ? (

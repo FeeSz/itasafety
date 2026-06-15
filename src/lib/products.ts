@@ -78,8 +78,7 @@ export const FEATURED_PRODUCTS: ReadonlyArray<Product> = [
     category: "Calçados",
     categorySlug: "calcados",
     ca: "27001",
-    description:
-      "Couro hidrofugado, palmilha PU bidensidade e solado antiderrapante SRC.",
+    description: "Couro hidrofugado, palmilha PU bidensidade e solado antiderrapante SRC.",
     image: calcado,
     tags: ["destaque", "novo", "certificado"],
   },
@@ -89,8 +88,7 @@ export const FEATURED_PRODUCTS: ReadonlyArray<Product> = [
     category: "Solda e Facial",
     categorySlug: "solda-facial",
     ca: "39123",
-    description:
-      "Lente verde tonalidade 5, ideal para operações de solda oxiacetilênica leve.",
+    description: "Lente verde tonalidade 5, ideal para operações de solda oxiacetilênica leve.",
     image: oculos,
     tags: ["novo", "certificado"],
   },
@@ -100,8 +98,7 @@ export const FEATURED_PRODUCTS: ReadonlyArray<Product> = [
     category: "Proteção Auditiva",
     categorySlug: "protecao-auditiva",
     ca: "16234",
-    description:
-      "Silicone hipoalergênico, atenuação NRRsf 17 dB, com cordão e estojo.",
+    description: "Silicone hipoalergênico, atenuação NRRsf 17 dB, com cordão e estojo.",
     image: capacete,
     tags: ["mais-vendido", "certificado"],
   },

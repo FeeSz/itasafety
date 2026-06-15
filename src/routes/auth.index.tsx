@@ -104,7 +104,7 @@ function AuthPage() {
       ) {
         toast.error(
           `O login via ${provider === "google" ? "Google" : "Apple"} não está ativo no painel do Supabase. Ative-o em Authentication > Providers no painel administrativo.`,
-          { duration: 6000 }
+          { duration: 6000 },
         );
       } else {
         toast.error(msg || "Erro ao conectar com provedor social");
@@ -112,8 +112,6 @@ function AuthPage() {
       setLoading(false);
     }
   };
-
-
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -147,7 +145,10 @@ function AuthPage() {
         await recordAttempt({ data: { email, attempt_type, success: !error } });
         setSuccessView("forgot");
       } else {
-        const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data: authData, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
         await recordAttempt({ data: { email, attempt_type, success: !error } });
         if (error) throw error;
 
@@ -223,8 +224,6 @@ function AuthPage() {
 
   return (
     <Shell>
-
-
       <header className="mb-6">
         <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-hairline bg-brand-blue/5 dark:bg-brand-blue/10 px-3 py-1 text-xs font-semibold text-brand-blue">
           <ShieldCheck className="size-3.5" />

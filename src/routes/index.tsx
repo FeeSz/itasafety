@@ -59,13 +59,11 @@ export const Route = createFileRoute("/")({
   component: HomePage,
 });
 
-
 function HomePage() {
   return (
     <>
       <HeroSlider />
       <CategoryPills />
-
 
       {/* Trust signals first — establish confiança */}
       <Reveal>

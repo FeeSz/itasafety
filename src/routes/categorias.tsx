@@ -33,9 +33,7 @@ function CategoriesPage() {
               <span className="grid size-16 place-items-center rounded-full bg-brand-blue-tint text-brand-blue transition-colors group-hover:bg-brand-blue group-hover:text-white">
                 <Icon className="size-7" strokeWidth={1.6} />
               </span>
-              <h2 className="mt-3 text-[13px] font-bold uppercase text-ink">
-                {cat.title}
-              </h2>
+              <h2 className="mt-3 text-[13px] font-bold uppercase text-ink">{cat.title}</h2>
             </Link>
           );
         })}

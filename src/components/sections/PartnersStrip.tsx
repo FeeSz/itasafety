@@ -21,8 +21,7 @@ export default function PartnersStrip() {
         <div className="flex flex-col items-center gap-3 text-center">
           <Eyebrow tone="muted">Marcas Parceiras</Eyebrow>
           <p className="font-display text-sm text-ink-muted">
-            Trabalhamos com os fabricantes líderes mundiais em proteção
-            individual.
+            Trabalhamos com os fabricantes líderes mundiais em proteção individual.
           </p>
         </div>
 
