@@ -1,4 +1,4 @@
-import logo from "@/assets/itasafety-logo.jpg";
+import logo from "@/assets/itasafety-header-logo.png";
 
 type LogoProps = {
   className?: string;
@@ -22,8 +22,8 @@ export default function Logo({ className = "", onDark = false }: LogoProps) {
       <img
         src={logo}
         alt="ItaSafety"
-        width={281}
-        height={188}
+        width={1536}
+        height={1024}
         className="w-auto transition-transform duration-300 group-hover:scale-[1.02]"
         style={{
           objectFit: "contain",
