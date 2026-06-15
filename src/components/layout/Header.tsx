@@ -114,9 +114,29 @@ export default function Header() {
                 key={l.label}
                 type="button"
                 onClick={() => setMega(true)}
-                className="text-[15px] font-semibold text-[#111111] transition-colors duration-150 hover:text-[#1B4F8A]"
+                aria-haspopup="dialog"
+                aria-expanded={mega}
+                className={`group inline-flex h-10 items-center gap-2 rounded-full px-4 text-[15px] font-semibold transition-all duration-300 ${
+                  mega
+                    ? "bg-brand-blue-tint text-brand-blue shadow-[0_10px_24px_rgba(27,79,138,0.12)]"
+                    : "text-[#111111] hover:bg-brand-blue-tint hover:text-brand-blue"
+                }`}
               >
-                {l.label} ↓
+                <span>{l.label}</span>
+                <span
+                  className={`grid size-6 place-items-center rounded-full border transition-all duration-300 ${
+                    mega
+                      ? "border-brand-blue/25 bg-white text-brand-blue"
+                      : "border-transparent bg-white/0 text-[#5C6B7E] group-hover:border-brand-blue/20 group-hover:bg-white group-hover:text-brand-blue"
+                  }`}
+                >
+                  <ChevronDown
+                    className={`size-3.5 transition-transform duration-300 ease-out ${
+                      mega ? "rotate-180" : "group-hover:translate-y-0.5"
+                    }`}
+                    aria-hidden
+                  />
+                </span>
               </button>
             ) : (
               <Link
@@ -136,7 +156,12 @@ export default function Header() {
             type="button"
             onClick={() => setSearchOpen((s) => !s)}
             aria-label="Buscar"
-            className="hidden text-[#374151] transition-all duration-150 hover:text-[#111111] hover:scale-105 active:scale-90 md:block"
+            aria-expanded={searchOpen}
+            className={`hidden rounded-full p-2 transition-all duration-300 active:scale-90 md:grid md:size-10 md:place-items-center ${
+              searchOpen
+                ? "bg-brand-blue-tint text-brand-blue shadow-[0_8px_20px_rgba(27,79,138,0.12)]"
+                : "text-[#374151] hover:scale-105 hover:bg-brand-blue-tint hover:text-brand-blue"
+            }`}
           >
             <Search className="size-[22px]" />
           </button>
@@ -248,7 +273,7 @@ export default function Header() {
       {/* Search overlay (desktop) */}
       {searchOpen && (
         <div
-          className="absolute left-0 right-0 hidden border-t border-[#F3F4F6] bg-white px-10 py-3 shadow-sm md:block animate-slide-down"
+          className="absolute left-0 right-0 hidden border-t border-[#D8DEE6] bg-white/95 px-10 py-4 shadow-[0_18px_40px_rgba(27,79,138,0.12)] backdrop-blur-md md:block animate-search-reveal"
           style={{ top: "clamp(64px, 10vw, 136px)" }}
         >
           <div className="mx-auto max-w-3xl">

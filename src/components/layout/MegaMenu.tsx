@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ChevronRight, X } from "lucide-react";
 import { CATEGORIES } from "@/lib/categories";
@@ -10,6 +10,18 @@ type Props = {
 
 export default function MegaMenu({ open, onClose }: Props) {
   const [active, setActive] = useState(CATEGORIES[0].slug);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [open, onClose]);
+
   if (!open) return null;
   const activeCat = CATEGORIES.find((c) => c.slug === active) ?? CATEGORIES[0];
 
@@ -19,9 +31,15 @@ export default function MegaMenu({ open, onClose }: Props) {
         type="button"
         aria-label="Fechar"
         onClick={onClose}
-        className="absolute inset-0 bg-black/50 animate-fade-in"
+        className="absolute inset-0 bg-black/40 backdrop-blur-[1px] animate-fade-in"
       />
-      <div className="absolute left-0 right-0 top-0 z-10 bg-white shadow-strong animate-slide-down">
+      <div
+        className="absolute left-0 right-0 z-10 overflow-y-auto rounded-b-xl border-b border-hairline bg-white shadow-strong animate-menu-drop"
+        style={{
+          top: "clamp(64px, 10vw, 136px)",
+          maxHeight: "calc(100dvh - clamp(64px, 10vw, 136px))",
+        }}
+      >
         <div className="mx-auto flex max-w-7xl items-center justify-between border-b border-hairline px-6 py-4">
           <h2 className="text-sm font-bold uppercase tracking-wider text-ink">
             Todas as Categorias
@@ -47,23 +65,28 @@ export default function MegaMenu({ open, onClose }: Props) {
                     params={{ slug: cat.slug }}
                     onMouseEnter={() => setActive(cat.slug)}
                     onClick={onClose}
-                    className={`flex items-center gap-3 border-l-[3px] px-5 py-2.5 text-sm transition-colors ${
+                    className={`flex items-center gap-3 border-l-[3px] px-5 py-2.5 text-sm transition-all duration-200 ${
                       isActive
                         ? "border-brand-blue bg-brand-blue-tint text-brand-blue"
-                        : "border-transparent text-ink hover:bg-surface-sunken"
+                        : "border-transparent text-ink hover:bg-surface-sunken hover:text-brand-blue"
                     }`}
                   >
                     <Icon className="size-4" aria-hidden />
                     <span className="font-semibold uppercase tracking-wide text-[12px]">
                       {cat.title}
                     </span>
-                    <ChevronRight className="ml-auto size-3.5 opacity-50" aria-hidden />
+                    <ChevronRight
+                      className={`ml-auto size-3.5 transition-transform duration-200 ${
+                        isActive ? "translate-x-0.5 opacity-80" : "opacity-45"
+                      }`}
+                      aria-hidden
+                    />
                   </Link>
                 </li>
               );
             })}
           </ul>
-          <div className="p-8">
+          <div key={activeCat.slug} className="p-8 animate-fade-in">
             <div className="mb-5 flex items-center gap-3">
               <span className="grid size-12 place-items-center rounded-full bg-brand-blue-tint text-brand-blue">
                 <activeCat.icon className="size-6" aria-hidden />

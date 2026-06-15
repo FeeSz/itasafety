@@ -47,15 +47,36 @@ function AuthPage() {
   const [emailTouched, setEmailTouched] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/admin", replace: true });
-    });
+    let mounted = true;
+
+    async function redirectExistingSession() {
+      try {
+        const { data } = await supabase.auth.getSession();
+        const userId = data.session?.user.id;
+        if (!userId || !mounted) return;
+
+        const userIsAdmin = await getUserIsAdmin(userId);
+        if (!mounted) return;
+
+        sessionStorage.setItem("ita_is_admin", userIsAdmin ? "true" : "false");
+        navigate({ to: userIsAdmin ? "/admin" : "/", replace: true });
+      } catch (error) {
+        console.error("[Auth] Error checking existing session:", error);
+      }
+    }
+
+    redirectExistingSession();
+
     const remembered =
       typeof window !== "undefined" ? localStorage.getItem("ita_remember_email") : null;
     if (remembered) {
       setEmail(remembered);
       setEmailTouched(true);
     }
+
+    return () => {
+      mounted = false;
+    };
   }, [navigate]);
 
   // Detecção de Caps Lock
@@ -152,15 +173,8 @@ function AuthPage() {
         await recordAttempt({ email, attempt_type, success: !error });
         if (error) throw error;
 
-        let userIsAdmin = false;
-        if (authData?.user) {
-          const { data: roles } = await supabase
-            .from("user_roles")
-            .select("role")
-            .eq("user_id", authData.user.id);
-          userIsAdmin = (roles ?? []).some((r) => r.role === "admin");
-          sessionStorage.setItem("ita_is_admin", userIsAdmin ? "true" : "false");
-        }
+        const userIsAdmin = authData?.user ? await getUserIsAdmin(authData.user.id) : false;
+        sessionStorage.setItem("ita_is_admin", userIsAdmin ? "true" : "false");
 
         if (remember) localStorage.setItem("ita_remember_email", email);
         else localStorage.removeItem("ita_remember_email");
@@ -457,6 +471,20 @@ function AuthPage() {
       </Link>
     </Shell>
   );
+}
+
+async function getUserIsAdmin(userId: string) {
+  const { data: roles, error } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId);
+
+  if (error) {
+    console.error("[Auth] Error checking user role:", error);
+    return false;
+  }
+
+  return (roles ?? []).some((r) => r.role === "admin");
 }
 
 function Shell({ children }: { children: React.ReactNode }) {

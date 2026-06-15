@@ -14,7 +14,7 @@ export const Route = createFileRoute("/_authenticated")({
       .eq("user_id", data.user.id);
     const isAdmin = (roles ?? []).some((r) => r.role === "admin");
     if (!isAdmin) {
-      throw redirect({ to: "/auth" });
+      throw redirect({ to: "/" });
     }
     return { user: data.user, isAdmin };
   },
