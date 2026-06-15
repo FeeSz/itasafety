@@ -123,7 +123,7 @@ function AuthPage() {
     setLoading(true);
     try {
       const attempt_type = mode === "login" ? "login" : mode === "signup" ? "signup" : "reset";
-      const limit = await checkLimit({ data: { email, attempt_type } });
+      const limit = await checkLimit({ email, attempt_type });
       if (limit.blocked) {
         toast.error(limit.reason || "Limite excedido. Aguarde alguns minutos.");
         return;
@@ -135,21 +135,21 @@ function AuthPage() {
           password,
           options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
         });
-        await recordAttempt({ data: { email, attempt_type, success: !error } });
+        await recordAttempt({ email, attempt_type, success: !error });
         if (error) throw error;
         setSuccessView("signup");
       } else if (mode === "forgot") {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
           redirectTo: `${window.location.origin}/reset-password`,
         });
-        await recordAttempt({ data: { email, attempt_type, success: !error } });
+        await recordAttempt({ email, attempt_type, success: !error });
         setSuccessView("forgot");
       } else {
         const { data: authData, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
-        await recordAttempt({ data: { email, attempt_type, success: !error } });
+        await recordAttempt({ email, attempt_type, success: !error });
         if (error) throw error;
 
         let userIsAdmin = false;
