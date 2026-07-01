@@ -30,3 +30,47 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+
+# dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# env files - NUNCA commitar
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+
+# build output
+dist/
+.output/
+.vercel/
+.wrangler/
+
+# tanstack start
+.tanstack/
+
+# cloudflare
+.dev.vars
+worker-configuration.d.ts
+
+# logs
+*.log
+npm-debug.log*
+bun-debug.log*
+
+# editor/OS
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# supabase local
+supabase/.branches
+supabase/.temp
+
+# lovable (se gerar cache/temp local)
+.lovable/cache
