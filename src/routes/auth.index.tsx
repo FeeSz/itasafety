@@ -145,7 +145,7 @@ function AuthPage() {
     setLoading(true);
     try {
       const attempt_type = mode === "login" ? "login" : mode === "signup" ? "signup" : "reset";
-      const limit = await checkLimit({ email, attempt_type });
+      const limit = await checkLimit({ data: { email, attempt_type } });
       if (limit.blocked) {
         toast.error(limit.reason || "Limite excedido. Aguarde alguns minutos.");
         return;
@@ -475,11 +475,11 @@ function AuthPage() {
 }
 
 async function recordAuthenticatedAttempt(
-  recordAttempt: (input: { attempt_type: AuthAttemptType; success?: true }) => Promise<{ ok: boolean }>,
+  recordAttempt: (input: { data: { attempt_type: AuthAttemptType; success?: true } }) => Promise<{ ok: boolean }>,
   attempt_type: AuthAttemptType,
 ) {
   try {
-    await recordAttempt({ attempt_type, success: true });
+    await recordAttempt({ data: { attempt_type, success: true } });
   } catch (error) {
     console.warn("[Auth] Skipping authenticated attempt audit:", error);
   }
