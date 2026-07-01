@@ -6,8 +6,11 @@
 // You can pass additional config via defineConfig({ vite: { ... } }) if needed.
 import fs from "node:fs";
 import path from "node:path";
+import process from "node:process";
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import type { Plugin } from "vite";
+
+const GITHUB_PAGES_BASE = "/itasafety/";
 
 const SENSITIVE_PUBLIC_FILE_NAMES = new Set([
   ".env",
@@ -87,11 +90,47 @@ function safePublicBuildPlugin(): Plugin {
   };
 }
 
+const isGithubPagesBuild =
+  process.env.GITHUB_PAGES === "true" || process.argv.includes("github-pages");
+const githubPagesViteConfig = isGithubPagesBuild
+  ? {
+      base: GITHUB_PAGES_BASE,
+      build: {
+        outDir: "dist/github-pages",
+      },
+      define: {
+        "import.meta.env.VITE_SITE_URL": JSON.stringify("https://feesz.github.io/itasafety"),
+        "import.meta.env.SITE_URL": JSON.stringify("https://feesz.github.io/itasafety"),
+      },
+    }
+  : {};
+
 // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
 // @cloudflare/vite-plugin builds from this — wrangler.jsonc main alone is insufficient.
 export default defineConfig({
+  nitro: isGithubPagesBuild ? false : undefined,
   plugins: [safePublicBuildPlugin()],
+  vite: githubPagesViteConfig,
   tanstackStart: {
+    router: {
+      basepath: isGithubPagesBuild ? GITHUB_PAGES_BASE : "/",
+    },
     server: { entry: "server" },
+    spa: isGithubPagesBuild
+      ? {
+          enabled: true,
+          maskPath: "/",
+          prerender: {
+            outputPath: "/_shell",
+            crawlLinks: false,
+          },
+        }
+      : undefined,
+    prerender: isGithubPagesBuild
+      ? {
+          enabled: true,
+          failOnError: false,
+        }
+      : undefined,
   },
 });

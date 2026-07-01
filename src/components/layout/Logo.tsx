@@ -1,4 +1,5 @@
 import logo from "@/assets/itasafety-header-logo.png";
+import { Link } from "@tanstack/react-router";
 
 type LogoProps = {
   className?: string;
@@ -14,8 +15,8 @@ type LogoProps = {
  */
 export default function Logo({ className = "", onDark = false }: LogoProps) {
   return (
-    <a
-      href="/"
+    <Link
+      to="/"
       aria-label="ItaSafety — Página inicial"
       className={`group inline-flex items-center ${className}`}
     >
@@ -31,6 +32,6 @@ export default function Logo({ className = "", onDark = false }: LogoProps) {
           height: "clamp(52px, 8vw, 120px)",
         }}
       />
-    </a>
+    </Link>
   );
 }

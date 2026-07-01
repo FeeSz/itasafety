@@ -21,6 +21,9 @@ import WhatsAppFab from "@/components/ui/WhatsAppFab";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/contexts/AuthContext";
 
+const publicAsset = (assetPath: string) =>
+  `${import.meta.env.BASE_URL}${assetPath.replace(/^\/+/, "")}`;
+
 function NotFoundComponent() {
   return (
     <div className="flex min-h-dvh items-center justify-center bg-white px-6">
@@ -61,7 +64,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
           >
             Tentar novamente
           </CtaButton>
-          <CtaButton as="a" href="/" variant="outline" size="sm">
+          <CtaButton as={Link} to="/" variant="outline" size="sm">
             Início
           </CtaButton>
         </div>
@@ -119,7 +122,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      { rel: "icon", href: "/favicon-mark.png", type: "image/png" },
+      { rel: "icon", href: publicAsset("favicon-mark.png"), type: "image/png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
