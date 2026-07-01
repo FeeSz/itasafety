@@ -4,11 +4,93 @@
 //     componentTagger (dev-only), VITE_* env injection, @ path alias, React/TanStack dedupe,
 //     error logger plugins, and sandbox detection (port/host/strictPort).
 // You can pass additional config via defineConfig({ vite: { ... } }) if needed.
+import fs from "node:fs";
+import path from "node:path";
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import type { Plugin } from "vite";
+
+const SENSITIVE_PUBLIC_FILE_NAMES = new Set([
+  ".env",
+  ".env.local",
+  ".env.development",
+  ".env.production",
+  ".env.test",
+  ".dev.vars",
+  ".gitignore",
+  "wrangler.jsonc",
+  "package.json",
+  "package-lock.json",
+  "bun.lock",
+  "bunfig.toml",
+  "tsconfig.json",
+  "eslint.config.js",
+]);
+
+function shouldSkipPublicEntry(relativePath: string): boolean {
+  const normalized = relativePath.replace(/\\/g, "/");
+  const segments = normalized.split("/");
+
+  if (
+    segments.some((segment) =>
+      [".git", ".github", ".wrangler", ".tanstack", ".lovable", "node_modules", "dist", ".vscode"].includes(segment),
+    )
+  ) {
+    return true;
+  }
+
+  const basename = path.basename(normalized);
+  if (basename.startsWith(".")) return true;
+  if (SENSITIVE_PUBLIC_FILE_NAMES.has(basename)) return true;
+  return /^(?:\.env|\.dev\.vars)(?:\..+)?$/i.test(basename);
+}
+
+function copySafePublicFiles(sourceDir: string, targetDir: string, baseDir = sourceDir): void {
+  if (!fs.existsSync(sourceDir)) return;
+
+  fs.mkdirSync(targetDir, { recursive: true });
+
+  for (const entry of fs.readdirSync(sourceDir, { withFileTypes: true })) {
+    const entrySourcePath = path.join(sourceDir, entry.name);
+    const relativePath = path.relative(baseDir, entrySourcePath).replace(/\\/g, "/");
+
+    if (entry.isDirectory()) {
+      if (shouldSkipPublicEntry(relativePath)) continue;
+      copySafePublicFiles(entrySourcePath, path.join(targetDir, entry.name), baseDir);
+      continue;
+    }
+
+    if (shouldSkipPublicEntry(relativePath)) continue;
+    fs.copyFileSync(entrySourcePath, path.join(targetDir, entry.name));
+  }
+}
+
+function safePublicBuildPlugin(): Plugin {
+  let resolvedConfig: ReturnType<typeof defineConfig> | undefined;
+
+  return {
+    name: "safe-public-build-plugin",
+    apply: "build",
+    config() {
+      return { build: { copyPublicDir: false } };
+    },
+    configResolved(config) {
+      resolvedConfig = config as ReturnType<typeof defineConfig>;
+    },
+    writeBundle() {
+      if (!resolvedConfig) return;
+
+      const publicDir = path.resolve(resolvedConfig.root, "public");
+      const outDir = path.resolve(resolvedConfig.root, resolvedConfig.build.outDir);
+      const clientOutDir = path.join(outDir, "client");
+      copySafePublicFiles(publicDir, clientOutDir);
+    },
+  };
+}
 
 // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
 // @cloudflare/vite-plugin builds from this — wrangler.jsonc main alone is insufficient.
 export default defineConfig({
+  plugins: [safePublicBuildPlugin()],
   tanstackStart: {
     server: { entry: "server" },
   },

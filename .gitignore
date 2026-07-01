@@ -74,3 +74,15 @@ supabase/.temp
 
 # lovable (se gerar cache/temp local)
 .lovable/cache
+
+# nunca permitir arquivos sensíveis na pasta pública do site
+public/.env*
+public/.dev.vars
+public/.gitignore
+public/*.local
+public/**/*.local
+public/.wrangler/
+public/.tanstack/
+public/.github/
+public/.git/
+public/node_modules/
