@@ -15,6 +15,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { checkAuthRateLimit, recordAuthAttempt } from "@/lib/auth.functions";
+import { lovable } from "@/integrations/lovable";
 
 type Mode = "login" | "signup" | "forgot";
 type AuthAttemptType = "login" | "signup" | "reset";
@@ -104,33 +105,20 @@ function AuthPage() {
     return null;
   };
 
-  // Login Social Real via Supabase OAuth
+  // Login Social via Lovable Cloud (Google / Apple)
   const handleSocialLogin = async (provider: "google" | "apple") => {
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        },
+      const result = await lovable.auth.signInWithOAuth(provider, {
+        redirect_uri: window.location.origin,
       });
-      if (error) throw error;
+      if (result.error) throw result.error;
+      if (result.redirected) return; // browser navigating away
+      // Session set — redirect to home
+      navigate({ to: "/", replace: true });
     } catch (err) {
       const msg = err instanceof Error ? err.message : "";
-
-      // Captura erro amigável de provedor não ativado no console do Supabase
-      if (
-        msg.toLowerCase().includes("provider is not enabled") ||
-        msg.toLowerCase().includes("unsupported provider") ||
-        msg.toLowerCase().includes("validation_failed")
-      ) {
-        toast.error(
-          `O login via ${provider === "google" ? "Google" : "Apple"} não está ativo no painel do Supabase. Ative-o em Authentication > Providers no painel administrativo.`,
-          { duration: 6000 },
-        );
-      } else {
-        toast.error(msg || "Erro ao conectar com provedor social");
-      }
+      toast.error(msg || `Erro ao entrar com ${provider === "google" ? "Google" : "Apple"}`);
       setLoading(false);
     }
   };
@@ -145,7 +133,7 @@ function AuthPage() {
     setLoading(true);
     try {
       const attempt_type = mode === "login" ? "login" : mode === "signup" ? "signup" : "reset";
-      const limit = await checkLimit({ email, attempt_type });
+      const limit = await checkLimit({ data: { email, attempt_type } });
       if (limit.blocked) {
         toast.error(limit.reason || "Limite excedido. Aguarde alguns minutos.");
         return;
@@ -475,11 +463,11 @@ function AuthPage() {
 }
 
 async function recordAuthenticatedAttempt(
-  recordAttempt: (input: { attempt_type: AuthAttemptType; success?: true }) => Promise<{ ok: boolean }>,
+  recordAttempt: (input: { data: { attempt_type: AuthAttemptType; success?: true } }) => Promise<{ ok: boolean }>,
   attempt_type: AuthAttemptType,
 ) {
   try {
-    await recordAttempt({ attempt_type, success: true });
+    await recordAttempt({ data: { attempt_type, success: true } });
   } catch (error) {
     console.warn("[Auth] Skipping authenticated attempt audit:", error);
   }
