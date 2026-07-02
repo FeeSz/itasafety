@@ -1,5 +1,6 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
+import { verifyAdminAccess } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -8,15 +9,14 @@ export const Route = createFileRoute("/_authenticated")({
     if (error || !data.user) {
       throw redirect({ to: "/auth" });
     }
-    const { data: roles } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", data.user.id);
-    const isAdmin = (roles ?? []).some((r) => r.role === "admin");
-    if (!isAdmin) {
+    // Server-side admin verification (validates JWT + role check on the server).
+    // This ensures the admin route cannot be reached by tampering with the client.
+    try {
+      await verifyAdminAccess();
+    } catch {
       throw redirect({ to: "/" });
     }
-    return { user: data.user, isAdmin };
+    return { user: data.user, isAdmin: true as const };
   },
   component: () => <Outlet />,
 });
