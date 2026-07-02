@@ -1,4 +1,4 @@
-const DEFAULT_SITE_URL = "https://itasafety.com.br";
+const DEFAULT_SITE_URL = "https://itasafety.lovable.app";
 
 function readPublicEnv(name: string) {
   const viteEnv = import.meta.env as Record<string, string | undefined>;
