@@ -73,17 +73,12 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
-const SITE_DESCRIPTION =
-  "Distribuição de EPIs e consultoria técnica em segurança do trabalho — NR-06, NR-10, NR-35 e ISO 9001 para a indústria brasileira.";
-
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { name: "theme-color", content: "#ffffff" },
-      { title: "ITASAFETY - Equipamentos de Proteção Individual Ltda" },
-      { name: "description", content: SITE_DESCRIPTION },
       { property: "og:site_name", content: "ItaSafety" },
       { property: "og:type", content: "website" },
       { property: "og:locale", content: "pt_BR" },
@@ -91,33 +86,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "google-site-verification",
         content: "0Lcl1ACMKo_ErTp0ZMeCJVE9eh-d4pHxxsPUKes77Og",
-      },
-      { property: "og:title", content: "ITASAFETY - Equipamentos de Proteção Individual Ltda" },
-      { name: "twitter:title", content: "ITASAFETY - Equipamentos de Proteção Individual Ltda" },
-      {
-        name: "description",
-        content:
-          "ItaSafety - Equipamentos de proteção individual. Fornecemos as melhores marcas com a melhor qualidade e toda atenção que nossos clientes merecem.",
-      },
-      {
-        property: "og:description",
-        content:
-          "ItaSafety - Equipamentos de proteção individual. Fornecemos as melhores marcas com a melhor qualidade e toda atenção que nossos clientes merecem.",
-      },
-      {
-        name: "twitter:description",
-        content:
-          "ItaSafety - Equipamentos de proteção individual. Fornecemos as melhores marcas com a melhor qualidade e toda atenção que nossos clientes merecem.",
-      },
-      {
-        property: "og:image",
-        content:
-          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/1ab0672f-beb8-43f3-b9c9-967b0d2d7287/id-preview-aa10ea5d--da39f44e-909c-475c-b71a-c8842452812c.lovable.app-1780193247403.png",
-      },
-      {
-        name: "twitter:image",
-        content:
-          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/1ab0672f-beb8-43f3-b9c9-967b0d2d7287/id-preview-aa10ea5d--da39f44e-909c-475c-b71a-c8842452812c.lovable.app-1780193247403.png",
       },
     ],
     links: [
