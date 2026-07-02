@@ -22,7 +22,7 @@ export default function Logo({ className = "", onDark = false }: LogoProps) {
     >
       <img
         src={logo}
-        alt="ItaSafety"
+        alt="ItaSafety — Equipamentos de Proteção Individual"
         width={1536}
         height={1024}
         className="w-auto transition-transform duration-300 group-hover:scale-[1.02]"
