@@ -171,7 +171,7 @@ function ResetPasswordPage() {
           <p className="mt-4 text-xs text-ink-soft">
             Problema com o acesso?{" "}
             <Link to="/auth" className="font-semibold text-brand-blue hover:underline">
-              Clique aqui
+              contate o suporte
             </Link>
           </p>
         </div>

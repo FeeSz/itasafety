@@ -186,6 +186,7 @@ export default function Header() {
                 type="button"
                 onClick={() => setUserMenuOpen((o) => !o)}
                 className="flex items-center gap-2 rounded-full border border-hairline bg-white/50 px-3 py-1.5 transition-all hover:bg-slate-50 hover:shadow-sm"
+                aria-label="Menu do usuário"
                 aria-haspopup="true"
                 aria-expanded={userMenuOpen}
               >

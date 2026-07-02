@@ -7,13 +7,46 @@ import Container from "@/components/ui/Container";
 import { pageMeta } from "@/lib/seo";
 
 export const Route = createFileRoute("/contato")({
-  head: () =>
-    pageMeta({
+  head: () => {
+    const base = pageMeta({
       title: "Solicitar Orçamento — ItaSafety",
       description:
         "Fale com um engenheiro de aplicação ItaSafety. Cotação técnica, levantamento de risco e atendimento corporativo para indústrias.",
       path: "/contato",
-    }),
+    });
+    return {
+      ...base,
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "LocalBusiness",
+            name: "ItaSafety",
+            url: "https://itasafety.lovable.app/contato",
+            image: "https://itasafety.lovable.app/favicon-mark.png",
+            telephone: ["+55-11-2626-7417", "+55-11-2963-0303"],
+            email: "contato@itasafety.com.br",
+            address: {
+              "@type": "PostalAddress",
+              addressLocality: "São Paulo",
+              addressRegion: "SP",
+              addressCountry: "BR",
+            },
+            openingHoursSpecification: [
+              {
+                "@type": "OpeningHoursSpecification",
+                dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+                opens: "08:00",
+                closes: "18:00",
+              },
+            ],
+            areaServed: "BR",
+          }),
+        },
+      ],
+    };
+  },
   component: ContactPage,
 });
 

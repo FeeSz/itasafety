@@ -68,7 +68,8 @@ function copySafePublicFiles(sourceDir: string, targetDir: string, baseDir = sou
 }
 
 function safePublicBuildPlugin(): Plugin {
-  let resolvedConfig: ReturnType<typeof defineConfig> | undefined;
+  let rootDir = "";
+  let outDirName = "dist";
 
   return {
     name: "safe-public-build-plugin",
@@ -77,13 +78,14 @@ function safePublicBuildPlugin(): Plugin {
       return { build: { copyPublicDir: false } };
     },
     configResolved(config) {
-      resolvedConfig = config as ReturnType<typeof defineConfig>;
+      rootDir = config.root;
+      outDirName = config.build.outDir;
     },
     writeBundle() {
-      if (!resolvedConfig) return;
+      if (!rootDir) return;
 
-      const publicDir = path.resolve(resolvedConfig.root, "public");
-      const outDir = path.resolve(resolvedConfig.root, resolvedConfig.build.outDir);
+      const publicDir = path.resolve(rootDir, "public");
+      const outDir = path.resolve(rootDir, outDirName);
       const clientOutDir = path.join(outDir, "client");
       copySafePublicFiles(publicDir, clientOutDir);
     },
