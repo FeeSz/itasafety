@@ -15,6 +15,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as QuemsomosRouteImport } from './routes/quemsomos'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
+import { Route as McpRouteImport } from './routes/mcp'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LocalizacaoRouteImport } from './routes/localizacao'
 import { Route as CookiesRouteImport } from './routes/cookies'
@@ -28,10 +29,13 @@ import { Route as AuthIndexRouteImport } from './routes/auth.index'
 import { Route as DetalhesSkuRouteImport } from './routes/detalhes.$sku'
 import { Route as DepartamentoSlugRouteImport } from './routes/departamento.$slug'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_authenticated/admin/categories'
 import { Route as AuthenticatedAdminBrandsRouteImport } from './routes/_authenticated/admin/brands'
+import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 
 const TermosRoute = TermosRouteImport.update({
   id: '/termos',
@@ -61,6 +65,11 @@ const QuemsomosRoute = QuemsomosRouteImport.update({
 const PrivacidadeRoute = PrivacidadeRouteImport.update({
   id: '/privacidade',
   path: '/privacidade',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -127,6 +136,18 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
   path: '/callback',
   getParentRoute: () => AuthRoute,
 } as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const Char91DotmcpChar93ListToolsRoute =
+  Char91DotmcpChar93ListToolsRouteImport.update({
+    id: '/.mcp/list-tools',
+    path: '/.mcp/list-tools',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -149,6 +170,12 @@ const AuthenticatedAdminBrandsRoute =
     path: '/brands',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const Char91DotmcpChar93InvokeToolToolRoute =
+  Char91DotmcpChar93InvokeToolToolRouteImport.update({
+    id: '/.mcp/invoke-tool/$tool',
+    path: '/.mcp/invoke-tool/$tool',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -159,6 +186,7 @@ export interface FileRoutesByFullPath {
   '/cookies': typeof CookiesRoute
   '/localizacao': typeof LocalizacaoRoute
   '/login': typeof LoginRoute
+  '/mcp': typeof McpRoute
   '/privacidade': typeof PrivacidadeRoute
   '/quemsomos': typeof QuemsomosRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -166,10 +194,13 @@ export interface FileRoutesByFullPath {
   '/sobre': typeof SobreRoute
   '/termos': typeof TermosRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/departamento/$slug': typeof DepartamentoSlugRoute
   '/detalhes/$sku': typeof DetalhesSkuRoute
   '/auth/': typeof AuthIndexRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/brands': typeof AuthenticatedAdminBrandsRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -182,16 +213,20 @@ export interface FileRoutesByTo {
   '/cookies': typeof CookiesRoute
   '/localizacao': typeof LocalizacaoRoute
   '/login': typeof LoginRoute
+  '/mcp': typeof McpRoute
   '/privacidade': typeof PrivacidadeRoute
   '/quemsomos': typeof QuemsomosRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/sobre': typeof SobreRoute
   '/termos': typeof TermosRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/departamento/$slug': typeof DepartamentoSlugRoute
   '/detalhes/$sku': typeof DetalhesSkuRoute
   '/auth': typeof AuthIndexRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/brands': typeof AuthenticatedAdminBrandsRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -207,6 +242,7 @@ export interface FileRoutesById {
   '/cookies': typeof CookiesRoute
   '/localizacao': typeof LocalizacaoRoute
   '/login': typeof LoginRoute
+  '/mcp': typeof McpRoute
   '/privacidade': typeof PrivacidadeRoute
   '/quemsomos': typeof QuemsomosRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -214,10 +250,13 @@ export interface FileRoutesById {
   '/sobre': typeof SobreRoute
   '/termos': typeof TermosRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/departamento/$slug': typeof DepartamentoSlugRoute
   '/detalhes/$sku': typeof DetalhesSkuRoute
   '/auth/': typeof AuthIndexRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/_authenticated/admin/brands': typeof AuthenticatedAdminBrandsRoute
   '/_authenticated/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -233,6 +272,7 @@ export interface FileRouteTypes {
     | '/cookies'
     | '/localizacao'
     | '/login'
+    | '/mcp'
     | '/privacidade'
     | '/quemsomos'
     | '/reset-password'
@@ -240,10 +280,13 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/termos'
     | '/admin'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/auth/callback'
     | '/departamento/$slug'
     | '/detalhes/$sku'
     | '/auth/'
+    | '/.mcp/invoke-tool/$tool'
     | '/admin/brands'
     | '/admin/categories'
     | '/admin/'
@@ -256,16 +299,20 @@ export interface FileRouteTypes {
     | '/cookies'
     | '/localizacao'
     | '/login'
+    | '/mcp'
     | '/privacidade'
     | '/quemsomos'
     | '/reset-password'
     | '/sitemap.xml'
     | '/sobre'
     | '/termos'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/auth/callback'
     | '/departamento/$slug'
     | '/detalhes/$sku'
     | '/auth'
+    | '/.mcp/invoke-tool/$tool'
     | '/admin/brands'
     | '/admin/categories'
     | '/admin'
@@ -280,6 +327,7 @@ export interface FileRouteTypes {
     | '/cookies'
     | '/localizacao'
     | '/login'
+    | '/mcp'
     | '/privacidade'
     | '/quemsomos'
     | '/reset-password'
@@ -287,10 +335,13 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/termos'
     | '/_authenticated/admin'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/auth/callback'
     | '/departamento/$slug'
     | '/detalhes/$sku'
     | '/auth/'
+    | '/.mcp/invoke-tool/$tool'
     | '/_authenticated/admin/brands'
     | '/_authenticated/admin/categories'
     | '/_authenticated/admin/'
@@ -306,14 +357,18 @@ export interface RootRouteChildren {
   CookiesRoute: typeof CookiesRoute
   LocalizacaoRoute: typeof LocalizacaoRoute
   LoginRoute: typeof LoginRoute
+  McpRoute: typeof McpRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
   QuemsomosRoute: typeof QuemsomosRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SobreRoute: typeof SobreRoute
   TermosRoute: typeof TermosRoute
+  Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
+  Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   DepartamentoSlugRoute: typeof DepartamentoSlugRoute
   DetalhesSkuRoute: typeof DetalhesSkuRoute
+  Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -358,6 +413,13 @@ declare module '@tanstack/react-router' {
       path: '/privacidade'
       fullPath: '/privacidade'
       preLoaderRoute: typeof PrivacidadeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -451,6 +513,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.mcp/list-tools': {
+      id: '/.mcp/list-tools'
+      path: '/.mcp/list-tools'
+      fullPath: '/.mcp/list-tools'
+      preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
       path: '/admin'
@@ -478,6 +554,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/brands'
       preLoaderRoute: typeof AuthenticatedAdminBrandsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/.mcp/invoke-tool/$tool': {
+      id: '/.mcp/invoke-tool/$tool'
+      path: '/.mcp/invoke-tool/$tool'
+      fullPath: '/.mcp/invoke-tool/$tool'
+      preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -533,14 +616,19 @@ const rootRouteChildren: RootRouteChildren = {
   CookiesRoute: CookiesRoute,
   LocalizacaoRoute: LocalizacaoRoute,
   LoginRoute: LoginRoute,
+  McpRoute: McpRoute,
   PrivacidadeRoute: PrivacidadeRoute,
   QuemsomosRoute: QuemsomosRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SobreRoute: SobreRoute,
   TermosRoute: TermosRoute,
+  Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
+  Char91DotwellKnownChar93OauthProtectedResourceRoute:
+    Char91DotwellKnownChar93OauthProtectedResourceRoute,
   DepartamentoSlugRoute: DepartamentoSlugRoute,
   DetalhesSkuRoute: DetalhesSkuRoute,
+  Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

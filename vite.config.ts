@@ -8,6 +8,7 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/tanstack/vite";
 import type { Plugin } from "vite";
 
 const GITHUB_PAGES_BASE = "/itasafety/";
@@ -111,7 +112,7 @@ const githubPagesViteConfig = isGithubPagesBuild
 // @cloudflare/vite-plugin builds from this — wrangler.jsonc main alone is insufficient.
 export default defineConfig({
   nitro: isGithubPagesBuild ? false : undefined,
-  plugins: [safePublicBuildPlugin()],
+  plugins: [safePublicBuildPlugin(), mcpPlugin()],
   vite: githubPagesViteConfig,
   tanstackStart: {
     router: {
