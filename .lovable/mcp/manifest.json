@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "sdk_version": "0.20.0",
+  "path": "/mcp",
+  "auth": {
+    "type": "none"
+  },
+  "mcp": {
+    "server": {
+      "name": "itasafety-mcp",
+      "version": "0.1.0",
+      "title": "ItaSafety"
+    },
+    "tools": [
+      {
+        "name": "list_categories",
+        "title": "List product categories",
+        "description": "List all ItaSafety product categories (safety equipment / EPI) with slugs and subcategories.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_featured_products",
+        "title": "List featured products",
+        "description": "List ItaSafety featured safety equipment products, including SKU, name, category, CA certification and description.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "search_products",
+        "title": "Search products",
+        "description": "Search ItaSafety products by keyword (matches name, SKU, category or description) with an optional category slug filter.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Search keyword"
+            },
+            "categorySlug": {
+              "type": "string",
+              "description": "Optional category slug to filter by"
+            }
+          },
+          "required": [
+            "query"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_company_info",
+        "title": "Get ItaSafety company info",
+        "description": "Return public company information about ItaSafety: what the company does, contact channels, and the main website URL.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
