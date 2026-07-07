@@ -36,7 +36,16 @@ function shouldSkipPublicEntry(relativePath: string): boolean {
 
   if (
     segments.some((segment) =>
-      [".git", ".github", ".wrangler", ".tanstack", ".lovable", "node_modules", "dist", ".vscode"].includes(segment),
+      [
+        ".git",
+        ".github",
+        ".wrangler",
+        ".tanstack",
+        ".lovable",
+        "node_modules",
+        "dist",
+        ".vscode",
+      ].includes(segment),
     )
   ) {
     return true;

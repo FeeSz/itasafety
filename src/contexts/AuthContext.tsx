@@ -103,9 +103,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             if (event === "SIGNED_IN" && nextUser && !previousUser) {
               const provider = nextUser.app_metadata.provider || "";
               const name =
-                nextUser.user_metadata.full_name ||
-                nextUser.email?.split("@")[0] ||
-                "Usuário";
+                nextUser.user_metadata.full_name || nextUser.email?.split("@")[0] || "Usuário";
               showWelcomeToast(name, provider);
             }
 

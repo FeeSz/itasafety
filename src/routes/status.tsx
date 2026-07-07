@@ -23,7 +23,11 @@ type Health = {
 
 function StatusPage() {
   const [clientEnv, setClientEnv] = useState<Record<string, boolean> | null>(null);
-  const [session, setSession] = useState<{ ok: boolean; hasSession: boolean; error?: string } | null>(null);
+  const [session, setSession] = useState<{
+    ok: boolean;
+    hasSession: boolean;
+    error?: string;
+  } | null>(null);
   const [health, setHealth] = useState<Health | null>(null);
   const [healthErr, setHealthErr] = useState<string | null>(null);
 
@@ -57,7 +61,9 @@ function StatusPage() {
   }, []);
 
   const clientMissing = clientEnv
-    ? Object.entries(clientEnv).filter(([, ok]) => !ok).map(([k]) => k)
+    ? Object.entries(clientEnv)
+        .filter(([, ok]) => !ok)
+        .map(([k]) => k)
     : [];
 
   return (
@@ -98,7 +104,9 @@ function StatusPage() {
               <Row
                 label="Sessão ativa"
                 ok={session.hasSession}
-                detail={session.hasSession ? undefined : "Nenhum usuário logado (esperado se anônimo)"}
+                detail={
+                  session.hasSession ? undefined : "Nenhum usuário logado (esperado se anônimo)"
+                }
                 neutral={!session.hasSession && session.ok}
               />
             </>

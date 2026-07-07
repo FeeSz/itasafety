@@ -44,6 +44,47 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
+
+  const isSupabaseConfigError = error.message?.includes("Missing Supabase environment variable(s)");
+
+  if (isSupabaseConfigError) {
+    return (
+      <div className="flex min-h-dvh items-center justify-center bg-white px-6">
+        <div className="max-w-md text-center">
+          <Eyebrow>Erro de Infraestrutura</Eyebrow>
+          <h1 className="mt-4 font-display text-3xl font-bold tracking-tight text-red-600">
+            Falta de Configuração
+          </h1>
+          <p className="mt-4 text-sm text-ink-muted">
+            O aplicativo não pôde ser iniciado porque as variáveis de ambiente necessárias estão
+            ausentes.
+          </p>
+          <div className="mt-4 text-left p-4 bg-gray-50 rounded border border-gray-200">
+            <p className="text-xs text-gray-800 font-mono">
+              Por favor, configure as variáveis abaixo no painel da Lovable Cloud ou no seu ambiente
+              local (.env):
+            </p>
+            <ul className="mt-2 text-xs font-mono text-gray-600 list-disc list-inside">
+              <li>VITE_SUPABASE_URL</li>
+              <li>VITE_SUPABASE_PUBLISHABLE_KEY</li>
+            </ul>
+          </div>
+          <div className="mt-8 flex justify-center gap-3">
+            <CtaButton
+              size="sm"
+              onClick={() => {
+                router.invalidate();
+                window.location.reload();
+              }}
+            >
+              Tentar novamente
+            </CtaButton>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-dvh items-center justify-center bg-white px-6">
       <div className="max-w-md text-center">

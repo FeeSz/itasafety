@@ -46,7 +46,7 @@ export const checkAuthRateLimit = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     try {
       const supabaseAdmin = await getSafeSupabaseAdmin();
-      
+
       // If admin client not available, allow request to proceed (graceful degradation)
       if (!supabaseAdmin) {
         return {
@@ -108,7 +108,7 @@ export const recordAuthAttempt = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     try {
       const supabaseAdmin = await getSafeSupabaseAdmin();
-      
+
       // If admin client not available, silently skip recording
       if (!supabaseAdmin) {
         console.warn("[Auth] Skipping attempt recording - admin client unavailable");

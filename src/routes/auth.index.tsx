@@ -463,7 +463,9 @@ function AuthPage() {
 }
 
 async function recordAuthenticatedAttempt(
-  recordAttempt: (input: { data: { attempt_type: AuthAttemptType; success?: true } }) => Promise<{ ok: boolean }>,
+  recordAttempt: (input: {
+    data: { attempt_type: AuthAttemptType; success?: true };
+  }) => Promise<{ ok: boolean }>,
   attempt_type: AuthAttemptType,
 ) {
   try {
