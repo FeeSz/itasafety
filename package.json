@@ -9,8 +9,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build",
-    "build:github-pages": "vite build --mode github-pages && node scripts/create-github-pages-fallback.mjs",
+    "build": "vite build && node scripts/verify-build-env.mjs",
+    "build:github-pages": "vite build --mode github-pages && node scripts/verify-build-env.mjs && node scripts/create-github-pages-fallback.mjs",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "deploy": "wrangler deploy",
