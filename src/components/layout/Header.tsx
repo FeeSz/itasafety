@@ -131,7 +131,7 @@ export default function Header() {
                   }`}
                 >
                   <ChevronDown
-                    className={`size-3.5 transition-transform duration-300 ease-out ${
+                    className={`size-3.5 transition-transform duration-200 ease-in-out ${
                       mega ? "rotate-180" : "group-hover:translate-y-0.5"
                     }`}
                     aria-hidden

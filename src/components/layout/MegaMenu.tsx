@@ -22,19 +22,30 @@ export default function MegaMenu({ open, onClose }: Props) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [open, onClose]);
 
-  if (!open) return null;
   const activeCat = CATEGORIES.find((c) => c.slug === active) ?? CATEGORIES[0];
 
   return (
-    <div className="fixed inset-0 z-[60]" role="dialog" aria-modal="true">
+    <div 
+      className={`fixed inset-0 z-[60] transition-all duration-300 ${
+        open ? "visible" : "invisible pointer-events-none"
+      }`} 
+      role="dialog" 
+      aria-modal="true"
+    >
       <button
         type="button"
         aria-label="Fechar"
         onClick={onClose}
-        className="absolute inset-0 bg-black/40 backdrop-blur-[1px] animate-fade-in"
+        className={`absolute inset-0 bg-black/25 backdrop-blur-[8px] transition-opacity ${
+          open ? "opacity-100 duration-200 ease-out" : "opacity-0 duration-[180ms] ease-in"
+        }`}
       />
       <div
-        className="absolute left-0 right-0 z-10 overflow-y-auto rounded-b-xl border-b border-hairline bg-white shadow-strong animate-menu-drop"
+        className={`absolute left-0 right-0 z-10 overflow-y-auto rounded-b-[20px] border-b border-hairline bg-white shadow-[0_20px_60px_-10px_rgba(0,0,0,0.15),0_8px_24px_-8px_rgba(0,0,0,0.1)] transition-all origin-top mt-1 ${
+          open 
+            ? "opacity-100 translate-y-0 scale-100 duration-[300ms] ease-[cubic-bezier(0.16,1,0.3,1)]" 
+            : "opacity-0 -translate-y-2 scale-[0.98] duration-[180ms] ease-in"
+        }`}
         style={{
           top: "clamp(64px, 10vw, 136px)",
           maxHeight: "calc(100dvh - clamp(64px, 10vw, 136px))",
@@ -48,7 +59,7 @@ export default function MegaMenu({ open, onClose }: Props) {
             type="button"
             onClick={onClose}
             aria-label="Fechar"
-            className="grid size-9 place-items-center rounded-md text-ink-muted hover:bg-surface-sunken hover:text-ink"
+            className="grid size-9 place-items-center rounded-full text-ink-muted transition-colors duration-150 hover:bg-surface-sunken hover:text-ink"
           >
             <X className="size-5" />
           </button>
@@ -65,7 +76,7 @@ export default function MegaMenu({ open, onClose }: Props) {
                     params={{ slug: cat.slug }}
                     onMouseEnter={() => setActive(cat.slug)}
                     onClick={onClose}
-                    className={`flex items-center gap-3 border-l-[3px] px-5 py-2.5 text-sm transition-all duration-200 ${
+                    className={`flex items-center gap-3 border-l-[3px] px-5 py-2.5 text-sm transition-all duration-150 ease-out ${
                       isActive
                         ? "border-brand-blue bg-brand-blue-tint text-brand-blue"
                         : "border-transparent text-ink hover:bg-surface-sunken hover:text-brand-blue"
@@ -98,8 +109,12 @@ export default function MegaMenu({ open, onClose }: Props) {
             </div>
             {activeCat.subcategories?.length ? (
               <ul className="grid grid-cols-1 gap-1 sm:grid-cols-2 lg:grid-cols-3">
-                {activeCat.subcategories.map((s) => (
-                  <li key={s}>
+                {activeCat.subcategories.map((s, idx) => (
+                  <li 
+                    key={s}
+                    className="opacity-0 animate-[fade-slide-up_0.4s_cubic-bezier(0.16,1,0.3,1)_forwards]"
+                    style={{ animationDelay: `${idx * 20}ms` }}
+                  >
                     <Link
                       to="/departamento/$slug"
                       params={{ slug: activeCat.slug }}
