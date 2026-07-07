@@ -13,7 +13,6 @@ export const Route = createFileRoute("/api/public/health")({
         const envCheck = {
           SUPABASE_URL: Boolean(SUPABASE_URL),
           SUPABASE_PUBLISHABLE_KEY: Boolean(SUPABASE_PUBLISHABLE_KEY),
-          SUPABASE_SERVICE_ROLE_KEY: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY),
         };
 
         const missing = Object.entries(envCheck)
