@@ -45,14 +45,18 @@ export const Route = createFileRoute("/api/public/health")({
 
         const ok = missing.length === 0 && supabase.reachable;
 
+        if (!ok) {
+          console.warn("[Health Check] Degraded status:", { 
+            missingVars: missing, 
+            supabaseError: supabase.error 
+          });
+        }
+
         return Response.json(
           {
             status: ok ? "ok" : "degraded",
             timestamp: new Date().toISOString(),
             uptimeMs: Date.now() - started,
-            env: envCheck,
-            missing,
-            supabase,
           },
           {
             status: ok ? 200 : 503,

@@ -13,7 +13,7 @@ ALTER TABLE public.app_settings ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Admins manage settings" ON public.app_settings FOR ALL TO authenticated
   USING (public.has_role(auth.uid(),'admin')) WITH CHECK (public.has_role(auth.uid(),'admin'));
 
-INSERT INTO public.app_settings (key, value) VALUES ('admin_email','felypelopes7@gmail.com')
+INSERT INTO public.app_settings (key, value) VALUES ('admin_email','admin@itasafety.com.br')
 ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value;
 
 -- ============ categories ============
