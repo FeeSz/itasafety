@@ -29,79 +29,105 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   });
 
   useEffect(() => {
+    let mounted = true;
     let previousUser: User | null = null;
+    let subscription: { unsubscribe: () => void } | undefined;
 
-    // Buscar sessão inicial
-    supabase.auth.getSession().then(({ data: { session: initialSession } }) => {
-      setSession(initialSession);
-      const currentUser = initialSession?.user ?? null;
-      setUser(currentUser);
-      previousUser = currentUser;
-
-      if (currentUser) {
-        // Resolve loading immediately for the user state
-        setLoading(false);
-
-        // Fetch roles in the background
-        supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", currentUser.id)
-          .then(({ data: roles }) => {
-            const adminStatus = (roles ?? []).some((r) => r.role === "admin");
-            setIsAdmin(adminStatus);
+    const applyRoles = (userId: string) => {
+      supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .then(({ data: roles }) => {
+          if (!mounted) return;
+          const adminStatus = (roles ?? []).some((r) => r.role === "admin");
+          setIsAdmin(adminStatus);
+          try {
             sessionStorage.setItem("ita_is_admin", adminStatus ? "true" : "false");
-          });
-      } else {
+          } catch {
+            /* storage may be unavailable */
+          }
+        })
+        .then(undefined, (err) => {
+          console.error("[AuthContext] role fetch failed", err);
+        });
+    };
+
+    (async () => {
+      try {
+        // Sessão inicial
+        const { data, error } = await supabase.auth.getSession();
+        if (error) throw error;
+        if (!mounted) return;
+
+        const initialSession = data.session ?? null;
+        const currentUser = initialSession?.user ?? null;
+        setSession(initialSession);
+        setUser(currentUser);
+        previousUser = currentUser;
+
+        if (currentUser) {
+          setLoading(false);
+          applyRoles(currentUser.id);
+        } else {
+          setIsAdmin(false);
+          try {
+            sessionStorage.removeItem("ita_is_admin");
+          } catch {
+            /* noop */
+          }
+          setLoading(false);
+        }
+
+        // Listener de mudanças — só registra se a sessão inicial resolveu
+        const { data: sub } = supabase.auth.onAuthStateChange((event, newSession) => {
+          try {
+            if (!mounted) return;
+            setSession(newSession);
+            const nextUser = newSession?.user ?? null;
+            setUser(nextUser);
+
+            if (nextUser) {
+              setLoading(false);
+              applyRoles(nextUser.id);
+            } else {
+              setIsAdmin(false);
+              try {
+                sessionStorage.removeItem("ita_is_admin");
+              } catch {
+                /* noop */
+              }
+              setLoading(false);
+            }
+
+            if (event === "SIGNED_IN" && nextUser && !previousUser) {
+              const provider = nextUser.app_metadata.provider || "";
+              const name =
+                nextUser.user_metadata.full_name ||
+                nextUser.email?.split("@")[0] ||
+                "Usuário";
+              showWelcomeToast(name, provider);
+            }
+
+            previousUser = nextUser;
+          } catch (err) {
+            console.error("[AuthContext] onAuthStateChange handler failed", err);
+          }
+        });
+        subscription = sub.subscription;
+      } catch (err) {
+        console.error("[AuthContext] init failed", err);
+        if (!mounted) return;
+        setUser(null);
+        setSession(null);
         setIsAdmin(false);
-        sessionStorage.removeItem("ita_is_admin");
         setLoading(false);
       }
-    });
-
-    // Escutar mudanças no estado de autenticação
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, newSession) => {
-      setSession(newSession);
-      const currentUser = newSession?.user ?? null;
-      setUser(currentUser);
-
-      if (currentUser) {
-        // Resolve loading immediately
-        setLoading(false);
-
-        // Fetch roles in background
-        supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", currentUser.id)
-          .then(({ data: roles }) => {
-            const adminStatus = (roles ?? []).some((r) => r.role === "admin");
-            setIsAdmin(adminStatus);
-            sessionStorage.setItem("ita_is_admin", adminStatus ? "true" : "false");
-          });
-      } else {
-        setIsAdmin(false);
-        sessionStorage.removeItem("ita_is_admin");
-        setLoading(false);
-      }
-
-      // Detectar login (SIGNED_IN e transição de nulo para usuário)
-      if (event === "SIGNED_IN" && currentUser && !previousUser) {
-        const provider = currentUser.app_metadata.provider || "";
-        const name =
-          currentUser.user_metadata.full_name || currentUser.email?.split("@")[0] || "Usuário";
-
-        // Exibir toast personalizado "surpresa" pós-login
-        showWelcomeToast(name, provider);
-      }
-
-      previousUser = currentUser;
-    });
+    })();
 
     return () => {
-      subscription.unsubscribe();
+      mounted = false;
+      subscription?.unsubscribe();
     };
   }, []);
 
