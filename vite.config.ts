@@ -113,9 +113,16 @@ const githubPagesViteConfig = isGithubPagesBuild
       define: {
         "import.meta.env.VITE_SITE_URL": JSON.stringify("https://feesz.github.io/itasafety"),
         "import.meta.env.SITE_URL": JSON.stringify("https://feesz.github.io/itasafety"),
+        "import.meta.env.VITE_SUPABASE_URL": JSON.stringify(process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || ""),
+        "import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY": JSON.stringify(process.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_PUBLISHABLE_KEY || ""),
       },
     }
-  : {};
+  : {
+      define: {
+        "import.meta.env.VITE_SUPABASE_URL": JSON.stringify(process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || ""),
+        "import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY": JSON.stringify(process.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_PUBLISHABLE_KEY || ""),
+      },
+    };
 
 // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
 // @cloudflare/vite-plugin builds from this — wrangler.jsonc main alone is insufficient.
