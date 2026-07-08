@@ -17,7 +17,6 @@ import CtaButton from "@/components/ui/CtaButton";
 import Eyebrow from "@/components/ui/Eyebrow";
 import { QuoteCartProvider } from "@/components/quote/QuoteCartContext";
 import QuoteFab from "@/components/quote/QuoteFab";
-import ContactFab from "@/components/ui/ContactFab";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/contexts/AuthContext";
 
@@ -179,7 +178,6 @@ function RootComponent() {
           <Footer />
           <CookieBanner />
           <QuoteFab />
-          <ContactFab />
           <Toaster position="top-right" />
         </QuoteCartProvider>
       </AuthProvider>

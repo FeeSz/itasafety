@@ -220,15 +220,31 @@ function PartnerDialog({
   const [sortOrder, setSortOrder] = useState(row?.sort_order ?? 0);
   const [active, setActive] = useState(row?.active ?? true);
   const [saving, setSaving] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
 
   const save = async () => {
     if (!name.trim()) return toast.error("Nome obrigatório.");
-    if (!logoUrl.trim()) return toast.error("Logo URL é obrigatório.");
+    if (!logoUrl.trim() && !file) return toast.error("Logo é obrigatório.");
     setSaving(true);
     try {
+      let finalLogoUrl = logoUrl.trim();
+
+      if (file) {
+        const fileExt = file.name.split(".").pop();
+        const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
+        const { error: uploadError, data } = await supabase.storage
+          .from("logos")
+          .upload(fileName, file, { cacheControl: "3600", upsert: false });
+
+        if (uploadError) throw uploadError;
+
+        const { data: publicUrlData } = supabase.storage.from("logos").getPublicUrl(data.path);
+        finalLogoUrl = publicUrlData.publicUrl;
+      }
+
       const payload = {
         name: name.trim(),
-        logo_url: logoUrl.trim(),
+        logo_url: finalLogoUrl,
         href: href.trim() || null,
         tagline: tagline.trim() || null,
         sort_order: Number(sortOrder) || 0,
@@ -263,13 +279,29 @@ function PartnerDialog({
               placeholder="Ex: 3M"
             />
           </FormRow>
-          <FormRow label="URL do logo">
-            <input
-              value={logoUrl}
-              onChange={(e) => setLogoUrl(e.target.value)}
-              className="input"
-              placeholder="ex: /partners/3m.png ou https://..."
-            />
+          <FormRow label="Logo (Upload ou URL)">
+            <div className="flex flex-col gap-2">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    setFile(e.target.files[0]);
+                  } else {
+                    setFile(null);
+                  }
+                }}
+                className="input file:mr-4 file:rounded-md file:border-0 file:bg-brand-blue file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-brand-blue-hover"
+              />
+              <span className="text-xs text-ink-muted text-center uppercase">OU</span>
+              <input
+                value={logoUrl}
+                onChange={(e) => setLogoUrl(e.target.value)}
+                className="input"
+                placeholder="URL da imagem (ex: /partners/3m.png ou https://...)"
+                disabled={!!file}
+              />
+            </div>
           </FormRow>
           <FormRow label="URL do Site">
             <input

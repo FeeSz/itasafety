@@ -163,21 +163,7 @@ export default function Header() {
           >
             <Search className="size-[22px]" />
           </button>
-          {user && (
-            <button
-              type="button"
-              onClick={() => setCartOpen(true)}
-              className="relative text-[#374151] transition-all duration-150 hover:text-[#111111] hover:scale-105 active:scale-90"
-              aria-label={`Carrinho de cotação (${count} itens)`}
-            >
-              <ShoppingCart className="size-[22px]" />
-              {count > 0 && (
-                <span className="absolute -right-2 -top-2 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-brand-red px-1 text-[11px] font-bold leading-none text-white">
-                  {count}
-                </span>
-              )}
-            </button>
-          )}
+
           {!loading && user ? (
             <div className="relative" ref={userMenuRef}>
               <button

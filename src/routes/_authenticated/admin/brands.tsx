@@ -226,16 +226,32 @@ function BrandDialog({
   const [sortOrder, setSortOrder] = useState(row?.sort_order ?? 0);
   const [active, setActive] = useState(row?.active ?? true);
   const [saving, setSaving] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
 
   const save = async () => {
     if (!name.trim()) return toast.error("Nome obrigatório.");
     const finalSlug = slug.trim() || slugify(name);
     setSaving(true);
     try {
+      let finalLogoUrl = logoUrl.trim() || null;
+
+      if (file) {
+        const fileExt = file.name.split(".").pop();
+        const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
+        const { error: uploadError, data } = await supabase.storage
+          .from("logos")
+          .upload(fileName, file, { cacheControl: "3600", upsert: false });
+
+        if (uploadError) throw uploadError;
+
+        const { data: publicUrlData } = supabase.storage.from("logos").getPublicUrl(data.path);
+        finalLogoUrl = publicUrlData.publicUrl;
+      }
+
       const payload = {
         name: name.trim(),
         slug: finalSlug,
-        logo_url: logoUrl.trim() || null,
+        logo_url: finalLogoUrl,
         sort_order: Number(sortOrder) || 0,
         active,
       };
@@ -278,13 +294,29 @@ function BrandDialog({
               className="input font-mono"
             />
           </FormRow>
-          <FormRow label="URL do logo">
-            <input
-              value={logoUrl}
-              onChange={(e) => setLogoUrl(e.target.value)}
-              className="input"
-              placeholder="https://..."
-            />
+          <FormRow label="Logo (Upload ou URL)">
+            <div className="flex flex-col gap-2">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    setFile(e.target.files[0]);
+                  } else {
+                    setFile(null);
+                  }
+                }}
+                className="input file:mr-4 file:rounded-md file:border-0 file:bg-brand-blue file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-brand-blue-hover"
+              />
+              <span className="text-xs text-ink-muted text-center uppercase">OU</span>
+              <input
+                value={logoUrl}
+                onChange={(e) => setLogoUrl(e.target.value)}
+                className="input"
+                placeholder="URL da imagem (ex: https://...)"
+                disabled={!!file}
+              />
+            </div>
           </FormRow>
           <div className="grid grid-cols-2 gap-4">
             <FormRow label="Ordem">
