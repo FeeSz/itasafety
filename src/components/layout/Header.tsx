@@ -95,11 +95,11 @@ export default function Header() {
       className={`left-0 right-0 top-0 z-50 ${
         isHome ? "absolute" : "sticky"
       } ${showWhite ? "header-scrolled" : "header-transparent"}`}
-      style={{ height: "clamp(64px, 10vw, 136px)" }}
+      style={{ height: "clamp(84px, 10vw, 136px)" }}
     >
       <div
         className="mx-auto flex max-w-7xl items-center px-5 md:px-10"
-        style={{ height: "clamp(64px, 10vw, 136px)" }}
+        style={{ height: "clamp(84px, 10vw, 136px)" }}
       >
         {/* Left — Logo proporcional a cada tela */}
         <div className="flex shrink-0 items-center">
@@ -275,7 +275,7 @@ export default function Header() {
       {searchOpen && (
         <div
           className="absolute left-0 right-0 hidden border-t border-[#D8DEE6] bg-white/95 px-10 py-4 shadow-[0_18px_40px_rgba(27,79,138,0.12)] backdrop-blur-md md:block animate-search-reveal"
-          style={{ top: "clamp(64px, 10vw, 136px)" }}
+          style={{ top: "clamp(84px, 10vw, 136px)" }}
         >
           <div className="mx-auto max-w-3xl">
             <SearchBox autoFocus onNavigate={() => setSearchOpen(false)} />
@@ -322,7 +322,7 @@ export default function Header() {
                 WhatsApp
               </a>
               <a
-                href="tel:+551126267417"
+                href="tel:+551151785655"
                 className="flex flex-col items-center gap-1 bg-white py-3 text-[11px] font-semibold text-ink"
               >
                 <Phone className="size-5 text-brand-blue" />

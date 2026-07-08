@@ -39,7 +39,7 @@ export const Route = createFileRoute("/")({
                 logo: `${SITE_URL}/favicon-mark.png`,
                 contactPoint: {
                   "@type": "ContactPoint",
-                  telephone: "+55-11-2626-7417",
+                  telephone: "+55-11-5178-5655",
                   contactType: "sales",
                   areaServed: "BR",
                   availableLanguage: "Portuguese",

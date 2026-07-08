@@ -13,9 +13,13 @@ import {
   Loader2,
   ArrowLeft,
   CheckCircle2,
+  Award,
+  Truck,
+  HeadphonesIcon,
 } from "lucide-react";
 import { checkAuthRateLimit, recordAuthAttempt } from "@/lib/auth.functions";
 import { lovable } from "@/integrations/lovable";
+import brandLogo from "@/assets/itasafety-header-logo.png";
 
 type Mode = "login" | "signup" | "forgot";
 type AuthAttemptType = "login" | "signup" | "reset";
@@ -491,62 +495,115 @@ async function getUserIsAdmin(userId: string) {
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative flex min-h-[100dvh] items-center justify-center overflow-hidden bg-surface-sunken dark:bg-slate-950 px-4 py-12">
-      {/* fundo decorativo */}
+    <div className="relative flex min-h-[100dvh] items-center justify-center overflow-hidden bg-gradient-to-br from-brand-blue-active via-brand-blue to-brand-blue-hover px-4 py-12 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+      {/* Grade industrial */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_50%_at_50%_0%,rgba(27,79,138,0.08),transparent_70%),radial-gradient(40%_40%_at_100%_100%,rgba(59,125,216,0.06),transparent_70%)] dark:bg-[radial-gradient(60%_50%_at_50%_0%,rgba(27,79,138,0.15),transparent_70%)]"
+        className="pointer-events-none absolute inset-0 [background-image:linear-gradient(rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.06)_1px,transparent_1px)] [background-size:56px_56px] [mask-image:radial-gradient(ellipse_at_center,black_20%,transparent_75%)]"
+      />
+      {/* Halos coloridos */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-40 -left-40 h-96 w-96 rounded-full bg-brand-blue-light/30 blur-3xl"
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 [background-image:linear-gradient(rgba(27,79,138,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(27,79,138,0.04)_1px,transparent_1px)] [background-size:48px_48px] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_70%)] dark:[background-image:linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)]"
+        className="pointer-events-none absolute -bottom-40 -right-40 h-[500px] w-[500px] rounded-full bg-brand-red/20 blur-3xl"
       />
 
-      <div className="relative grid w-full max-w-5xl gap-8 lg:grid-cols-[1.05fr_1fr] lg:items-center">
-        {/* lado esquerdo — institucional */}
-        <aside className="hidden flex-col gap-8 px-2 lg:flex">
-          <Link to="/" className="inline-flex items-center gap-3">
-            <span className="grid size-12 place-items-center rounded-xl bg-brand-blue text-base font-black text-white shadow-lift">
-              IS
-            </span>
-            <span className="text-xl font-bold tracking-wide text-ink dark:text-white">
-              ItaSafety
-            </span>
+      <div className="relative grid w-full max-w-6xl gap-10 lg:grid-cols-[1.1fr_1fr] lg:items-center">
+        {/* lado esquerdo — institucional (mesma linguagem visual da landing) */}
+        <aside className="hidden flex-col gap-8 px-2 text-white lg:flex">
+          <Link
+            to="/"
+            className="group inline-flex items-center gap-3 text-white/90 transition hover:text-white"
+          >
+            <ArrowLeft className="size-4 transition-transform group-hover:-translate-x-1" />
+            <span className="text-xs font-bold uppercase tracking-widest">Voltar ao site</span>
           </Link>
+
+          <div className="inline-flex w-fit items-center rounded-2xl border border-white/15 bg-white/95 px-5 py-3 shadow-strong backdrop-blur-sm">
+            <img
+              src={brandLogo}
+              alt="ItaSafety — Equipamentos de Proteção Individual"
+              className="h-16 w-auto object-contain"
+            />
+          </div>
+
           <div>
-            <h2 className="text-balance text-4xl font-bold leading-tight tracking-tight text-ink dark:text-white">
-              A plataforma das distribuidoras de EPI que não admitem falhas.
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-white/90 backdrop-blur">
+              <ShieldCheck className="size-3.5" />
+              Distribuidora certificada · NR-6
+            </span>
+            <h2 className="mt-5 text-balance font-display text-4xl font-black leading-[1.05] tracking-tight text-white xl:text-5xl">
+              Proteção que não admite falhas.
             </h2>
-            <p className="mt-4 text-pretty text-base leading-relaxed text-ink-muted dark:text-slate-400">
-              Gestão completa do catálogo, certificações e canais comerciais — com a segurança e o
-              rigor exigidos pela NR-6.
+            <p className="mt-5 max-w-md text-pretty text-base leading-relaxed text-white/80">
+              Acesse sua área para acompanhar cotações, pedidos e o catálogo completo de EPIs
+              homologados pelo MTE.
             </p>
           </div>
-          <ul className="space-y-4 text-sm text-ink-muted dark:text-slate-400">
+
+          <ul className="grid gap-4">
             {[
-              "Catálogo profissional com fichas técnicas e CA",
-              "Painel administrativo com controle total",
-              "Conformidade NR-6 e rastreabilidade técnica",
-            ].map((t) => (
-              <li key={t} className="flex items-start gap-3">
-                <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-brand-blue" />
-                <span>{t}</span>
+              { icon: Award, text: "Produtos com Certificado de Aprovação (CA) do MTE" },
+              { icon: Truck, text: "Entrega para todo o Brasil com rastreabilidade" },
+              { icon: HeadphonesIcon, text: "Consultoria técnica de segurança do trabalho" },
+            ].map(({ icon: Icon, text }) => (
+              <li
+                key={text}
+                className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 p-3 backdrop-blur-sm transition hover:border-white/20 hover:bg-white/10"
+              >
+                <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-white/15 text-white">
+                  <Icon className="size-4" />
+                </span>
+                <span className="text-sm leading-relaxed text-white/85">{text}</span>
               </li>
             ))}
           </ul>
+
+          <div className="mt-2 flex items-center gap-4 border-t border-white/10 pt-6 text-xs text-white/70">
+            <div>
+              <p className="text-2xl font-black text-white">+50</p>
+              <p className="uppercase tracking-widest">Marcas</p>
+            </div>
+            <div className="h-8 w-px bg-white/15" />
+            <div>
+              <p className="text-2xl font-black text-white">+15k</p>
+              <p className="uppercase tracking-widest">Itens em linha</p>
+            </div>
+            <div className="h-8 w-px bg-white/15" />
+            <div>
+              <p className="text-2xl font-black text-white">100%</p>
+              <p className="uppercase tracking-widest">Certificado</p>
+            </div>
+          </div>
         </aside>
 
         {/* card direito — form */}
         <div className="relative w-full">
-          {/* Efeito de brilho de fundo */}
-          <div className="absolute -inset-px rounded-2xl bg-gradient-to-tr from-brand-blue/20 via-transparent to-brand-blue/10 blur-2xl opacity-70" />
+          {/* Logo mobile visível */}
+          <Link
+            to="/"
+            className="mb-5 flex items-center justify-center gap-2 lg:hidden"
+            aria-label="ItaSafety — Início"
+          >
+            <span className="inline-flex items-center rounded-2xl border border-white/20 bg-white px-4 py-2 shadow-lift">
+              <img src={brandLogo} alt="ItaSafety" className="h-12 w-auto object-contain" />
+            </span>
+          </Link>
 
-          {/* Card em vidro fosco */}
-          <div className="relative rounded-2xl border border-white/40 bg-white/80 backdrop-blur-xl p-8 shadow-strong sm:p-10 transition-all duration-500 hover:border-brand-blue/20 dark:border-white/10 dark:bg-slate-900/80">
+          {/* Halo brilhante */}
+          <div className="absolute -inset-2 rounded-3xl bg-gradient-to-tr from-white/30 via-brand-blue-light/20 to-white/10 blur-2xl" />
+
+          {/* Card glass */}
+          <div className="relative rounded-3xl border border-white/30 bg-white/95 p-7 shadow-strong backdrop-blur-2xl sm:p-9 dark:border-white/10 dark:bg-slate-900/90">
+            <span className="absolute inset-x-8 -top-px h-px bg-gradient-to-r from-transparent via-brand-blue to-transparent" />
             {children}
           </div>
-          <p className="mt-4 text-center text-xs text-ink-soft dark:text-slate-500">
-            Protegido por boas práticas de segurança — TLS, hash bcrypt, rate limit.
+          <p className="mt-4 flex items-center justify-center gap-2 text-center text-[11px] font-medium text-white/80">
+            <ShieldCheck className="size-3.5" />
+            Protegido por TLS · bcrypt · rate-limit · LGPD
           </p>
         </div>
       </div>

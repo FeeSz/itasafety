@@ -29,7 +29,8 @@ export default function Logo({ className = "", onDark = false }: LogoProps) {
         style={{
           objectFit: "contain",
           /* Escala fluida: mín 52px → 8vw → máx 120px */
-          height: "clamp(52px, 8vw, 120px)",
+          /* Escala fluida: mín 72px (mobile) → 9vw → máx 120px */
+          height: "clamp(72px, 9vw, 120px)",
         }}
       />
     </Link>
