@@ -25,7 +25,7 @@ export const Route = createFileRoute("/contato")({
             name: "ItaSafety",
             url: "https://itasafety.lovable.app/contato",
             image: "https://itasafety.lovable.app/favicon-mark.png",
-            telephone: ["+55-11-2626-7417", "+55-11-2963-0303"],
+            telephone: ["+55-11-5178-5655", "+55-11-2963-0303"],
             email: "contato@itasafety.com.br",
             address: {
               "@type": "PostalAddress",
@@ -72,8 +72,8 @@ function ContactPage() {
             <ContactItem
               icon={<Phone className="size-5" aria-hidden />}
               label="Central de Vendas"
-              value="+55 (11) 2626-7417"
-              href="tel:+551126267417"
+              value="+55 (11) 5178-5655"
+              href="tel:+551151785655"
             />
             <ContactItem
               icon={<Phone className="size-5" aria-hidden />}
