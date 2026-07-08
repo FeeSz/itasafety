@@ -216,6 +216,18 @@
   }
 }
 
+@keyframes float-3d {
+  0% {
+    transform: perspective(1000px) translateY(0) rotateY(0deg) rotateX(5deg);
+  }
+  50% {
+    transform: perspective(1000px) translateY(-25px) rotateY(15deg) rotateX(-5deg);
+  }
+  100% {
+    transform: perspective(1000px) translateY(0) rotateY(0deg) rotateX(5deg);
+  }
+}
+
 @layer base {
   * {
     border-color: var(--color-border);
@@ -266,6 +278,9 @@
   }
   .animate-slide-in-right {
     animation: slide-in-right 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .animate-float-3d {
+    animation: float-3d 6s ease-in-out infinite;
   }
   .text-balance {
     text-wrap: balance;

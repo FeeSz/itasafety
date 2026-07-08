@@ -9,17 +9,11 @@ import {
   Mail,
   Eye,
   EyeOff,
-  ShieldCheck,
   Loader2,
   ArrowLeft,
   CheckCircle2,
-  Award,
-  Truck,
-  HeadphonesIcon,
 } from "lucide-react";
 import { checkAuthRateLimit, recordAuthAttempt } from "@/lib/auth.functions";
-import { lovable } from "@/integrations/lovable";
-import brandLogo from "@/assets/itasafety-header-logo.png";
 
 type Mode = "login" | "signup" | "forgot";
 type AuthAttemptType = "login" | "signup" | "reset";
@@ -48,7 +42,6 @@ function AuthPage() {
   const [loading, setLoading] = useState(false);
   const [successView, setSuccessView] = useState<null | "signup" | "forgot">(null);
 
-  // Estados adicionados para usabilidade avançada
   const [capsLockActive, setCapsLockActive] = useState(false);
   const [emailTouched, setEmailTouched] = useState(false);
 
@@ -85,7 +78,6 @@ function AuthPage() {
     };
   }, [navigate]);
 
-  // Detecção de Caps Lock
   const checkCapsLock = (e: React.KeyboardEvent) => {
     setCapsLockActive(e.getModifierState("CapsLock"));
   };
@@ -96,7 +88,7 @@ function AuthPage() {
     if (/[A-Z]/.test(password)) s++;
     if (/[0-9]/.test(password)) s++;
     if (/[^A-Za-z0-9]/.test(password)) s++;
-    return s; // 0-4
+    return s;
   })();
 
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -109,17 +101,17 @@ function AuthPage() {
     return null;
   };
 
-  // Login Social via Lovable Cloud (Google / Apple)
   const handleSocialLogin = async (provider: "google" | "apple") => {
     setLoading(true);
     try {
-      const result = await lovable.auth.signInWithOAuth(provider, {
-        redirect_uri: window.location.origin,
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/`,
+        },
       });
-      if (result.error) throw result.error;
-      if (result.redirected) return; // browser navigating away
-      // Session set — redirect to home
-      navigate({ to: "/", replace: true });
+      if (error) throw error;
+      // O browser será redirecionado para o provider.
     } catch (err) {
       const msg = err instanceof Error ? err.message : "";
       toast.error(msg || `Erro ao entrar com ${provider === "google" ? "Google" : "Apple"}`);
@@ -196,19 +188,19 @@ function AuthPage() {
 
   if (successView) {
     return (
-      <Shell>
-        <div className="text-center">
-          <div className="mx-auto mb-6 flex size-16 items-center justify-center rounded-full bg-brand-blue/10 dark:bg-brand-blue/20">
+      <div className="flex min-h-[100dvh] items-center justify-center bg-[#111] text-white">
+        <div className="text-center p-8 backdrop-blur-2xl bg-white/5 border border-white/10 rounded-3xl max-w-md w-full shadow-2xl">
+          <div className="mx-auto mb-6 flex size-16 items-center justify-center rounded-full bg-brand-blue/20">
             <CheckCircle2 className="size-8 text-brand-blue" />
           </div>
-          <h1 className="text-2xl font-bold text-ink dark:text-white">
+          <h1 className="text-2xl font-bold text-white">
             {successView === "signup" ? "Verifique seu e-mail" : "Pedido enviado"}
           </h1>
-          <p className="mt-3 text-sm leading-relaxed text-ink-muted dark:text-slate-400">
+          <p className="mt-3 text-sm leading-relaxed text-slate-400">
             {successView === "signup"
               ? "Enviamos um link de confirmação para "
-              : "Se este e-mail estiver cadastrado, você receberá um link de redefinição em "}
-            <strong className="text-ink dark:text-white">{email}</strong>.
+              : "Se este e-mail estiver cadastrado, você receberá um link em "}
+            <strong className="text-white">{email}</strong>.
             <br />
             {successView === "signup"
               ? "Clique no link para ativar sua conta e poder acessar."
@@ -225,251 +217,235 @@ function AuthPage() {
             <ArrowLeft className="size-4" /> Voltar para o login
           </button>
         </div>
-      </Shell>
+      </div>
     );
   }
 
   return (
-    <Shell>
-      <header className="mb-6">
-        <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-hairline bg-brand-blue/5 dark:bg-brand-blue/10 px-3 py-1 text-xs font-semibold text-brand-blue">
-          <ShieldCheck className="size-3.5" />
-          Acesso seguro por criptografia
-        </div>
-        <h1 className="text-2xl font-bold tracking-tight text-ink dark:text-white sm:text-3xl">
-          {mode === "login" && "Entrar na plataforma"}
-          {mode === "signup" && "Criar sua conta"}
-          {mode === "forgot" && "Recuperar acesso"}
-        </h1>
-        <p className="mt-1.5 text-sm text-ink-muted dark:text-slate-400">
-          {mode === "login" && "Selecione uma opção de acesso rápido ou informe seu e-mail."}
-          {mode === "signup" && "Comece em segundos. O cadastro é rápido e seguro."}
-          {mode === "forgot" && "Informe seu e-mail para receber o link de recuperação de acesso."}
-        </p>
-      </header>
+    <div className="relative flex min-h-[100dvh] bg-[#111111] text-white overflow-hidden items-center justify-center p-6 lg:p-12 font-sans">
+      {/* Background Glows */}
+      <div className="pointer-events-none absolute left-0 top-0 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/4 rounded-full bg-[#1B4F8A]/30 blur-[140px]" />
+      <div className="pointer-events-none absolute bottom-0 right-0 h-[600px] w-[600px] translate-x-1/4 translate-y-1/4 rounded-full bg-[#6B21A8]/20 blur-[140px]" />
 
-      {/* Login Social Prioritário (apenas no modo Login) */}
-      {mode === "login" && (
-        <div className="mb-5 space-y-3">
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={() => handleSocialLogin("google")}
-              disabled={loading}
-              className="flex min-h-[48px] items-center justify-center gap-2 rounded-xl border border-hairline bg-white px-4 py-2.5 text-sm font-semibold text-ink shadow-sm transition-all hover:bg-slate-50 hover:shadow dark:border-white/10 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700 disabled:opacity-50"
-            >
-              <svg className="h-4 w-4" viewBox="0 0 24 24">
-                <path
-                  fill="#EA4335"
-                  d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-5.136 4.114A5.59 5.59 0 0 1 8.4 12.928a5.59 5.59 0 0 1 5.59-5.59c1.47 0 2.81.57 3.82 1.49l3.12-3.12A9.95 9.95 0 0 0 13.99 2 9.99 9.99 0 0 0 4 12a9.99 9.99 0 0 0 9.99 10c5.52 0 10-4.48 10-10 0-.628-.068-1.242-.2-1.833h-11.55z"
-                />
-              </svg>
-              Google
-            </button>
-            <button
-              type="button"
-              onClick={() => handleSocialLogin("apple")}
-              disabled={loading}
-              className="flex min-h-[48px] items-center justify-center gap-2 rounded-xl border border-hairline bg-white px-4 py-2.5 text-sm font-semibold text-ink shadow-sm transition-all hover:bg-slate-50 hover:shadow dark:border-white/10 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700 disabled:opacity-50"
-            >
-              <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
-                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 4.17c.66-.81 1.11-1.93.99-3.06-1 .04-2.22.67-2.94 1.51-.63.73-1.18 1.87-1.03 2.98 1.1.09 2.24-.57 2.98-1.43z" />
-              </svg>
-              Apple
-            </button>
-          </div>
-
-          <div className="relative flex py-2 items-center">
-            <div className="flex-grow border-t border-hairline dark:border-white/10"></div>
-            <span className="flex-shrink mx-4 text-xs text-ink-soft dark:text-slate-400 font-semibold uppercase tracking-wider">
-              ou continue com e-mail
-            </span>
-            <div className="flex-grow border-t border-hairline dark:border-white/10"></div>
-          </div>
-        </div>
-      )}
-
-      <form onSubmit={submit} className="space-y-4" noValidate>
-        <Field
-          label="E-mail"
-          icon={<Mail className="size-4 text-ink-soft" />}
-          trailing={
-            emailTouched &&
-            email.length > 0 && (
-              <span
-                className={`flex size-5 items-center justify-center rounded-full text-[10px] font-bold text-white transition-all ${isEmailValid ? "bg-emerald-500 scale-100" : "bg-red-500 scale-100"}`}
-              >
-                {isEmailValid ? "✓" : "!"}
-              </span>
-            )
-          }
-        >
-          <input
-            type="email"
-            required
-            autoComplete="email"
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              setEmailTouched(true);
-            }}
-            className="w-full bg-transparent py-3 text-sm outline-none placeholder:text-ink-soft dark:text-white"
-            placeholder="voce@empresa.com.br"
-            disabled={loading}
-          />
-        </Field>
-
-        {mode !== "forgot" && (
-          <Field
-            label="Senha"
-            icon={<Lock className="size-4 text-ink-soft" />}
-            trailing={
-              <div className="flex items-center gap-2">
-                {capsLockActive && (
-                  <span
-                    className="flex items-center gap-1 rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-bold text-amber-600 dark:text-amber-400"
-                    title="Caps Lock ativo"
-                  >
-                    ▲ CAPS
-                  </span>
-                )}
-                <button
-                  type="button"
-                  onClick={() => setShowPw((s) => !s)}
-                  className="text-ink-soft hover:text-ink min-w-[36px] min-h-[36px] flex items-center justify-center"
-                  aria-label={showPw ? "Ocultar senha" : "Mostrar senha"}
-                >
-                  {showPw ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-                </button>
-              </div>
-            }
+      <div className="relative z-10 w-full max-w-6xl grid lg:grid-cols-2 gap-12 lg:gap-24 items-center">
+        
+        {/* Left Side: Welcome Text and 3D Floating Element */}
+        <div className="flex flex-col text-left">
+          <h1 className="font-display text-5xl md:text-7xl font-bold mb-4 tracking-tight text-white drop-shadow-md">
+            {mode === 'login' && 'Bem-vindo\nde volta !'}
+            {mode === 'signup' && 'Prepare-se\npara entrar !'}
+            {mode === 'forgot' && 'Recuperar\nAcesso !'}
+          </h1>
+          
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-white/20 bg-white/5 w-fit font-medium hover:bg-white/10 transition-colors backdrop-blur-md mb-8 text-sm"
           >
-            <input
-              type={showPw ? "text" : "password"}
-              required
-              minLength={8}
-              autoComplete={mode === "login" ? "current-password" : "new-password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              onKeyDown={checkCapsLock}
-              onKeyUp={checkCapsLock}
-              className="w-full bg-transparent py-3 text-sm outline-none placeholder:text-ink-soft dark:text-white"
-              placeholder="Mínimo 8 caracteres"
-              disabled={loading}
-            />
-          </Field>
-        )}
+            Pular a espera ?
+          </Link>
 
-        {mode === "signup" && password.length > 0 && (
-          <div className="space-y-1.5" aria-live="polite">
-            <div className="flex gap-1">
-              {[0, 1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className={`h-1 flex-1 rounded-full transition-colors ${
-                    i < pwStrength
-                      ? pwStrength <= 2
-                        ? "bg-amber-500"
-                        : pwStrength === 3
-                          ? "bg-brand-blue"
-                          : "bg-emerald-600"
-                      : "bg-hairline dark:bg-white/10"
-                  }`}
-                />
-              ))}
+          {/* 3D Floating Element Container */}
+          <div className="relative h-64 md:h-96 w-full lg:w-4/5 mx-auto lg:mx-0 perspective-1000 hidden md:block">
+            <div className="absolute inset-0 animate-float-3d flex items-center justify-center">
+               {mode === 'login' ? (
+                 <img 
+                   src="/epi_3d/helmet.png" 
+                   alt="EPI 3D" 
+                   className="w-[120%] h-[120%] object-contain filter drop-shadow-[0_20px_50px_rgba(0,0,0,0.8)]"
+                 />
+               ) : (
+                 <img 
+                   src="/epi_3d/boot.png" 
+                   alt="EPI 3D" 
+                   className="w-[110%] h-[110%] object-contain filter drop-shadow-[0_20px_50px_rgba(0,0,0,0.8)]"
+                 />
+               )}
             </div>
-            <p className="text-xs text-ink-soft dark:text-slate-400">
-              {pwStrength <= 2 && "Senha fraca — adicione maiúsculas, números e símbolos."}
-              {pwStrength === 3 && "Senha boa."}
-              {pwStrength === 4 && "Senha forte."}
+          </div>
+        </div>
+
+        {/* Right Side: Glassmorphism Card */}
+        <div className="relative w-full max-w-md mx-auto lg:ml-auto">
+          <div className="rounded-3xl bg-[#1A1A1A]/60 border border-white/10 p-8 md:p-10 shadow-[0_8px_32px_rgba(0,0,0,0.37)] backdrop-blur-xl">
+            <h2 className="text-2xl font-semibold mb-1">
+              {mode === 'login' && 'Login'}
+              {mode === 'signup' && 'Signup'}
+              {mode === 'forgot' && 'Recuperar Senha'}
+            </h2>
+            <p className="text-slate-400 text-xs mb-8">
+              {mode === 'login' && "Glad you're back.!"}
+              {mode === 'signup' && "Just some details to get you in.!"}
+              {mode === 'forgot' && "We'll send you a link to get back in.!"}
             </p>
+
+            <form onSubmit={submit} className="space-y-4" noValidate>
+              <Field label="Username / E-mail" icon={<Mail className="size-4" />}>
+                <input
+                  type="email"
+                  required
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setEmailTouched(true);
+                  }}
+                  className="w-full bg-transparent py-2.5 text-sm outline-none placeholder:text-white/20 text-white"
+                  placeholder="voce@empresa.com.br"
+                  disabled={loading}
+                />
+              </Field>
+
+              {mode !== "forgot" && (
+                <Field
+                  label="Password"
+                  icon={<Lock className="size-4" />}
+                  trailing={
+                    <button
+                      type="button"
+                      onClick={() => setShowPw((s) => !s)}
+                      className="text-white/40 hover:text-white flex items-center justify-center p-2"
+                      aria-label={showPw ? "Ocultar senha" : "Mostrar senha"}
+                    >
+                      {showPw ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                    </button>
+                  }
+                >
+                  <input
+                    type={showPw ? "text" : "password"}
+                    required
+                    minLength={8}
+                    autoComplete={mode === "login" ? "current-password" : "new-password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    onKeyDown={checkCapsLock}
+                    onKeyUp={checkCapsLock}
+                    className="w-full bg-transparent py-2.5 text-sm outline-none placeholder:text-white/20 text-white"
+                    placeholder="Sua senha"
+                    disabled={loading}
+                  />
+                </Field>
+              )}
+
+              {mode === "login" && (
+                <div className="flex items-center pt-2 pb-1">
+                  <label className="flex cursor-pointer items-center gap-2 text-xs text-slate-300">
+                    <input
+                      type="checkbox"
+                      checked={remember}
+                      onChange={(e) => setRemember(e.target.checked)}
+                      className="size-3.5 rounded border-white/20 bg-[#2A2A2A] accent-[#7C3AED]"
+                    />
+                    Remember me
+                  </label>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full rounded-lg bg-gradient-to-r from-[#6B21A8] to-[#1B4F8A] py-3 text-sm font-semibold text-white shadow-lg transition-all hover:opacity-90 disabled:opacity-50 mt-4"
+              >
+                {loading && <Loader2 className="size-4 animate-spin mx-auto" />}
+                {!loading && mode === "login" && "Login"}
+                {!loading && mode === "signup" && "Signup"}
+                {!loading && mode === "forgot" && "Enviar Link"}
+              </button>
+              
+              {mode === "login" && (
+                 <div className="text-center mt-2">
+                    <button
+                      type="button"
+                      onClick={() => setMode("forgot")}
+                      className="text-xs text-slate-300 hover:text-white"
+                    >
+                      Forgot password ?
+                    </button>
+                 </div>
+              )}
+            </form>
+
+            {mode === 'login' && (
+              <>
+                <div className="relative flex items-center py-6">
+                  <div className="flex-grow border-t border-white/10"></div>
+                  <span className="mx-4 text-xs font-medium text-slate-500 uppercase">Or</span>
+                  <div className="flex-grow border-t border-white/10"></div>
+                </div>
+
+                <div className="flex justify-center gap-4">
+                  <button
+                    type="button"
+                    onClick={() => handleSocialLogin("google")}
+                    disabled={loading}
+                    className="grid size-10 place-items-center rounded-full bg-black/40 border border-white/10 hover:bg-black/60 transition-colors disabled:opacity-50"
+                    title="Login with Google"
+                  >
+                    <svg className="size-5" viewBox="0 0 24 24">
+                      <path fill="#EA4335" d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-5.136 4.114A5.59 5.59 0 0 1 8.4 12.928a5.59 5.59 0 0 1 5.59-5.59c1.47 0 2.81.57 3.82 1.49l3.12-3.12A9.95 9.95 0 0 0 13.99 2 9.99 9.99 0 0 0 4 12a9.99 9.99 0 0 0 9.99 10c5.52 0 10-4.48 10-10 0-.628-.068-1.242-.2-1.833h-11.55z" />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSocialLogin("apple")}
+                    disabled={loading}
+                    className="grid size-10 place-items-center rounded-full bg-black/40 border border-white/10 hover:bg-black/60 transition-colors disabled:opacity-50 text-white"
+                    title="Login with Apple"
+                  >
+                    <svg className="size-5 fill-current" viewBox="0 0 24 24">
+                      <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 4.17c.66-.81 1.11-1.93.99-3.06-1 .04-2.22.67-2.94 1.51-.63.73-1.18 1.87-1.03 2.98 1.1.09 2.24-.57 2.98-1.43z" />
+                    </svg>
+                  </button>
+                </div>
+              </>
+            )}
+
+            <div className="mt-8 text-center text-[11px] text-slate-400">
+              {mode === "login" && (
+                <>
+                  Don't have an account ?{" "}
+                  <button onClick={() => setMode("signup")} className="text-white hover:underline font-semibold">Signup</button>
+                </>
+              )}
+              {mode === "signup" && (
+                <>
+                  Already Registered ?{" "}
+                  <button onClick={() => setMode("login")} className="text-white hover:underline font-semibold">Login</button>
+                </>
+              )}
+              {mode === "forgot" && (
+                <button onClick={() => setMode("login")} className="text-white hover:underline font-semibold">Back to Login</button>
+              )}
+            </div>
+
+            <div className="mt-6 flex justify-center gap-4 text-[10px] text-slate-500">
+              <span className="hover:text-slate-300 cursor-pointer">Terms & Conditions</span>
+              <span className="hover:text-slate-300 cursor-pointer">Support</span>
+              <span className="hover:text-slate-300 cursor-pointer">Customer Care</span>
+            </div>
           </div>
-        )}
-
-        {mode === "login" && (
-          <div className="flex items-center justify-between pt-1">
-            <label className="flex cursor-pointer items-center gap-2 text-sm text-ink-muted dark:text-slate-400">
-              <input
-                type="checkbox"
-                checked={remember}
-                onChange={(e) => setRemember(e.target.checked)}
-                className="size-4 rounded border-hairline accent-brand-blue"
-              />
-              Lembrar acesso
-            </label>
-            <button
-              type="button"
-              onClick={() => setMode("forgot")}
-              className="text-sm font-semibold text-brand-blue hover:underline min-h-[36px]"
-            >
-              Esqueceu a senha?
-            </button>
-          </div>
-        )}
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="group relative inline-flex min-h-[48px] w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-brand-blue py-3 text-sm font-bold text-white shadow-lift transition-all hover:bg-brand-blue-hover hover:shadow-strong disabled:cursor-not-allowed disabled:opacity-70"
-        >
-          {loading && <Loader2 className="size-4 animate-spin" />}
-          {!loading && mode === "login" && "Entrar"}
-          {!loading && mode === "signup" && "Criar conta"}
-          {!loading && mode === "forgot" && "Enviar link de redefinição"}
-          {loading && "Aguarde..."}
-        </button>
-      </form>
-
-      <div className="mt-6 text-center text-sm text-ink-muted dark:text-slate-400">
-        {mode === "login" && (
-          <>
-            Ainda não tem conta?{" "}
-            <button
-              type="button"
-              onClick={() => setMode("signup")}
-              className="font-semibold text-brand-blue hover:underline min-h-[36px]"
-            >
-              Cadastre-se
-            </button>
-          </>
-        )}
-        {mode === "signup" && (
-          <>
-            Já é cadastrado?{" "}
-            <button
-              type="button"
-              onClick={() => setMode("login")}
-              className="font-semibold text-brand-blue hover:underline min-h-[36px]"
-            >
-              Fazer login
-            </button>
-          </>
-        )}
-        {mode === "forgot" && (
-          <button
-            type="button"
-            onClick={() => setMode("login")}
-            className="inline-flex items-center gap-2 font-semibold text-brand-blue hover:underline min-h-[36px]"
-          >
-            <ArrowLeft className="size-4" /> Voltar para o login
-          </button>
-        )}
+        </div>
       </div>
+    </div>
+  );
+}
 
-      <Link
-        to="/"
-        className="mt-8 block text-center text-xs text-ink-soft hover:text-ink dark:text-slate-400 dark:hover:text-white"
-      >
-        ← Voltar ao site
-      </Link>
-    </Shell>
+function Field({ label, icon, trailing, children }: { label: string; icon: React.ReactNode; trailing?: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <div className="block">
+      {/* Label missing in reference image next to field? Actually the reference shows labels INSIDE or ABOVE the field borders */}
+      {/* Wait, the reference image shows the label "Username" inside the input border as a placeholder or floating label. We'll simulate it by placing a small text above. Wait, the image shows it inside. Let's just use it as a placeholder. No, it has an empty border with text inside. */}
+      <div className="flex items-center gap-3 rounded-lg border border-white/20 bg-transparent px-4 focus-within:border-white/50 transition-colors min-h-[44px]">
+        {/* <div className="text-white/40">{icon}</div> */}
+        {/* In the image there are no icons inside the inputs! So I'll remove icon rendering to match the image exactly */}
+        {children}
+        {trailing}
+      </div>
+    </div>
   );
 }
 
 async function recordAuthenticatedAttempt(
-  recordAttempt: (input: {
-    data: { attempt_type: AuthAttemptType; success?: true };
-  }) => Promise<{ ok: boolean }>,
+  recordAttempt: (input: { data: { attempt_type: AuthAttemptType; success?: true } }) => Promise<{ ok: boolean }>,
   attempt_type: AuthAttemptType,
 ) {
   try {
@@ -480,158 +456,10 @@ async function recordAuthenticatedAttempt(
 }
 
 async function getUserIsAdmin(userId: string) {
-  const { data: roles, error } = await supabase
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", userId);
-
+  const { data: roles, error } = await supabase.from("user_roles").select("role").eq("user_id", userId);
   if (error) {
     console.error("[Auth] Error checking user role:", error);
     return false;
   }
-
   return (roles ?? []).some((r) => r.role === "admin");
-}
-
-function Shell({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="relative flex min-h-[100dvh] items-center justify-center overflow-hidden bg-gradient-to-br from-brand-blue-active via-brand-blue to-brand-blue-hover px-4 py-12 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
-      {/* Grade industrial */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 [background-image:linear-gradient(rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.06)_1px,transparent_1px)] [background-size:56px_56px] [mask-image:radial-gradient(ellipse_at_center,black_20%,transparent_75%)]"
-      />
-      {/* Halos coloridos */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -top-40 -left-40 h-96 w-96 rounded-full bg-brand-blue-light/30 blur-3xl"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -bottom-40 -right-40 h-[500px] w-[500px] rounded-full bg-brand-red/20 blur-3xl"
-      />
-
-      <div className="relative grid w-full max-w-6xl gap-10 lg:grid-cols-[1.1fr_1fr] lg:items-center">
-        {/* lado esquerdo — institucional (mesma linguagem visual da landing) */}
-        <aside className="hidden flex-col gap-8 px-2 text-white lg:flex">
-          <Link
-            to="/"
-            className="group inline-flex items-center gap-3 text-white/90 transition hover:text-white"
-          >
-            <ArrowLeft className="size-4 transition-transform group-hover:-translate-x-1" />
-            <span className="text-xs font-bold uppercase tracking-widest">Voltar ao site</span>
-          </Link>
-
-          <div className="inline-flex w-fit items-center rounded-2xl border border-white/15 bg-white/95 px-5 py-3 shadow-strong backdrop-blur-sm">
-            <img
-              src={brandLogo}
-              alt="ItaSafety — Equipamentos de Proteção Individual"
-              className="h-16 w-auto object-contain"
-            />
-          </div>
-
-          <div>
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-white/90 backdrop-blur">
-              <ShieldCheck className="size-3.5" />
-              Distribuidora certificada · NR-6
-            </span>
-            <h2 className="mt-5 text-balance font-display text-4xl font-black leading-[1.05] tracking-tight text-white xl:text-5xl">
-              Proteção que não admite falhas.
-            </h2>
-            <p className="mt-5 max-w-md text-pretty text-base leading-relaxed text-white/80">
-              Acesse sua área para acompanhar cotações, pedidos e o catálogo completo de EPIs
-              homologados pelo MTE.
-            </p>
-          </div>
-
-          <ul className="grid gap-4">
-            {[
-              { icon: Award, text: "Produtos com Certificado de Aprovação (CA) do MTE" },
-              { icon: Truck, text: "Entrega para todo o Brasil com rastreabilidade" },
-              { icon: HeadphonesIcon, text: "Consultoria técnica de segurança do trabalho" },
-            ].map(({ icon: Icon, text }) => (
-              <li
-                key={text}
-                className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 p-3 backdrop-blur-sm transition hover:border-white/20 hover:bg-white/10"
-              >
-                <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-white/15 text-white">
-                  <Icon className="size-4" />
-                </span>
-                <span className="text-sm leading-relaxed text-white/85">{text}</span>
-              </li>
-            ))}
-          </ul>
-
-          <div className="mt-2 flex items-center gap-4 border-t border-white/10 pt-6 text-xs text-white/70">
-            <div>
-              <p className="text-2xl font-black text-white">+50</p>
-              <p className="uppercase tracking-widest">Marcas</p>
-            </div>
-            <div className="h-8 w-px bg-white/15" />
-            <div>
-              <p className="text-2xl font-black text-white">+15k</p>
-              <p className="uppercase tracking-widest">Itens em linha</p>
-            </div>
-            <div className="h-8 w-px bg-white/15" />
-            <div>
-              <p className="text-2xl font-black text-white">100%</p>
-              <p className="uppercase tracking-widest">Certificado</p>
-            </div>
-          </div>
-        </aside>
-
-        {/* card direito — form */}
-        <div className="relative w-full">
-          {/* Logo mobile visível */}
-          <Link
-            to="/"
-            className="mb-5 flex items-center justify-center gap-2 lg:hidden"
-            aria-label="ItaSafety — Início"
-          >
-            <span className="inline-flex items-center rounded-2xl border border-white/20 bg-white px-4 py-2 shadow-lift">
-              <img src={brandLogo} alt="ItaSafety" className="h-12 w-auto object-contain" />
-            </span>
-          </Link>
-
-          {/* Halo brilhante */}
-          <div className="absolute -inset-2 rounded-3xl bg-gradient-to-tr from-white/30 via-brand-blue-light/20 to-white/10 blur-2xl" />
-
-          {/* Card glass */}
-          <div className="relative rounded-3xl border border-white/30 bg-white/95 p-7 shadow-strong backdrop-blur-2xl sm:p-9 dark:border-white/10 dark:bg-slate-900/90">
-            <span className="absolute inset-x-8 -top-px h-px bg-gradient-to-r from-transparent via-brand-blue to-transparent" />
-            {children}
-          </div>
-          <p className="mt-4 flex items-center justify-center gap-2 text-center text-[11px] font-medium text-white/80">
-            <ShieldCheck className="size-3.5" />
-            Protegido por TLS · bcrypt · rate-limit · LGPD
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Field({
-  label,
-  icon,
-  trailing,
-  children,
-}: {
-  label: string;
-  icon: React.ReactNode;
-  trailing?: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  return (
-    <label className="block">
-      <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-ink-muted dark:text-slate-400">
-        {label}
-      </span>
-      <div className="flex items-center gap-3 rounded-xl border border-hairline bg-white/70 px-4 transition-all duration-300 focus-within:border-brand-blue focus-within:bg-white focus-within:ring-4 focus-within:ring-brand-blue/10 dark:border-white/10 dark:bg-slate-900/50 dark:focus-within:bg-slate-900 dark:focus-within:ring-brand-blue/20 min-h-[48px]">
-        {icon}
-        {children}
-        {trailing}
-      </div>
-    </label>
-  );
 }
