@@ -5,63 +5,33 @@ export const Route = createFileRoute("/api/public/health")({
   server: {
     handlers: {
       GET: async () => {
-        const started = Date.now();
         const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
         const SUPABASE_PUBLISHABLE_KEY =
           process.env.SUPABASE_PUBLISHABLE_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
-        const envCheck = {
-          SUPABASE_URL: Boolean(SUPABASE_URL),
-          SUPABASE_PUBLISHABLE_KEY: Boolean(SUPABASE_PUBLISHABLE_KEY),
-        };
+        let ok = Boolean(SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY);
 
-        const missing = Object.entries(envCheck)
-          .filter(([, ok]) => !ok)
-          .map(([k]) => k);
-
-        let supabase: { reachable: boolean; error?: string; latencyMs?: number } = {
-          reachable: false,
-        };
-
-        if (SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY) {
+        if (ok && SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY) {
           try {
             const client = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
               auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
             });
-            const t0 = Date.now();
             const { error } = await client.auth.getSession();
-            supabase = {
-              reachable: !error,
-              latencyMs: Date.now() - t0,
-              ...(error ? { error: error.message } : {}),
-            };
+            if (error) {
+              console.warn("[Health Check] Supabase error:", error.message);
+              ok = false;
+            }
           } catch (err) {
-            supabase = {
-              reachable: false,
-              error: err instanceof Error ? err.message : String(err),
-            };
+            console.warn("[Health Check] Exception:", err instanceof Error ? err.message : err);
+            ok = false;
           }
-        }
-
-        const ok = missing.length === 0 && supabase.reachable;
-
-        if (!ok) {
-          console.warn("[Health Check] Degraded status:", { 
-            missingVars: missing, 
-            supabaseError: supabase.error 
-          });
+        } else {
+          console.warn("[Health Check] Missing env vars");
         }
 
         return Response.json(
-          {
-            status: ok ? "ok" : "degraded",
-            timestamp: new Date().toISOString(),
-            uptimeMs: Date.now() - started,
-          },
-          {
-            status: ok ? 200 : 503,
-            headers: { "cache-control": "no-store" },
-          },
+          { status: ok ? "ok" : "degraded" },
+          { status: ok ? 200 : 503, headers: { "cache-control": "no-store" } },
         );
       },
     },
