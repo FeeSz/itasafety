@@ -13,9 +13,13 @@ import {
   Loader2,
   ArrowLeft,
   CheckCircle2,
+  Award,
+  Truck,
+  HeadphonesIcon,
 } from "lucide-react";
 import { checkAuthRateLimit, recordAuthAttempt } from "@/lib/auth.functions";
 import { lovable } from "@/integrations/lovable";
+import brandLogo from "@/assets/itasafety-header-logo.png";
 
 type Mode = "login" | "signup" | "forgot";
 type AuthAttemptType = "login" | "signup" | "reset";
