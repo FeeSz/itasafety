@@ -4,7 +4,7 @@ import CategoryPills from "@/components/sections/CategoryPills";
 
 import CategoryGrid from "@/components/sections/CategoryGrid";
 import FeaturedProducts from "@/components/sections/FeaturedProducts";
-import WhatsAppBanner from "@/components/sections/WhatsAppBanner";
+import ContactBanner from "@/components/sections/ContactBanner";
 import IntermediateBanners from "@/components/sections/IntermediateBanners";
 import PartnersStrip from "@/components/sections/PartnersStrip";
 import Differentials from "@/components/sections/Differentials";
@@ -118,7 +118,7 @@ function HomePage() {
       </section>
 
       <Reveal>
-        <WhatsAppBanner />
+        <ContactBanner />
       </Reveal>
 
       <Reveal>

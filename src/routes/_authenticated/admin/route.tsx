@@ -96,6 +96,9 @@ function AdminLayout() {
               <Link to="/admin/brands" activeProps={activeProps} className={navItem}>
                 <Award className="size-4" /> Marcas
               </Link>
+              <Link to="/admin/partners" activeProps={activeProps} className={navItem}>
+                <Award className="size-4" /> Parceiros
+              </Link>
             </nav>
           </div>
           <div className="flex items-center gap-2">

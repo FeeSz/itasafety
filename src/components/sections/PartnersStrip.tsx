@@ -1,55 +1,37 @@
 import Container from "@/components/ui/Container";
 import Eyebrow from "@/components/ui/Eyebrow";
-import canadaLogo from "@/assets/canada.png";
-import mavaroLogo from "@/assets/mavaro.png";
-import confortoLogo from "@/assets/conforto.png";
-import volkLogo from "@/assets/volk.png";
-import superSafetyLogo from "@/assets/supersafety.png";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 type Partner = {
+  id: string;
   name: string;
-  logo: string;
-  href: string;
-  tagline: string;
+  logo_url: string;
+  href: string | null;
+  tagline: string | null;
 };
 
-const PARTNERS: ReadonlyArray<Partner> = [
-  {
-    name: "Canada EPI",
-    logo: canadaLogo,
-    href: "https://www.canadaepi.com.br",
-    tagline: "Calçados profissionais",
-  },
-  {
-    name: "Mavaro",
-    logo: mavaroLogo,
-    href: "https://www.mavaro.com.br",
-    tagline: "Calçados de segurança",
-  },
-  {
-    name: "Conforto",
-    logo: confortoLogo,
-    href: "https://www.confortoepi.com.br",
-    tagline: "Artefatos de couro",
-  },
-  {
-    name: "Volk do Brasil",
-    logo: volkLogo,
-    href: "https://www.volkdobrasil.com.br",
-    tagline: "Proteção industrial",
-  },
-  {
-    name: "Super Safety",
-    logo: superSafetyLogo,
-    href: "https://www.supersafety.com.br",
-    tagline: "Work & Sport",
-  },
-] as const;
-
-// Duplicamos para loop contínuo do marquee
-const LOOP = [...PARTNERS, ...PARTNERS];
-
 export default function PartnersStrip() {
+  const { data: partners = [] } = useQuery({
+    queryKey: ["partners-active"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("partners")
+        .select("*")
+        .eq("active", true)
+        .order("sort_order")
+        .order("name");
+      if (error) throw error;
+      return data as Partner[];
+    },
+  });
+
+  // Se não tivermos parceiros, não renderiza a seção
+  if (partners.length === 0) return null;
+
+  // Duplicamos para loop contínuo do marquee
+  const loop = [...partners, ...partners];
+
   return (
     <section className="relative overflow-hidden border-y border-hairline bg-gradient-to-b from-white to-brand-blue-tint/40 py-16">
       {/* halos decorativos */}
@@ -72,8 +54,8 @@ export default function PartnersStrip() {
 
         {/* Grid fixo em desktop — cada logo é clicável com hover premium */}
         <ul className="mx-auto mt-12 hidden max-w-6xl grid-cols-5 gap-5 lg:grid">
-          {PARTNERS.map((p) => (
-            <li key={p.name}>
+          {partners.map((p) => (
+            <li key={p.id}>
               <PartnerCard partner={p} />
             </li>
           ))}
@@ -90,8 +72,8 @@ export default function PartnersStrip() {
           }}
         >
           <ul className="flex w-max animate-marquee items-stretch gap-5 [&:hover]:[animation-play-state:paused]">
-            {LOOP.map((p, i) => (
-              <li key={`${p.name}-${i}`} className="w-[220px] shrink-0">
+            {loop.map((p, i) => (
+              <li key={`${p.id}-${i}`} className="w-[220px] shrink-0">
                 <PartnerCard partner={p} />
               </li>
             ))}
@@ -108,14 +90,8 @@ export default function PartnersStrip() {
 }
 
 function PartnerCard({ partner }: { partner: Partner }) {
-  return (
-    <a
-      href={partner.href}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label={`Visitar site oficial de ${partner.name}`}
-      className="group relative flex h-[132px] flex-col items-center justify-center gap-2 overflow-hidden rounded-2xl border border-hairline bg-white px-4 py-5 shadow-card transition-all duration-500 hover:-translate-y-1.5 hover:border-brand-blue/40 hover:shadow-strong"
-    >
+  const CardContent = (
+    <>
       {/* Brilho diagonal no hover */}
       <span
         aria-hidden
@@ -133,7 +109,7 @@ function PartnerCard({ partner }: { partner: Partner }) {
 
       <div className="relative flex h-16 w-full items-center justify-center">
         <img
-          src={partner.logo}
+          src={partner.logo_url}
           alt={`Logo ${partner.name}`}
           loading="lazy"
           decoding="async"
@@ -142,7 +118,7 @@ function PartnerCard({ partner }: { partner: Partner }) {
       </div>
 
       <span className="relative mt-auto text-[10px] font-bold uppercase tracking-wider text-ink-soft transition-colors duration-300 group-hover:text-brand-blue">
-        {partner.tagline}
+        {partner.tagline || ""}
       </span>
 
       {/* Barra inferior azul revela no hover */}
@@ -150,6 +126,24 @@ function PartnerCard({ partner }: { partner: Partner }) {
         aria-hidden
         className="absolute inset-x-4 bottom-0 h-[2px] origin-left scale-x-0 rounded-full bg-gradient-to-r from-brand-blue via-brand-blue-light to-brand-blue transition-transform duration-500 ease-out group-hover:scale-x-100"
       />
-    </a>
+    </>
   );
+
+  const className = "group relative flex h-[132px] flex-col items-center justify-center gap-2 overflow-hidden rounded-2xl border border-hairline bg-white px-4 py-5 shadow-card transition-all duration-500 hover:-translate-y-1.5 hover:border-brand-blue/40 hover:shadow-strong";
+
+  if (partner.href) {
+    return (
+      <a
+        href={partner.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`Visitar site oficial de ${partner.name}`}
+        className={className}
+      >
+        {CardContent}
+      </a>
+    );
+  }
+
+  return <div className={className}>{CardContent}</div>;
 }

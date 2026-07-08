@@ -56,19 +56,12 @@ function ContactPage() {
       <PageHero
         eyebrow="Atendimento Corporativo"
         title="Fale com a engenharia ItaSafety."
-        description="Cotação técnica em até 24h úteis. Para urgências operacionais, utilize o WhatsApp Business — atendimento humano em horário comercial."
+        description="Cotação técnica em até 24h úteis. Para urgências operacionais, utilize nossa Central de Vendas — atendimento humano em horário comercial."
       />
 
       <section className="bg-white py-20 md:py-24">
         <Container className="grid gap-14 lg:grid-cols-[1fr_1.1fr] lg:gap-20">
           <div className="space-y-8">
-            <ContactItem
-              icon={<MessageCircle className="size-5" aria-hidden />}
-              label="WhatsApp Business"
-              value="+55 (11) 98877-6655"
-              href="https://wa.me/5511988776655"
-              external
-            />
             <ContactItem
               icon={<Phone className="size-5" aria-hidden />}
               label="Central de Vendas"

@@ -23,8 +23,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-const WHATSAPP_URL = "https://wa.me/5511988776655";
-
 const NAV_LINKS: { label: string; to: string; hasMenu?: boolean }[] = [
   { label: "Produtos", to: "/categorias", hasMenu: true },
   { label: "Categorias", to: "/categorias" },
@@ -311,16 +309,7 @@ export default function Header() {
               <SearchBox size="sm" onNavigate={() => setDrawer(false)} />
             </div>
 
-            <div className="grid grid-cols-3 gap-px bg-hairline">
-              <a
-                href={WHATSAPP_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex flex-col items-center gap-1 bg-white py-3 text-[11px] font-semibold text-ink"
-              >
-                <MessageCircle className="size-5 text-[#25D366]" />
-                WhatsApp
-              </a>
+            <div className="grid grid-cols-2 gap-px bg-hairline">
               <a
                 href="tel:+551151785655"
                 className="flex flex-col items-center gap-1 bg-white py-3 text-[11px] font-semibold text-ink"

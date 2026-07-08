@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, MessageCircle } from "lucide-react";
+import { ArrowRight, Phone } from "lucide-react";
 import Container from "@/components/ui/Container";
 import CtaButton from "@/components/ui/CtaButton";
 import Eyebrow from "@/components/ui/Eyebrow";
@@ -32,14 +32,12 @@ export default function CommercialCTA() {
               </CtaButton>
               <CtaButton
                 as="a"
-                href="https://wa.me/5511988776655"
-                target="_blank"
-                rel="noreferrer"
+                href="tel:+551151785655"
                 variant="outlineLight"
                 size="lg"
               >
-                <MessageCircle className="size-4" aria-hidden />
-                WhatsApp Business
+                <Phone className="size-4" aria-hidden />
+                Central de Vendas
               </CtaButton>
             </div>
           </div>
