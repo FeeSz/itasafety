@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { CheckCircle2, XCircle, Loader2, AlertTriangle } from "lucide-react";
 
-export const Route = createFileRoute("/status")({
+export const Route = createFileRoute("/_authenticated/admin/status")({
   head: () => ({
     meta: [
       { title: "Status do Sistema — ItaSafety" },
