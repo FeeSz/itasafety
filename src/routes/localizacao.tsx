@@ -20,7 +20,7 @@ export const Route = createFileRoute("/localizacao")({
             "@type": "LocalBusiness",
             name: "ItaSafety",
             url: SITE_URL,
-            telephone: "+55-11-2626-7417",
+            telephone: "+55-11-5178-5655",
             email: "contato@itasafety.com.br",
             address: {
               "@type": "PostalAddress",
@@ -75,7 +75,7 @@ function LocalizacaoPage() {
               <Phone className="mt-0.5 size-5 text-brand-blue" />
               <div>
                 <p className="font-bold text-ink">Telefone</p>
-                <p className="text-ink-muted">+55 (11) 2626-7417</p>
+                <p className="text-ink-muted">+55 (11) 5178-5655</p>
               </div>
             </li>
             <li className="flex items-start gap-3">
