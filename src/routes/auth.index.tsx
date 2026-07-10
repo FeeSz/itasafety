@@ -26,6 +26,9 @@ type Mode = "login" | "signup" | "forgot";
 type AuthAttemptType = "login" | "signup" | "reset";
 
 export const Route = createFileRoute("/auth/")({
+  validateSearch: (s: Record<string, unknown>) => ({
+    next: typeof s.next === "string" ? s.next : undefined,
+  }),
   head: () =>
     pageMeta({
       title: "Acesso — ItaSafety",
