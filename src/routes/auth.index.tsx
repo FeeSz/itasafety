@@ -41,6 +41,11 @@ export const Route = createFileRoute("/auth/")({
 
 function AuthPage() {
   const navigate = useNavigate();
+  const { next } = Route.useSearch();
+  const safeNext = next && next.startsWith("/") && !next.startsWith("//") ? next : null;
+  const callbackUrl = safeNext
+    ? `${typeof window !== "undefined" ? window.location.origin : ""}/auth/callback?next=${encodeURIComponent(safeNext)}`
+    : `${typeof window !== "undefined" ? window.location.origin : ""}/auth/callback`;
   const checkLimit = useServerFn(checkAuthRateLimit);
   const recordAttempt = useServerFn(recordAuthAttempt);
 
