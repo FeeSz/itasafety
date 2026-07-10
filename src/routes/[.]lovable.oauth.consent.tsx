@@ -128,7 +128,7 @@ function ConsentPage() {
 
         {scopes.length > 0 && (
           <ul className="mt-4 space-y-1 text-sm text-ink dark:text-slate-200">
-            {scopes.map((s) => (
+            {scopes.map((s: string) => (
               <li key={s} className="flex items-center gap-2">
                 <span className="h-1.5 w-1.5 rounded-full bg-brand-blue" />
                 {s}
