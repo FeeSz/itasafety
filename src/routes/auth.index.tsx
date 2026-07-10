@@ -26,6 +26,9 @@ type Mode = "login" | "signup" | "forgot";
 type AuthAttemptType = "login" | "signup" | "reset";
 
 export const Route = createFileRoute("/auth/")({
+  validateSearch: (s: Record<string, unknown>) => ({
+    next: typeof s.next === "string" ? s.next : undefined,
+  }),
   head: () =>
     pageMeta({
       title: "Acesso — ItaSafety",
@@ -38,6 +41,11 @@ export const Route = createFileRoute("/auth/")({
 
 function AuthPage() {
   const navigate = useNavigate();
+  const { next } = Route.useSearch();
+  const safeNext = next && next.startsWith("/") && !next.startsWith("//") ? next : null;
+  const callbackUrl = safeNext
+    ? `${typeof window !== "undefined" ? window.location.origin : ""}/auth/callback?next=${encodeURIComponent(safeNext)}`
+    : `${typeof window !== "undefined" ? window.location.origin : ""}/auth/callback`;
   const checkLimit = useServerFn(checkAuthRateLimit);
   const recordAttempt = useServerFn(recordAuthAttempt);
 
@@ -77,6 +85,10 @@ function AuthPage() {
         if (!mounted) return;
 
         sessionStorage.setItem("ita_is_admin", userIsAdmin ? "true" : "false");
+        if (safeNext) {
+          window.location.assign(safeNext);
+          return;
+        }
         navigate({ to: userIsAdmin ? "/admin" : "/", replace: true });
       } catch (error) {
         console.error("[Auth] Error checking existing session:", error);
@@ -125,7 +137,7 @@ function AuthPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: callbackUrl,
         },
       });
       if (error) throw error;
@@ -156,7 +168,7 @@ function AuthPage() {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+          options: { emailRedirectTo: callbackUrl },
         });
         if (error) throw error;
         await recordAuthenticatedAttempt(recordAttempt, attempt_type);
@@ -183,9 +195,13 @@ function AuthPage() {
         toast.success("Bem-vindo!");
 
         if (userIsAdmin) {
+        if (safeNext) {
+          window.location.assign(safeNext);
+        } else if (userIsAdmin) {
           navigate({ to: "/admin", replace: true });
         } else {
           navigate({ to: "/", replace: true });
+        }
         }
       }
     } catch (err) {

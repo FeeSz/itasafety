@@ -24,7 +24,16 @@ function AuthCallbackPage() {
         if (data.session) {
           if (mounted) {
             const userId = data.session.user.id;
-            // Verificar o cargo do usuário na tabela user_roles
+            const params = new URLSearchParams(window.location.search);
+            const rawNext = params.get("next");
+            const safeNext =
+              rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : null;
+
+            if (safeNext) {
+              window.location.replace(safeNext);
+              return;
+            }
+
             const { data: roles } = await supabase
               .from("user_roles")
               .select("role")
@@ -32,7 +41,6 @@ function AuthCallbackPage() {
 
             const isAdmin = (roles ?? []).some((r) => r.role === "admin");
 
-            // Se for admin, redirecionar para a administração, senão para a home pública
             if (isAdmin) {
               navigate({ to: "/admin", replace: true });
             } else {

@@ -35,9 +35,11 @@ import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
 import { Route as AuthenticatedAdminStatusRouteImport } from './routes/_authenticated/admin/status'
+import { Route as AuthenticatedAdminPartnersRouteImport } from './routes/_authenticated/admin/partners'
 import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_authenticated/admin/categories'
 import { Route as AuthenticatedAdminBrandsRouteImport } from './routes/_authenticated/admin/brands'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
+import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 
 const TermosRoute = TermosRouteImport.update({
   id: '/termos',
@@ -171,6 +173,12 @@ const AuthenticatedAdminStatusRoute =
     path: '/status',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminPartnersRoute =
+  AuthenticatedAdminPartnersRouteImport.update({
+    id: '/partners',
+    path: '/partners',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminCategoriesRoute =
   AuthenticatedAdminCategoriesRouteImport.update({
     id: '/categories',
@@ -189,6 +197,11 @@ const Char91DotmcpChar93InvokeToolToolRoute =
     path: '/.mcp/invoke-tool/$tool',
     getParentRoute: () => rootRouteImport,
   } as any)
+const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
+  id: '/.lovable/oauth/consent',
+  path: '/.lovable/oauth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -213,9 +226,11 @@ export interface FileRoutesByFullPath {
   '/departamento/$slug': typeof DepartamentoSlugRoute
   '/detalhes/$sku': typeof DetalhesSkuRoute
   '/auth/': typeof AuthIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/brands': typeof AuthenticatedAdminBrandsRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
+  '/admin/partners': typeof AuthenticatedAdminPartnersRoute
   '/admin/status': typeof AuthenticatedAdminStatusRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -241,9 +256,11 @@ export interface FileRoutesByTo {
   '/departamento/$slug': typeof DepartamentoSlugRoute
   '/detalhes/$sku': typeof DetalhesSkuRoute
   '/auth': typeof AuthIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/brands': typeof AuthenticatedAdminBrandsRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
+  '/admin/partners': typeof AuthenticatedAdminPartnersRoute
   '/admin/status': typeof AuthenticatedAdminStatusRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -273,9 +290,11 @@ export interface FileRoutesById {
   '/departamento/$slug': typeof DepartamentoSlugRoute
   '/detalhes/$sku': typeof DetalhesSkuRoute
   '/auth/': typeof AuthIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/_authenticated/admin/brands': typeof AuthenticatedAdminBrandsRoute
   '/_authenticated/admin/categories': typeof AuthenticatedAdminCategoriesRoute
+  '/_authenticated/admin/partners': typeof AuthenticatedAdminPartnersRoute
   '/_authenticated/admin/status': typeof AuthenticatedAdminStatusRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -305,9 +324,11 @@ export interface FileRouteTypes {
     | '/departamento/$slug'
     | '/detalhes/$sku'
     | '/auth/'
+    | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/admin/brands'
     | '/admin/categories'
+    | '/admin/partners'
     | '/admin/status'
     | '/api/public/health'
     | '/admin/'
@@ -333,9 +354,11 @@ export interface FileRouteTypes {
     | '/departamento/$slug'
     | '/detalhes/$sku'
     | '/auth'
+    | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/admin/brands'
     | '/admin/categories'
+    | '/admin/partners'
     | '/admin/status'
     | '/api/public/health'
     | '/admin'
@@ -364,9 +387,11 @@ export interface FileRouteTypes {
     | '/departamento/$slug'
     | '/detalhes/$sku'
     | '/auth/'
+    | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/_authenticated/admin/brands'
     | '/_authenticated/admin/categories'
+    | '/_authenticated/admin/partners'
     | '/_authenticated/admin/status'
     | '/api/public/health'
     | '/_authenticated/admin/'
@@ -393,6 +418,7 @@ export interface RootRouteChildren {
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   DepartamentoSlugRoute: typeof DepartamentoSlugRoute
   DetalhesSkuRoute: typeof DetalhesSkuRoute
+  DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicHealthRoute: typeof ApiPublicHealthRoute
 }
@@ -581,6 +607,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminStatusRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/partners': {
+      id: '/_authenticated/admin/partners'
+      path: '/partners'
+      fullPath: '/admin/partners'
+      preLoaderRoute: typeof AuthenticatedAdminPartnersRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/categories': {
       id: '/_authenticated/admin/categories'
       path: '/categories'
@@ -602,12 +635,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/.lovable/oauth/consent': {
+      id: '/.lovable/oauth/consent'
+      path: '/.lovable/oauth/consent'
+      fullPath: '/.lovable/oauth/consent'
+      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminBrandsRoute: typeof AuthenticatedAdminBrandsRoute
   AuthenticatedAdminCategoriesRoute: typeof AuthenticatedAdminCategoriesRoute
+  AuthenticatedAdminPartnersRoute: typeof AuthenticatedAdminPartnersRoute
   AuthenticatedAdminStatusRoute: typeof AuthenticatedAdminStatusRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
@@ -616,6 +657,7 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
   {
     AuthenticatedAdminBrandsRoute: AuthenticatedAdminBrandsRoute,
     AuthenticatedAdminCategoriesRoute: AuthenticatedAdminCategoriesRoute,
+    AuthenticatedAdminPartnersRoute: AuthenticatedAdminPartnersRoute,
     AuthenticatedAdminStatusRoute: AuthenticatedAdminStatusRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   }
@@ -670,6 +712,7 @@ const rootRouteChildren: RootRouteChildren = {
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   DepartamentoSlugRoute: DepartamentoSlugRoute,
   DetalhesSkuRoute: DetalhesSkuRoute,
+  DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicHealthRoute: ApiPublicHealthRoute,
 }
