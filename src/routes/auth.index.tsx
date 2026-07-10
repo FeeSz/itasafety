@@ -137,7 +137,7 @@ function AuthPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: callbackUrl,
         },
       });
       if (error) throw error;
@@ -168,7 +168,7 @@ function AuthPage() {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+          options: { emailRedirectTo: callbackUrl },
         });
         if (error) throw error;
         await recordAuthenticatedAttempt(recordAttempt, attempt_type);
@@ -195,9 +195,13 @@ function AuthPage() {
         toast.success("Bem-vindo!");
 
         if (userIsAdmin) {
+        if (safeNext) {
+          window.location.assign(safeNext);
+        } else if (userIsAdmin) {
           navigate({ to: "/admin", replace: true });
         } else {
           navigate({ to: "/", replace: true });
+        }
         }
       }
     } catch (err) {
