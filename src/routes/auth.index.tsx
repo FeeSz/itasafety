@@ -85,6 +85,10 @@ function AuthPage() {
         if (!mounted) return;
 
         sessionStorage.setItem("ita_is_admin", userIsAdmin ? "true" : "false");
+        if (safeNext) {
+          window.location.assign(safeNext);
+          return;
+        }
         navigate({ to: userIsAdmin ? "/admin" : "/", replace: true });
       } catch (error) {
         console.error("[Auth] Error checking existing session:", error);
