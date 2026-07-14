@@ -241,9 +241,7 @@ export default function HeroSlider() {
               className="absolute top-0 left-0 w-full h-full"
               style={{
                 objectFit: "cover",
-                objectPosition: "80% center", // Keep products in view on mobile
-                transform: "scale(1.08)", // Push watermark out of bounds
-                transformOrigin: "center center",
+                objectPosition: "80% 35%", // Shift upward slightly to reveal top of helmet
                 opacity: activeVideo === 'A' ? 1 : 0,
                 transition: `opacity ${CROSSFADE_DURATION}ms linear`,
               }}
@@ -262,9 +260,7 @@ export default function HeroSlider() {
               className="absolute top-0 left-0 w-full h-full"
               style={{
                 objectFit: "cover",
-                objectPosition: "80% center",
-                transform: "scale(1.08)", // Match scale of Video A
-                transformOrigin: "center center",
+                objectPosition: "80% 35%",
                 opacity: activeVideo === 'B' ? 1 : 0,
                 transition: `opacity ${CROSSFADE_DURATION}ms linear`,
               }}
