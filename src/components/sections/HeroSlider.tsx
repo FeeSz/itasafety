@@ -62,7 +62,55 @@ export default function HeroSlider() {
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
 
-  // Auto rotate
+  // Video State
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isReducedMotion, setIsReducedMotion] = useState(false);
+  const [loopingOpacity, setLoopingOpacity] = useState(1);
+
+  // Check prefers-reduced-motion
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setIsReducedMotion(mediaQuery.matches);
+    const handler = (e: MediaQueryListEvent) => setIsReducedMotion(e.matches);
+    mediaQuery.addEventListener('change', handler);
+    return () => mediaQuery.removeEventListener('change', handler);
+  }, []);
+
+  // IntersectionObserver to pause video when off-screen
+  useEffect(() => {
+    if (isReducedMotion) return;
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          videoRef.current?.play().catch(() => {});
+        } else {
+          videoRef.current?.pause();
+        }
+      });
+    }, { threshold: 0.1 });
+
+    if (videoRef.current) {
+      observer.observe(videoRef.current);
+    }
+    return () => observer.disconnect();
+  }, [isReducedMotion]);
+
+  // Video loop logic
+  const handleTimeUpdate = () => {
+    if (!videoRef.current) return;
+    const video = videoRef.current;
+    const LOOP_START = 7.5; // Start loop slightly before the end to avoid the initial hand animation
+    
+    // If video reaches the very end
+    if (video.currentTime >= video.duration - 0.1) {
+      setLoopingOpacity(0.85); // Micro-fade to mask the cut
+      video.currentTime = LOOP_START;
+      video.play().catch(() => {});
+      setTimeout(() => setLoopingOpacity(1), 150);
+    }
+  };
+
+  // Auto rotate slides
   useEffect(() => {
     if (paused) return;
     const id = setInterval(() => changeTo((i + 1) % SLIDES.length), 6500);
@@ -200,13 +248,13 @@ export default function HeroSlider() {
           </div>
         </div>
 
-        {/* Right visual — transparent 3D with hover animation */}
+        {/* Right visual — transparent 3D with hover animation and Video */}
         <div
           className="hero-3d group relative hidden items-center justify-center md:flex hero-3d__entrance-wrapper"
           style={{ perspective: "1000px" }}
         >
-          {/* Translation wrapper (breathing/idle) */}
-          <div className={`w-full max-w-[560px] ${tilt.active ? "" : "hero-3d__breathing"}`}>
+          {/* Translation wrapper (breathing/idle is removed for video, as video has its own motion) */}
+          <div className={`w-full max-w-[560px]`}>
             {/* Rotation/Tilt wrapper (mouse move & hover) */}
             <div
               className="relative w-full select-none"
@@ -224,16 +272,30 @@ export default function HeroSlider() {
                   : "transform 600ms ease, filter 300ms ease",
               }}
             >
-              {/* The 3D Image */}
-              <img
-                src={heroImg}
-                alt="Equipamentos de proteção individual: capacete, óculos e luvas"
-                width={1024}
-                height={1024}
-                fetchPriority="high"
-                className="w-full object-contain"
-                draggable={false}
-              />
+              {isReducedMotion ? (
+                <img
+                  src={heroImg}
+                  alt="Equipamentos de proteção individual"
+                  width={1024}
+                  height={1024}
+                  fetchPriority="high"
+                  className="w-full object-contain mix-blend-multiply"
+                  draggable={false}
+                />
+              ) : (
+                <video
+                  ref={videoRef}
+                  src="/videos/hero-loop.mp4"
+                  poster={heroImg}
+                  muted
+                  playsInline
+                  preload="auto"
+                  controls={false}
+                  onTimeUpdate={handleTimeUpdate}
+                  className="w-full object-contain mix-blend-multiply transition-opacity duration-150"
+                  style={{ opacity: loopingOpacity }}
+                />
+              )}
 
               {/* Dynamic Glint/Reflection clipped to image outline */}
               <div
@@ -305,28 +367,11 @@ export default function HeroSlider() {
             transform: scale(1) rotate(0deg) translateY(0);
           }
         }
-        @keyframes heroIdleFloat {
-          0% {
-            transform: translateY(0);
-          }
-          50% {
-            transform: translateY(-8px);
-          }
-          100% {
-            transform: translateY(0);
-          }
-        }
         .hero-3d__entrance-wrapper {
           animation: hero3dEntrance 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
-        .hero-3d__breathing {
-          animation: heroIdleFloat 5s ease-in-out infinite;
-        }
         @media (prefers-reduced-motion: reduce) {
           .hero-3d__entrance-wrapper {
-            animation: none;
-          }
-          .hero-3d__breathing {
             animation: none;
           }
         }
