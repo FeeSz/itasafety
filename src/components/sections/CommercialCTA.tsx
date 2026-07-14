@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Phone } from "lucide-react";
+import AnimatedCounter from "@/components/ui/AnimatedCounter";
 import Container from "@/components/ui/Container";
 import CtaButton from "@/components/ui/CtaButton";
 import Eyebrow from "@/components/ui/Eyebrow";
@@ -26,10 +27,12 @@ export default function CommercialCTA() {
               personalizada — sem custo, em até 24h úteis.
             </p>
             <div className="mt-10 flex flex-wrap gap-4">
-              <CtaButton as={Link} to="/contato" size="lg">
-                Solicitar Orçamento
-                <ArrowRight className="size-4" aria-hidden />
-              </CtaButton>
+              <div className="group rounded-md transition-shadow hover:shadow-[0_0_24px_rgba(255,255,255,0.3)]">
+                <CtaButton as={Link} to="/contato" size="lg">
+                  Solicitar Orçamento
+                  <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden />
+                </CtaButton>
+              </div>
               <CtaButton
                 as="a"
                 href="tel:+551151785655"
@@ -43,10 +46,10 @@ export default function CommercialCTA() {
           </div>
 
           <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-md border border-white/10 bg-white/10">
-            <Stat label="Cotação Express" value="24h" />
-            <Stat label="CA Ativo" value="100%" />
-            <Stat label="Clientes Industriais" value="500+" />
-            <Stat label="Anos de Mercado" value="25+" />
+            <Stat label="Cotação Express" value="24h" end={24} suffix="h" />
+            <Stat label="CA Ativo" value="100%" end={100} suffix="%" />
+            <Stat label="Clientes Industriais" value="500+" end={500} suffix="+" />
+            <Stat label="Anos de Mercado" value="25+" end={25} suffix="+" />
           </dl>
         </div>
       </Container>
@@ -54,12 +57,12 @@ export default function CommercialCTA() {
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({ label, value, end, suffix }: { label: string; value: string; end?: number; suffix?: string }) {
   return (
     <div className="bg-brand-navy-deep p-6 md:p-8">
       <dt className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/50">{label}</dt>
       <dd className="mt-3 font-display text-4xl font-bold tracking-tight text-white md:text-5xl">
-        {value}
+        {end !== undefined ? <AnimatedCounter end={end} suffix={suffix || ""} /> : value}
       </dd>
     </div>
   );

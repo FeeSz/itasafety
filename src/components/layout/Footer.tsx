@@ -24,7 +24,7 @@ export default function Footer() {
                   key={i}
                   href="#"
                   aria-label="Rede social"
-                  className="grid size-9 place-items-center rounded-md bg-white/5 text-white/60 transition-colors hover:bg-brand-blue hover:text-white"
+                  className="grid size-9 place-items-center rounded-md bg-white/5 text-white/60 transition-all duration-300 hover:bg-brand-blue hover:text-white hover:-translate-y-1 hover:scale-110 hover:shadow-md"
                 >
                   <Icon className="size-4" />
                 </a>
@@ -43,7 +43,7 @@ export default function Footer() {
                   <Link
                     to="/departamento/$slug"
                     params={{ slug: c.slug }}
-                    className="transition-colors hover:text-white"
+                    className="inline-block transition-all duration-300 hover:text-white hover:translate-x-1"
                   >
                     {c.title}
                   </Link>
@@ -59,22 +59,22 @@ export default function Footer() {
             </h2>
             <ul className="space-y-2 text-sm text-white/70">
               <li>
-                <Link to="/quemsomos" className="hover:text-white">
+                <Link to="/quemsomos" className="inline-block transition-all duration-300 hover:text-white hover:translate-x-1">
                   Quem Somos
                 </Link>
               </li>
               <li>
-                <Link to="/localizacao" className="hover:text-white">
+                <Link to="/localizacao" className="inline-block transition-all duration-300 hover:text-white hover:translate-x-1">
                   Localização
                 </Link>
               </li>
               <li>
-                <Link to="/contato" className="hover:text-white">
+                <Link to="/contato" className="inline-block transition-all duration-300 hover:text-white hover:translate-x-1">
                   Contato
                 </Link>
               </li>
               <li>
-                <Link to="/privacidade" className="hover:text-white">
+                <Link to="/privacidade" className="inline-block transition-all duration-300 hover:text-white hover:translate-x-1">
                   Política de Privacidade
                 </Link>
               </li>
@@ -83,7 +83,7 @@ export default function Footer() {
                   href="https://consultaca.com/"
                   target="_blank"
                   rel="noreferrer"
-                  className="hover:text-white"
+                  className="inline-block transition-all duration-300 hover:text-white hover:translate-x-1"
                 >
                   Consulta de CA (MTE) ↗
                 </a>
@@ -99,7 +99,7 @@ export default function Footer() {
             <ul className="space-y-3 text-sm text-white/75">
               <li className="flex items-start gap-2">
                 <Mail className="mt-0.5 size-4 shrink-0 text-brand-blue-light" />
-                <a href="mailto:contato@itasafety.com.br" className="hover:text-white">
+                <a href="mailto:contato@itasafety.com.br" className="inline-block transition-all duration-300 hover:text-white hover:translate-x-1">
                   contato@itasafety.com.br
                 </a>
               </li>

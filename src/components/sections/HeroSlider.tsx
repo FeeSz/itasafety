@@ -1,6 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 import { Link } from "@tanstack/react-router";
 
+import AnimatedCounter from "@/components/ui/AnimatedCounter";
+
 type Slide = {
   eyebrow: string;
   titleStart: string;
@@ -281,8 +283,8 @@ export default function HeroSlider() {
           className="w-full max-w-xl"
           style={{
             opacity: visible ? 1 : 0,
-            transform: visible ? "translateY(0)" : "translateY(8px)",
-            transition: `opacity ${TRANSITION_MS}ms ease, transform ${TRANSITION_MS}ms ease`,
+            transform: visible ? "translateY(0)" : "translateY(16px)",
+            transition: `opacity ${TRANSITION_MS}ms cubic-bezier(0.2, 0, 0, 1), transform ${TRANSITION_MS}ms cubic-bezier(0.2, 0, 0, 1)`,
           }}
           aria-live="polite"
         >
@@ -308,13 +310,13 @@ export default function HeroSlider() {
           >
             <Link
               to={slide.ctaPrimary.to}
-              className="rounded-full bg-[#111111] px-7 py-3.5 text-[14px] font-bold text-white transition-all duration-150 hover:bg-[#374151] hover:scale-105 active:scale-95 shadow-md"
+              className="rounded-full bg-[#111111] px-7 py-3.5 text-[14px] font-bold text-white transition-all duration-300 hover:bg-[#374151] hover:scale-105 active:scale-95 shadow-md hover:shadow-lg"
             >
               {slide.ctaPrimary.label}
             </Link>
             <Link
               to={slide.ctaSecondary.to}
-              className="rounded-full border border-[#E5E7EB] bg-white px-7 py-3.5 text-[14px] font-bold text-[#111111] transition-all duration-150 hover:border-[#111111] hover:scale-105 active:scale-95 shadow-sm"
+              className="rounded-full border border-[#E5E7EB] bg-white px-7 py-3.5 text-[14px] font-bold text-[#111111] transition-all duration-300 hover:border-[#111111] hover:scale-105 active:scale-95 shadow-sm hover:shadow-md"
             >
               {slide.ctaSecondary.label}
             </Link>
@@ -329,7 +331,11 @@ export default function HeroSlider() {
                   idx < TRUST.length - 1 ? "border-r border-[#E5E7EB]" : ""
                 }`}
               >
-                <span className="text-[22px] font-extrabold text-[#111111]">{t.num}</span>
+                <span className="text-[22px] font-extrabold text-[#111111]">
+                  {t.num === "500+" ? <AnimatedCounter end={500} suffix="+" /> :
+                   t.num === "100%" ? <AnimatedCounter end={100} suffix="%" /> :
+                   <AnimatedCounter end={24} suffix="h" />}
+                </span>
                 <span className="text-[10px] uppercase tracking-[0.1em] text-[#6B7280] font-bold mt-0.5">
                   {t.label}
                 </span>

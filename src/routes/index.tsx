@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import HeroSlider from "@/components/sections/HeroSlider";
-import CategoryPills from "@/components/sections/CategoryPills";
 
 import CategoryGrid from "@/components/sections/CategoryGrid";
 import FeaturedProducts from "@/components/sections/FeaturedProducts";
@@ -63,7 +62,6 @@ function HomePage() {
   return (
     <>
       <HeroSlider />
-      <CategoryPills />
 
       {/* Trust signals first — establish confiança */}
       <Reveal>
@@ -88,6 +86,10 @@ function HomePage() {
           </Reveal>
         </div>
       </section>
+
+      <Reveal>
+        <PartnersStrip />
+      </Reveal>
 
       {/* Produtos em destaque */}
       <section className="bg-surface-sunken py-8 md:py-14">
@@ -125,9 +127,6 @@ function HomePage() {
         <IntermediateBanners />
       </Reveal>
 
-      <Reveal>
-        <PartnersStrip />
-      </Reveal>
 
       <Reveal>
         <Differentials />

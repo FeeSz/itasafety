@@ -32,11 +32,14 @@ export default function TrustSignals() {
           return (
             <div
               key={it.title}
-              className="text-center md:border-l md:border-hairline md:first:border-l-0 md:px-4"
+              className="group text-center md:border-l md:border-hairline md:first:border-l-0 md:px-4 transition-all duration-300 hover:-translate-y-1"
               style={{ animationDelay: `${idx * 100}ms` }}
             >
-              <Icon className="mx-auto size-12 text-brand-blue" strokeWidth={1.6} />
-              <h3 className="mt-3 text-base font-bold text-ink">{it.title}</h3>
+              <Icon 
+                className="mx-auto size-12 text-brand-blue transition-all duration-300 group-hover:scale-110 group-hover:text-brand-blue-hover drop-shadow-sm group-hover:drop-shadow-md" 
+                strokeWidth={1.6} 
+              />
+              <h3 className="mt-3 text-base font-bold text-ink transition-colors group-hover:text-brand-blue">{it.title}</h3>
               <p className="mx-auto mt-2 max-w-[240px] text-sm text-ink-soft">{it.text}</p>
             </div>
           );

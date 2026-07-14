@@ -11,10 +11,10 @@ export default function CategoryGrid() {
             key={cat.slug}
             to="/departamento/$slug"
             params={{ slug: cat.slug }}
-            className="group flex flex-col items-center rounded-xl border border-hairline bg-white px-3 py-5 text-center shadow-card transition-all duration-200 hover:-translate-y-1 hover:border-brand-blue-light hover:shadow-lift"
+            className="group flex flex-col items-center rounded-xl border border-hairline bg-white px-3 py-5 text-center shadow-card transition-all duration-300 hover:-translate-y-2 hover:border-brand-blue-light hover:shadow-strong"
           >
-            <span className="grid size-16 place-items-center rounded-full bg-brand-blue-tint text-brand-blue transition-colors group-hover:bg-brand-blue group-hover:text-white">
-              <Icon className="size-7" strokeWidth={1.6} aria-hidden />
+            <span className="grid size-16 place-items-center rounded-full bg-brand-blue-tint text-brand-blue transition-all duration-300 group-hover:bg-brand-blue group-hover:text-white group-hover:scale-110 group-hover:-rotate-3 shadow-sm group-hover:shadow-md">
+              <Icon className="size-7 transition-transform duration-300" strokeWidth={1.6} aria-hidden />
             </span>
             <h3 className="mt-3 line-clamp-2 text-[12px] font-bold uppercase tracking-wide text-ink">
               {cat.title}

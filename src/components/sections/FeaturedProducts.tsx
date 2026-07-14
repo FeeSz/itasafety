@@ -72,13 +72,13 @@ function ProductCard({ p }: { p: Product }) {
   const isNew = p.tags?.includes("novo");
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-xl border border-hairline bg-white shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-blue-soft hover:shadow-lift">
+    <article className="group flex flex-col overflow-hidden rounded-xl border border-hairline bg-white shadow-card transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-blue hover:shadow-strong">
       <div className="relative aspect-square overflow-hidden bg-white p-5">
         <img
           src={p.image}
           alt={p.name}
           loading="lazy"
-          className="size-full object-contain mix-blend-multiply transition-transform duration-500 group-hover:scale-105"
+          className="size-full object-contain mix-blend-multiply transition-transform duration-700 ease-out group-hover:scale-110"
         />
         <span className="absolute left-3 top-3 rounded-sm bg-brand-blue px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
           CA Aprovado
@@ -105,8 +105,8 @@ function ProductCard({ p }: { p: Product }) {
           onClick={onAdd}
           className={`mt-3 inline-flex items-center justify-center gap-2 rounded-md py-2.5 text-[13px] font-semibold text-white transition-all ${
             added
-              ? "bg-green-600"
-              : "bg-[#111111] hover:-translate-y-0.5 hover:bg-[#374151] hover:shadow-[0_4px_12px_rgba(0,0,0,0.18)]"
+              ? "bg-green-600 scale-95"
+              : "bg-[#111111] hover:-translate-y-0.5 hover:bg-[#374151] hover:shadow-[0_4px_16px_rgba(27,79,138,0.25)] hover:ring-2 hover:ring-brand-blue-light/50"
           }`}
         >
           {added ? (

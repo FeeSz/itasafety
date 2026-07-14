@@ -6,10 +6,13 @@ export default function ContactBanner() {
       <div className="mx-auto max-w-7xl px-6">
         <a
           href="tel:+551151785655"
-          className="group relative flex flex-col items-start gap-4 overflow-hidden rounded-2xl bg-gradient-to-r from-brand-blue-dark via-brand-blue to-brand-blue-light p-6 text-white shadow-lift transition-all hover:shadow-strong md:flex-row md:items-center md:gap-6 md:p-8"
+          className="group relative flex flex-col items-start gap-4 overflow-hidden rounded-2xl bg-gradient-to-r from-brand-blue-active via-brand-blue to-brand-blue-light p-6 text-white shadow-lift transition-all duration-300 hover:-translate-y-1 hover:shadow-strong md:flex-row md:items-center md:gap-6 md:p-8"
         >
+          {/* Sweep effect on hover */}
+          <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-full" />
+
           <div className="pointer-events-none absolute -right-12 -top-12 size-56 rounded-full bg-white/10 blur-3xl" />
-          <div className="grid size-14 shrink-0 place-items-center rounded-full bg-white/15 ring-1 ring-white/20 backdrop-blur md:size-16">
+          <div className="grid size-14 shrink-0 place-items-center rounded-full bg-white/15 ring-1 ring-white/20 backdrop-blur md:size-16 group-hover:animate-pulse">
             <Phone className="size-7 md:size-8" strokeWidth={1.8} />
           </div>
           <div className="flex-1">
