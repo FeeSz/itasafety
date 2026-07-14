@@ -1,6 +1,5 @@
 import { useEffect, useState, useRef } from "react";
 import { Link } from "@tanstack/react-router";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import heroImg from "@/assets/hero-epi-3d.png";
 
 type Slide = {
@@ -52,65 +51,76 @@ const TRUST = [
 
 const TRANSITION_MS = 500;
 
+// The timestamp (in seconds) where the hand has left the frame and only the
+// floating products remain. The loop returns here instead of rewinding to 0,
+// so the entrance animation (hand entering) never repeats.
+const LOOP_START_S = 7.5;
+
 export default function HeroSlider() {
   const [i, setI] = useState(0);
   const [visible, setVisible] = useState(true);
   const [paused, setPaused] = useState(false);
-  const [tilt, setTilt] = useState({ x: 0, y: 0, px: 50, py: 50, active: false });
+  const [tilt, setTilt] = useState({ x: 0, y: 0, active: false });
   const [ctaHovered, setCtaHovered] = useState(false);
 
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
 
-  // Video State
+  // Video refs & state
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isReducedMotion, setIsReducedMotion] = useState(false);
+  // loopingOpacity drives the 150ms micro-fade that masks the currentTime jump
   const [loopingOpacity, setLoopingOpacity] = useState(1);
 
-  // Check prefers-reduced-motion
+  // ── Prefers-reduced-motion ──────────────────────────────────────────────────
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setIsReducedMotion(mediaQuery.matches);
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setIsReducedMotion(mq.matches);
     const handler = (e: MediaQueryListEvent) => setIsReducedMotion(e.matches);
-    mediaQuery.addEventListener('change', handler);
-    return () => mediaQuery.removeEventListener('change', handler);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
   }, []);
 
-  // IntersectionObserver to pause video when off-screen
+  // ── IntersectionObserver — pause when hero scrolls off screen ───────────────
   useEffect(() => {
     if (isReducedMotion) return;
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          videoRef.current?.play().catch(() => {});
-        } else {
-          videoRef.current?.pause();
-        }
-      });
-    }, { threshold: 0.1 });
-
-    if (videoRef.current) {
-      observer.observe(videoRef.current);
-    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            videoRef.current?.play().catch(() => {});
+          } else {
+            videoRef.current?.pause();
+          }
+        });
+      },
+      { threshold: 0.1 },
+    );
+    if (videoRef.current) observer.observe(videoRef.current);
     return () => observer.disconnect();
   }, [isReducedMotion]);
 
-  // Video loop logic
+  // ── Seamless loop logic ─────────────────────────────────────────────────────
+  // Instead of loop={true} (which rewinds to 0s replaying the hand animation),
+  // we watch currentTime and jump back to LOOP_START_S just before the end.
+  // A 150ms opacity dip masks the single-frame discontinuity of the jump.
   const handleTimeUpdate = () => {
-    if (!videoRef.current) return;
     const video = videoRef.current;
-    const LOOP_START = 7.5; // Start loop slightly before the end to avoid the initial hand animation
-    
-    // If video reaches the very end
-    if (video.currentTime >= video.duration - 0.1) {
-      setLoopingOpacity(0.85); // Micro-fade to mask the cut
-      video.currentTime = LOOP_START;
+    if (!video || !video.duration) return;
+
+    if (video.currentTime >= video.duration - 0.15) {
+      // Micro-fade: briefly lower opacity so the currentTime cut is invisible
+      setLoopingOpacity(0);
+      video.currentTime = LOOP_START_S;
       video.play().catch(() => {});
-      setTimeout(() => setLoopingOpacity(1), 150);
+      // Restore opacity after the browser has rendered the new frame
+      requestAnimationFrame(() => {
+        setTimeout(() => setLoopingOpacity(1), 50);
+      });
     }
   };
 
-  // Auto rotate slides
+  // ── Slide auto-rotate ───────────────────────────────────────────────────────
   useEffect(() => {
     if (paused) return;
     const id = setInterval(() => changeTo((i + 1) % SLIDES.length), 6500);
@@ -127,49 +137,36 @@ export default function HeroSlider() {
     }, TRANSITION_MS);
   };
 
+  // ── Touch swipe ─────────────────────────────────────────────────────────────
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
     touchEndX.current = e.touches[0].clientX;
   };
-
   const handleTouchMove = (e: React.TouchEvent) => {
     touchEndX.current = e.touches[0].clientX;
   };
-
   const handleTouchEnd = () => {
     if (touchStartX.current === null || touchEndX.current === null) return;
-    const diffX = touchStartX.current - touchEndX.current;
-    const threshold = 50;
-
-    if (diffX > threshold) {
-      // Swipe left -> next slide
-      changeTo((i + 1) % SLIDES.length);
-    } else if (diffX < -threshold) {
-      // Swipe right -> previous slide
-      changeTo((i - 1 + SLIDES.length) % SLIDES.length);
-    }
-
+    const diff = touchStartX.current - touchEndX.current;
+    if (diff > 50) changeTo((i + 1) % SLIDES.length);
+    else if (diff < -50) changeTo((i - 1 + SLIDES.length) % SLIDES.length);
     touchStartX.current = null;
     touchEndX.current = null;
   };
 
+  // ── Mouse tilt for left text column ─────────────────────────────────────────
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    const px = (x / rect.width) * 100;
-    const py = (y / rect.height) * 100;
-
-    // Max tilt 6 degrees
-    const tiltY = (x / rect.width - 0.5) * 12; // -6 to 6
-    const tiltX = -((y / rect.height - 0.5) * 12); // -6 to 6
-
-    setTilt({ x: tiltX, y: tiltY, px, py, active: true });
+    const tiltY = (x / rect.width - 0.5) * 12;
+    const tiltX = -((y / rect.height - 0.5) * 12);
+    setTilt({ x: tiltX, y: tiltY, active: true });
   };
 
   const handleMouseLeave = () => {
     setPaused(false);
-    setTilt({ x: 0, y: 0, px: 50, py: 50, active: false });
+    setTilt({ x: 0, y: 0, active: false });
   };
 
   const slide = SLIDES[i];
@@ -186,7 +183,8 @@ export default function HeroSlider() {
       aria-label="Banner principal"
     >
       <div className="mx-auto grid max-w-7xl items-center gap-10 px-6 pb-10 pt-32 md:grid-cols-2 md:gap-12 md:pb-24 md:pt-36">
-        {/* Left content with smooth crossfade */}
+
+        {/* ── Left: text content ────────────────────────────────────────────── */}
         <div
           className="max-w-xl"
           style={{
@@ -248,132 +246,84 @@ export default function HeroSlider() {
           </div>
         </div>
 
-        {/* Right visual — transparent 3D with hover animation and Video */}
+        {/* ── Right: video (or static fallback for reduced-motion) ─────────── */}
+        {/* No border, no shadow, no background, no card — the video IS the page.
+            The tilt/perspective wrapper is kept light (no drop-shadow) so there
+            is no visual frame around the video. object-fit: cover + w-full fills
+            the column naturally without letterboxing. */}
         <div
-          className="hero-3d group relative hidden items-center justify-center md:flex hero-3d__entrance-wrapper"
+          className="relative hidden md:flex items-center justify-center hero-3d__entrance-wrapper"
           style={{ perspective: "1000px" }}
         >
-          {/* Translation wrapper (breathing/idle is removed for video, as video has its own motion) */}
-          <div className={`w-full max-w-[560px]`}>
-            {/* Rotation/Tilt wrapper (mouse move & hover) */}
-            <div
-              className="relative w-full select-none"
-              style={{
-                transform: tilt.active
-                  ? `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale(${ctaHovered ? 1.08 : 1.04})`
-                  : ctaHovered
-                    ? "rotateX(4deg) rotateY(-8deg) scale(1.08)"
-                    : "rotateX(0deg) rotateY(0deg) scale(1)",
-                filter: ctaHovered
-                  ? "drop-shadow(0 20px 50px rgba(27, 79, 138, 0.28))"
-                  : "drop-shadow(0 30px 40px rgba(0, 0, 0, 0.18))",
-                transition: tilt.active
-                  ? "transform 150ms ease-out, filter 300ms ease"
-                  : "transform 600ms ease, filter 300ms ease",
-              }}
-            >
-              {isReducedMotion ? (
-                <img
-                  src={heroImg}
-                  alt="Equipamentos de proteção individual"
-                  width={1024}
-                  height={1024}
-                  fetchPriority="high"
-                  className="w-full object-contain mix-blend-multiply"
-                  draggable={false}
-                />
-              ) : (
-                <video
-                  ref={videoRef}
-                  src="/videos/hero-loop.mp4"
-                  poster={heroImg}
-                  muted
-                  playsInline
-                  preload="auto"
-                  controls={false}
-                  onTimeUpdate={handleTimeUpdate}
-                  className="w-full object-contain mix-blend-multiply transition-opacity duration-150"
-                  style={{ opacity: loopingOpacity }}
-                />
-              )}
-
-              {/* Dynamic Glint/Reflection clipped to image outline */}
-              <div
-                className={`absolute inset-0 pointer-events-none mix-blend-color-dodge transition-opacity duration-300 ${
-                  tilt.active ? "opacity-75" : "opacity-0"
-                }`}
-                style={{
-                  background: `radial-gradient(circle at ${tilt.px}% ${tilt.py}%, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0) 40%)`,
-                  maskImage: `url(${heroImg})`,
-                  WebkitMaskImage: `url(${heroImg})`,
-                  maskSize: "contain",
-                  WebkitMaskSize: "contain",
-                  maskRepeat: "no-repeat",
-                  WebkitMaskRepeat: "no-repeat",
-                  maskPosition: "center",
-                  WebkitMaskPosition: "center",
-                }}
+          <div
+            className="w-full select-none"
+            style={{
+              // Light mouse-tilt only — no scale-up that would push the video
+              // outside its column and no drop-shadow that creates a "card" halo
+              transform: tilt.active
+                ? `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`
+                : ctaHovered
+                  ? "rotateX(2deg) rotateY(-4deg)"
+                  : "rotateX(0deg) rotateY(0deg)",
+              transition: tilt.active
+                ? "transform 150ms ease-out"
+                : "transform 600ms ease",
+            }}
+          >
+            {isReducedMotion ? (
+              /* ── Reduced-motion: static image, no animation ── */
+              <img
+                src={heroImg}
+                alt="Equipamentos de proteção individual: capacete, óculos e luvas"
+                width={1024}
+                height={1024}
+                fetchPriority="high"
+                className="w-full object-contain"
+                draggable={false}
               />
-            </div>
+            ) : (
+              /* ── Video: frameless, blends into white page background ──
+                 • No border / border-radius / box-shadow on the element itself
+                 • No mix-blend-multiply (was causing grey-cast letterboxing)
+                 • autoPlay triggers the initial play; IntersectionObserver
+                   handles pause/resume as the section enters/leaves viewport
+                 • The micro-fade on loopingOpacity masks the currentTime jump */
+              <video
+                ref={videoRef}
+                src="/videos/hero-loop.mp4"
+                poster={heroImg}
+                autoPlay
+                muted
+                playsInline
+                preload="auto"
+                // controls is omitted entirely — default is false for <video>
+                onTimeUpdate={handleTimeUpdate}
+                className="w-full object-contain"
+                style={{
+                  display: "block",
+                  background: "transparent",
+                  opacity: loopingOpacity,
+                  transition: "opacity 80ms linear",
+                }}
+                aria-label="Animação de capacete, óculos de proteção e luvas flutuando"
+              />
+            )}
           </div>
         </div>
+
       </div>
 
-      {/* Controls: arrows + indicators */}
-      <div className="mx-auto -mt-6 mb-8 flex max-w-7xl items-center gap-4 px-6">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => changeTo((i - 1 + SLIDES.length) % SLIDES.length)}
-            aria-label="Slide anterior"
-            className="grid size-9 place-items-center rounded-full border border-[#E5E7EB] bg-white text-[#111111] transition-all hover:border-[#111111] hover:scale-105"
-          >
-            <ChevronLeft className="size-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => changeTo((i + 1) % SLIDES.length)}
-            aria-label="Próximo slide"
-            className="grid size-9 place-items-center rounded-full border border-[#E5E7EB] bg-white text-[#111111] transition-all hover:border-[#111111] hover:scale-105"
-          >
-            <ChevronRight className="size-4" />
-          </button>
-        </div>
-        <div className="flex gap-1.5">
-          {SLIDES.map((_, idx) => (
-            <button
-              key={idx}
-              type="button"
-              onClick={() => changeTo(idx)}
-              aria-label={`Ir para slide ${idx + 1}`}
-              className="h-1 rounded-sm transition-all"
-              style={{
-                width: idx === i ? 24 : 8,
-                background: idx === i ? "#111111" : "#D1D5DB",
-              }}
-            />
-          ))}
-        </div>
-      </div>
-
+      {/* ── CSS animations ──────────────────────────────────────────────────── */}
       <style>{`
         @keyframes hero3dEntrance {
-          0% {
-            opacity: 0;
-            transform: scale(0.85) rotate(12deg) translateY(20px);
-          }
-          100% {
-            opacity: 1;
-            transform: scale(1) rotate(0deg) translateY(0);
-          }
+          0%   { opacity: 0; transform: translateY(24px); }
+          100% { opacity: 1; transform: translateY(0); }
         }
         .hero-3d__entrance-wrapper {
-          animation: hero3dEntrance 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+          animation: hero3dEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
         @media (prefers-reduced-motion: reduce) {
-          .hero-3d__entrance-wrapper {
-            animation: none;
-          }
+          .hero-3d__entrance-wrapper { animation: none; }
         }
       `}</style>
     </section>
