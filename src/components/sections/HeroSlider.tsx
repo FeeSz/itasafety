@@ -52,7 +52,7 @@ const TRUST = [
 
 const TRANSITION_MS = 500;
 const LOOP_START_TIME = 7.5; // Adjusted to match the zero-gravity float
-const CROSSFADE_DURATION = 400; // ms
+const CROSSFADE_DURATION = 1000; // ms - Transição mais longa e orgânica
 // Using the exact video filename provided in the prompt
 const VIDEO_SRC = "/videos/hero-loop.mp4";
 const FALLBACK_IMG = "/videos/hero-fallback-frame.jpg";
@@ -135,7 +135,7 @@ export default function HeroSlider() {
     return () => observer.disconnect();
   }, [prefersReducedMotion, hasVideoError, activeVideo]);
 
-  // ── Crossfade Loop Logic ────────────────────────────────────────────────────
+  // ── Crossfade Loop Logic (Precision RAF) ────────────────────────────────────
   useEffect(() => {
     if (prefersReducedMotion || hasVideoError) return;
 
@@ -143,17 +143,23 @@ export default function HeroSlider() {
     const next = activeVideo === 'A' ? videoRefB.current : videoRef.current;
     if (!current || !next) return;
 
-    const handleTimeUpdate = () => {
-      // Trigger the crossfade slightly before the end of the video
-      if (current.duration && current.currentTime >= current.duration - 0.4) {
+    let animationFrameId: number;
+    const CROSSFADE_SEC = CROSSFADE_DURATION / 1000;
+
+    const checkLoop = () => {
+      // Usamos requestAnimationFrame para precisão de milissegundos (~60fps)
+      // Isso evita o 'stutter' (travada) do evento timeupdate que só dispara a cada 250ms
+      if (current.duration && current.currentTime >= current.duration - CROSSFADE_SEC) {
         next.currentTime = LOOP_START_TIME;
         next.play().catch(() => {});
         setActiveVideo(activeVideo === 'A' ? 'B' : 'A');
+        return; // Pára de checar, pois o state vai mudar e engatilhar o próximo ciclo
       }
+      animationFrameId = requestAnimationFrame(checkLoop);
     };
 
-    current.addEventListener("timeupdate", handleTimeUpdate);
-    return () => current.removeEventListener("timeupdate", handleTimeUpdate);
+    animationFrameId = requestAnimationFrame(checkLoop);
+    return () => cancelAnimationFrame(animationFrameId);
   }, [activeVideo, prefersReducedMotion, hasVideoError]);
 
   // ── Slide auto-rotate ───────────────────────────────────────────────────────
@@ -245,7 +251,7 @@ export default function HeroSlider() {
                 objectFit: "cover",
                 objectPosition: "80% 35%", // Shift upward slightly to reveal top of helmet
                 opacity: activeVideo === 'A' ? 1 : 0,
-                transition: `opacity ${CROSSFADE_DURATION}ms linear`,
+                transition: `opacity ${CROSSFADE_DURATION}ms ease-in-out`,
               }}
               aria-label="Animação flutuante"
             >
@@ -264,7 +270,7 @@ export default function HeroSlider() {
                 objectFit: "cover",
                 objectPosition: "80% 35%",
                 opacity: activeVideo === 'B' ? 1 : 0,
-                transition: `opacity ${CROSSFADE_DURATION}ms linear`,
+                transition: `opacity ${CROSSFADE_DURATION}ms ease-in-out`,
               }}
               aria-hidden="true"
             >

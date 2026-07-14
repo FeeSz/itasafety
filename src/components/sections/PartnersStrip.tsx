@@ -6,47 +6,10 @@ import { supabase } from "@/integrations/supabase/client";
 type Partner = {
   id: string;
   name: string;
-  logo_url: string;
   href: string | null;
   tagline: string | null;
 };
 
-const MAVARO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 150">
-  <g fill="#1B2871">
-    <path d="M 30 75 L 30 55 L 100 55 L 160 10 L 200 50 L 240 10 L 300 55 L 370 55 L 370 75 L 290 75 L 240 35 L 200 75 L 160 35 L 110 75 Z" />
-    <rect x="30" y="85" width="340" height="15" />
-    <!-- Removido o translate perigoso e ajustado a escala para a fonte bold expandida -->
-    <text x="200" y="155" font-family="Arial, Helvetica, sans-serif" font-weight="900" font-size="52" text-anchor="middle" letter-spacing="4" transform="scale(1, 0.85)">MAVARO</text>
-  </g>
-</svg>`;
-
-const VOLK_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 150">
-  <rect width="400" height="150" fill="#2E3378" />
-  <g fill="#FFFFFF">
-    <polygon points="50,25 90,25 140,125 100,125" />
-    <!-- E shape right side -->
-    <polygon points="175,25 220,25 220,50 160,50" />
-    <polygon points="150,60 200,60 200,85 135,85" />
-    <polygon points="125,95 180,95 180,125 110,125" />
-  </g>
-  <text x="235" y="70" font-family="Arial, sans-serif" font-weight="900" font-size="52" fill="#FFFFFF" letter-spacing="-1">VOLK</text>
-  <text x="235" y="115" font-family="Arial, sans-serif" font-weight="normal" font-size="34" fill="#FFFFFF" letter-spacing="-1">do Brasil</text>
-</svg>`;
-
-const CONFORTO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 150">
-  <!-- Sombra/Borda extra suave para simular a suavidade da imagem original -->
-  <text x="200" y="90" font-family="'Brush Script MT', 'Comic Sans MS', cursive" font-style="italic" font-weight="normal" font-size="80" fill="#E22E39" text-anchor="middle">Conforto</text>
-  <text x="200" y="125" font-family="Arial, sans-serif" font-weight="bold" font-size="14" fill="#666666" text-anchor="middle" letter-spacing="1.5">ARTEFATOS DE COURO LTDA.</text>
-</svg>`;
-
-const CANADA_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 150">
-  <!-- Folha de plátano simétrica e refinada -->
-  <g fill="#C13319" transform="translate(10, 20) scale(1.1)">
-    <path d="M 50 10 L 60 35 L 75 30 L 65 55 L 90 60 L 80 75 L 95 85 L 65 85 L 55 100 L 55 110 L 45 110 L 45 100 L 35 85 L 5 85 L 20 75 L 10 60 L 35 55 L 25 30 L 40 35 Z" />
-  </g>
-  <text x="135" y="75" font-family="Arial, sans-serif" font-weight="900" font-size="46" fill="#111111" text-anchor="start" letter-spacing="-1">CANADA EPI</text>
-  <text x="135" y="110" font-family="Arial, sans-serif" font-weight="bold" font-size="16" fill="#777777" text-anchor="start" letter-spacing="1">CALÇADOS PROFISSIONAIS</text>
-</svg>`;
 
 export default function PartnersStrip() {
   const { data: partners = [] } = useQuery({
@@ -63,33 +26,32 @@ export default function PartnersStrip() {
     },
   });
 
-  // Fallbacks usando os SVGs detalhados
   const displayPartners = partners.length > 0 ? partners : [
     { 
       id: 'mavaro', 
       name: 'Mavaro', 
-      logo_url: `data:image/svg+xml;utf8,${encodeURIComponent(MAVARO_SVG)}`, 
+      logo_url: '/logos/mavaro.png', 
       href: 'https://www.mavaro.com.br', 
       tagline: 'Proteção' 
     },
     { 
       id: 'volk', 
       name: 'Volk do Brasil', 
-      logo_url: `data:image/svg+xml;utf8,${encodeURIComponent(VOLK_SVG)}`, 
+      logo_url: '/logos/volk.png', 
       href: 'https://www.volkdobrasil.com.br', 
       tagline: 'Alta Performance' 
     },
     { 
       id: 'conforto', 
       name: 'Conforto', 
-      logo_url: `data:image/svg+xml;utf8,${encodeURIComponent(CONFORTO_SVG)}`, 
+      logo_url: '/logos/conforto.png', 
       href: 'https://conforto.ind.br', 
       tagline: 'Artefatos de Couro' 
     },
     { 
       id: 'canada', 
       name: 'Canada EPI', 
-      logo_url: `data:image/svg+xml;utf8,${encodeURIComponent(CANADA_SVG)}`, 
+      logo_url: '/logos/canada_epi.png', 
       href: 'https://www.canadaepi.com.br', 
       tagline: 'Calçados Profissionais' 
     },
@@ -170,7 +132,7 @@ function PartnerCard({ partner }: { partner: Partner }) {
           alt={`Logo ${partner.name}`}
           loading="lazy"
           decoding="async"
-          className="max-h-14 w-auto max-w-[85%] object-contain grayscale opacity-70 transition-all duration-500 ease-out group-hover:scale-[1.08] group-hover:grayscale-0 group-hover:opacity-100 group-focus-visible:grayscale-0 group-focus-visible:opacity-100"
+          className="max-h-14 w-auto max-w-[85%] object-contain mix-blend-multiply filter contrast-125 saturate-110 grayscale opacity-70 transition-all duration-500 ease-out group-hover:scale-[1.08] group-hover:grayscale-0 group-hover:opacity-100 group-focus-visible:grayscale-0 group-focus-visible:opacity-100"
         />
       </div>
 
