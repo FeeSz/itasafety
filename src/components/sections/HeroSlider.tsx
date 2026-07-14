@@ -52,7 +52,7 @@ const TRANSITION_MS = 500;
 const LOOP_START_TIME = 7.5; // Adjusted to match the zero-gravity float
 const CROSSFADE_DURATION = 400; // ms
 // Using the exact video filename provided in the prompt
-const VIDEO_SRC = "/videos/Hand_releasing_safety_helmet_gla__202607140834.mp4";
+const VIDEO_SRC = "/videos/hero-loop.mp4";
 const FALLBACK_IMG = "/videos/hero-fallback-frame.jpg";
 
 export default function HeroSlider() {
@@ -72,6 +72,13 @@ export default function HeroSlider() {
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const videoRefB = useRef<HTMLVideoElement>(null);
+
+  // ── Ensure video shows up if already cached ───────────────────────────────
+  useEffect(() => {
+    if (videoRef.current && videoRef.current.readyState >= 3) {
+      setIsVideoReady(true);
+    }
+  }, []);
 
   // ── Prefers-reduced-motion Detection ────────────────────────────────────────
   useEffect(() => {
