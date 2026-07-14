@@ -1,6 +1,5 @@
 import { useEffect, useState, useRef } from "react";
 import { Link } from "@tanstack/react-router";
-import heroImg from "@/assets/hero-epi-3d.png";
 
 type Slide = {
   eyebrow: string;
@@ -51,6 +50,7 @@ const TRUST = [
 
 const TRANSITION_MS = 500;
 const LOOP_START_S = 7.5;
+const CROSSFADE_DURATION_S = 0.35; // How much time before the end to start crossfading
 
 export default function HeroSlider() {
   const [i, setI] = useState(0);
@@ -61,10 +61,14 @@ export default function HeroSlider() {
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
 
-  // Video refs & state
-  const videoRef = useRef<HTMLVideoElement>(null);
+  // ── Video refs & Ping-Pong Crossfade State ──────────────────────────────────
+  const videoRefA = useRef<HTMLVideoElement>(null);
+  const videoRefB = useRef<HTMLVideoElement>(null);
+  const [activeVideo, setActiveVideo] = useState<0 | 1>(0);
+  const [isVideoReady, setIsVideoReady] = useState(false);
   const [isReducedMotion, setIsReducedMotion] = useState(false);
-  const [loopingOpacity, setLoopingOpacity] = useState(1);
+
+  const isCrossfading = useRef(false);
 
   // ── Prefers-reduced-motion ──────────────────────────────────────────────────
   useEffect(() => {
@@ -82,32 +86,48 @@ export default function HeroSlider() {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            videoRef.current?.play().catch(() => {});
+            // Play whichever is currently supposed to be active
+            if (activeVideo === 0) videoRefA.current?.play().catch(() => {});
+            else videoRefB.current?.play().catch(() => {});
           } else {
-            videoRef.current?.pause();
+            videoRefA.current?.pause();
+            videoRefB.current?.pause();
           }
         });
       },
       { threshold: 0.1 },
     );
-    if (videoRef.current) observer.observe(videoRef.current);
+    // Observe the main container (section) instead of the video directly
+    const section = document.getElementById("hero-section");
+    if (section) observer.observe(section);
     return () => observer.disconnect();
-  }, [isReducedMotion]);
+  }, [isReducedMotion, activeVideo]);
 
-  // ── Seamless loop logic ─────────────────────────────────────────────────────
-  const handleTimeUpdate = () => {
-    const video = videoRef.current;
+  // ── Ping-Pong Logic ─────────────────────────────────────────────────────────
+  const checkCrossfade = (currentRef: React.RefObject<HTMLVideoElement>, nextRef: React.RefObject<HTMLVideoElement>, nextIndex: 0 | 1) => {
+    const video = currentRef.current;
     if (!video || !video.duration) return;
 
-    if (video.currentTime >= video.duration - 0.15) {
-      setLoopingOpacity(0);
-      video.currentTime = LOOP_START_S;
-      video.play().catch(() => {});
-      requestAnimationFrame(() => {
-        setTimeout(() => setLoopingOpacity(1), 50);
-      });
+    if (!isCrossfading.current && video.currentTime >= video.duration - CROSSFADE_DURATION_S) {
+      isCrossfading.current = true;
+      const nextVideo = nextRef.current;
+      if (nextVideo) {
+        nextVideo.currentTime = LOOP_START_S;
+        nextVideo.play().catch(() => {});
+      }
+      setActiveVideo(nextIndex);
+      
+      // Reset the crossfade lock after the fade completes
+      setTimeout(() => {
+        isCrossfading.current = false;
+        // Pause the inactive video so it doesn't drain CPU while hidden
+        if (currentRef.current) currentRef.current.pause();
+      }, CROSSFADE_DURATION_S * 1000);
     }
   };
+
+  const handleTimeUpdateA = () => checkCrossfade(videoRefA, videoRefB, 1);
+  const handleTimeUpdateB = () => checkCrossfade(videoRefB, videoRefA, 0);
 
   // ── Slide auto-rotate ───────────────────────────────────────────────────────
   useEffect(() => {
@@ -147,62 +167,70 @@ export default function HeroSlider() {
 
   return (
     <section
+      id="hero-section"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      // Min height ensures the section is tall enough even without the grid layout
-      className="relative isolate overflow-hidden bg-white touch-pan-y min-h-[700px] flex items-center"
+      // Removed "isolate" to prevent aggressive new stacking context that could overlap a low z-index Header
+      className="relative overflow-hidden bg-[#FFFFFF] touch-pan-y min-h-[700px] flex items-center"
       aria-label="Banner principal"
     >
-      {/* ── Background Video Layer ─────────────────────────────────────────── */}
-      <div className="absolute inset-0 z-0 overflow-hidden bg-white">
+      {/* ── Background Video Layer (z-[-1] to strictly stay behind all normal page content/headers) ── */}
+      <div 
+        className="absolute inset-0 z-[-1] overflow-hidden bg-[#FFFFFF]"
+        style={{
+          opacity: isVideoReady ? 1 : 0,
+          transition: "opacity 400ms ease-out",
+        }}
+      >
         <div 
           className="absolute inset-0 w-full h-full"
           style={{
             // Scale up slightly to crop out the bottom-right watermark
-            // and shift it very slightly down/right to push it out of bounds
             transform: "scale(1.06) translate(1%, 1%)",
           }}
         >
-          {isReducedMotion ? (
-            <img
-              src={heroImg}
-              alt="Equipamentos de proteção individual"
-              fetchPriority="high"
-              className="w-full h-full object-cover"
-              style={{ objectPosition: "80% center" }}
-              draggable={false}
-            />
-          ) : (
+          <video
+            ref={videoRefA}
+            src="/videos/hero-loop.mp4"
+            autoPlay={!isReducedMotion}
+            muted
+            playsInline
+            preload="auto"
+            onTimeUpdate={isReducedMotion ? undefined : handleTimeUpdateA}
+            onCanPlay={() => setIsVideoReady(true)}
+            className="absolute top-0 left-0 w-full h-full object-cover"
+            style={{
+              objectPosition: "80% center", // Keep the right side focused
+              opacity: isReducedMotion ? 1 : (activeVideo === 0 ? 1 : 0),
+              transition: `opacity ${CROSSFADE_DURATION_S}s linear`,
+            }}
+            aria-label="Animação de capacete, óculos de proteção e luvas flutuando"
+          />
+          {!isReducedMotion && (
             <video
-              ref={videoRef}
+              ref={videoRefB}
               src="/videos/hero-loop.mp4"
-              poster={heroImg}
-              autoPlay
               muted
               playsInline
               preload="auto"
-              onTimeUpdate={handleTimeUpdate}
-              className="w-full h-full object-cover"
+              onTimeUpdate={handleTimeUpdateB}
+              onCanPlay={() => setIsVideoReady(true)}
+              className="absolute top-0 left-0 w-full h-full object-cover"
               style={{
-                objectPosition: "80% center", // Keep the right side focused
-                opacity: loopingOpacity,
-                transition: "opacity 80ms linear",
+                objectPosition: "80% center",
+                opacity: activeVideo === 1 ? 1 : 0,
+                transition: `opacity ${CROSSFADE_DURATION_S}s linear`,
               }}
-              aria-label="Animação de capacete, óculos de proteção e luvas flutuando"
+              aria-hidden="true"
             />
           )}
         </div>
 
         {/* ── Legibility Gradient Overlay ────────────────────────────────────── */}
-        {/* Fades from solid white on the left (behind text) to transparent on the right (over products) */}
-        <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-white via-white/85 to-transparent w-full md:w-2/3" />
-        
-        {/* Extra fallback patch just in case the scale isn't enough for very tall screens */}
-        {/* Positioned at the very bottom right, blends with white background */}
-        <div className="absolute bottom-0 right-0 w-32 h-32 pointer-events-none bg-gradient-to-tl from-white via-white/50 to-transparent z-0 opacity-80 mix-blend-screen" />
+        <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-[#FFFFFF] via-[#FFFFFF]/85 to-transparent w-full md:w-2/3" />
       </div>
 
       {/* ── Foreground Content Layer ───────────────────────────────────────── */}
