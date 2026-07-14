@@ -92,9 +92,12 @@ export default function HeroSlider() {
     // We explicitly try to play to catch autoplay rejections (Safari iOS / Low Power Mode)
     const playPromise = video.play();
     if (playPromise !== undefined) {
-      playPromise.catch(() => {
-        console.warn("Hero Video autoplay was blocked by the browser.");
-        setHasVideoError(true);
+      playPromise.catch((error: Error) => {
+        // AbortError simply means a pause() interrupted the play(), it's not a real autoplay failure
+        if (error.name !== "AbortError") {
+          console.warn("Hero Video autoplay was blocked by the browser.", error);
+          setHasVideoError(true);
+        }
       });
     }
   }, [prefersReducedMotion]);
@@ -222,6 +225,7 @@ export default function HeroSlider() {
             {/* VIDEO A */}
             <video
               ref={videoRef}
+              autoPlay
               muted
               playsInline
               preload="auto"
