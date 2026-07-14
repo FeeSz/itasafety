@@ -49,8 +49,11 @@ const TRUST = [
 ];
 
 const TRANSITION_MS = 500;
-const LOOP_START_S = 7.5;
-const CROSSFADE_DURATION_S = 0.35; // How much time before the end to start crossfading
+const LOOP_START_TIME = 7.5; // Adjusted to match the zero-gravity float
+const CROSSFADE_DURATION = 400; // ms
+// Using the exact video filename provided in the prompt
+const VIDEO_SRC = "/videos/Hand_releasing_safety_helmet_gla__202607140834.mp4";
+const FALLBACK_IMG = "/videos/hero-fallback-frame.jpg";
 
 export default function HeroSlider() {
   const [i, setI] = useState(0);
@@ -61,73 +64,85 @@ export default function HeroSlider() {
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
 
-  // ── Video refs & Ping-Pong Crossfade State ──────────────────────────────────
-  const videoRefA = useRef<HTMLVideoElement>(null);
-  const videoRefB = useRef<HTMLVideoElement>(null);
-  const [activeVideo, setActiveVideo] = useState<0 | 1>(0);
+  // ── States for Video Background ─────────────────────────────────────────────
   const [isVideoReady, setIsVideoReady] = useState(false);
-  const [isReducedMotion, setIsReducedMotion] = useState(false);
+  const [hasVideoError, setHasVideoError] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [activeVideo, setActiveVideo] = useState<'A' | 'B'>('A');
 
-  const isCrossfading = useRef(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoRefB = useRef<HTMLVideoElement>(null);
 
-  // ── Prefers-reduced-motion ──────────────────────────────────────────────────
+  // ── Prefers-reduced-motion Detection ────────────────────────────────────────
   useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setIsReducedMotion(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setIsReducedMotion(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setPrefersReducedMotion(mediaQuery.matches);
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mediaQuery.addEventListener("change", handler);
+    return () => mediaQuery.removeEventListener("change", handler);
   }, []);
 
-  // ── IntersectionObserver — pause when hero scrolls off screen ───────────────
+  // ── Autoplay Blocked Fallback ───────────────────────────────────────────────
   useEffect(() => {
-    if (isReducedMotion) return;
+    if (prefersReducedMotion) return;
+    
+    const video = videoRef.current;
+    if (!video) return;
+
+    // We explicitly try to play to catch autoplay rejections (Safari iOS / Low Power Mode)
+    const playPromise = video.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(() => {
+        console.warn("Hero Video autoplay was blocked by the browser.");
+        setHasVideoError(true);
+      });
+    }
+  }, [prefersReducedMotion]);
+
+  // ── Intersection Observer (Performance) ─────────────────────────────────────
+  useEffect(() => {
+    if (prefersReducedMotion || hasVideoError) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            // Play whichever is currently supposed to be active
-            if (activeVideo === 0) videoRefA.current?.play().catch(() => {});
-            else videoRefB.current?.play().catch(() => {});
+            const current = activeVideo === 'A' ? videoRef.current : videoRefB.current;
+            current?.play().catch(() => {});
           } else {
-            videoRefA.current?.pause();
+            videoRef.current?.pause();
             videoRefB.current?.pause();
           }
         });
       },
-      { threshold: 0.1 },
+      { threshold: 0.1 }
     );
-    // Observe the main container (section) instead of the video directly
+
     const section = document.getElementById("hero-section");
     if (section) observer.observe(section);
     return () => observer.disconnect();
-  }, [isReducedMotion, activeVideo]);
+  }, [prefersReducedMotion, hasVideoError, activeVideo]);
 
-  // ── Ping-Pong Logic ─────────────────────────────────────────────────────────
-  const checkCrossfade = (currentRef: React.RefObject<HTMLVideoElement>, nextRef: React.RefObject<HTMLVideoElement>, nextIndex: 0 | 1) => {
-    const video = currentRef.current;
-    if (!video || !video.duration) return;
+  // ── Crossfade Loop Logic ────────────────────────────────────────────────────
+  useEffect(() => {
+    if (prefersReducedMotion || hasVideoError) return;
 
-    if (!isCrossfading.current && video.currentTime >= video.duration - CROSSFADE_DURATION_S) {
-      isCrossfading.current = true;
-      const nextVideo = nextRef.current;
-      if (nextVideo) {
-        nextVideo.currentTime = LOOP_START_S;
-        nextVideo.play().catch(() => {});
+    const current = activeVideo === 'A' ? videoRef.current : videoRefB.current;
+    const next = activeVideo === 'A' ? videoRefB.current : videoRef.current;
+    if (!current || !next) return;
+
+    const handleTimeUpdate = () => {
+      // Trigger the crossfade slightly before the end of the video
+      if (current.duration && current.currentTime >= current.duration - 0.4) {
+        next.currentTime = LOOP_START_TIME;
+        next.play().catch(() => {});
+        setActiveVideo(activeVideo === 'A' ? 'B' : 'A');
       }
-      setActiveVideo(nextIndex);
-      
-      // Reset the crossfade lock after the fade completes
-      setTimeout(() => {
-        isCrossfading.current = false;
-        // Pause the inactive video so it doesn't drain CPU while hidden
-        if (currentRef.current) currentRef.current.pause();
-      }, CROSSFADE_DURATION_S * 1000);
-    }
-  };
+    };
 
-  const handleTimeUpdateA = () => checkCrossfade(videoRefA, videoRefB, 1);
-  const handleTimeUpdateB = () => checkCrossfade(videoRefB, videoRefA, 0);
+    current.addEventListener("timeupdate", handleTimeUpdate);
+    return () => current.removeEventListener("timeupdate", handleTimeUpdate);
+  }, [activeVideo, prefersReducedMotion, hasVideoError]);
 
   // ── Slide auto-rotate ───────────────────────────────────────────────────────
   useEffect(() => {
@@ -173,68 +188,88 @@ export default function HeroSlider() {
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      // Removed "isolate" to prevent aggressive new stacking context that could overlap a low z-index Header
+      // Strictly relative container. No isolate, no absolute fixed positioning.
+      // Starts naturally below the header.
       className="relative overflow-hidden bg-[#FFFFFF] touch-pan-y min-h-[700px] flex items-center"
       aria-label="Banner principal"
     >
-      {/* ── Background Video Layer (z-[-1] to strictly stay behind all normal page content/headers) ── */}
+      {/* ── Background Layer (z-index 0) ─────────────────────────────────────── */}
       <div 
-        className="absolute inset-0 z-[-1] overflow-hidden bg-[#FFFFFF]"
-        style={{
-          opacity: isVideoReady ? 1 : 0,
-          transition: "opacity 400ms ease-out",
-        }}
+        className="absolute top-0 left-0 w-full h-full overflow-hidden" 
+        style={{ zIndex: 0, backgroundColor: "#FFFFFF" }}
       >
-        <div 
-          className="absolute inset-0 w-full h-full"
-          style={{
-            // Scale up slightly to crop out the bottom-right watermark
-            transform: "scale(1.06) translate(1%, 1%)",
-          }}
-        >
-          <video
-            ref={videoRefA}
-            src="/videos/hero-loop.mp4"
-            autoPlay={!isReducedMotion}
-            muted
-            playsInline
-            preload="auto"
-            onTimeUpdate={isReducedMotion ? undefined : handleTimeUpdateA}
-            onCanPlay={() => setIsVideoReady(true)}
-            className="absolute top-0 left-0 w-full h-full object-cover"
-            style={{
-              objectPosition: "80% center", // Keep the right side focused
-              opacity: isReducedMotion ? 1 : (activeVideo === 0 ? 1 : 0),
-              transition: `opacity ${CROSSFADE_DURATION_S}s linear`,
+        {/* Render fallback image if reduced motion OR video error/blocked */}
+        {(prefersReducedMotion || hasVideoError) ? (
+          <img
+            src={FALLBACK_IMG}
+            alt="Equipamentos de proteção individual"
+            className="absolute top-0 left-0 w-full h-full"
+            style={{ objectFit: "cover", objectPosition: "80% center" }}
+            onError={(e) => {
+              // If the fallback image doesn't exist, just hide it so it stays white
+              (e.target as HTMLImageElement).style.display = "none";
             }}
-            aria-label="Animação de capacete, óculos de proteção e luvas flutuando"
           />
-          {!isReducedMotion && (
+        ) : (
+          /* Video container with smooth fade-in after onCanPlay */
+          <div 
+            className="absolute inset-0 w-full h-full"
+            style={{
+              opacity: isVideoReady ? 1 : 0,
+              transition: "opacity 400ms ease-in-out",
+            }}
+          >
+            {/* VIDEO A */}
             <video
-              ref={videoRefB}
-              src="/videos/hero-loop.mp4"
+              ref={videoRef}
               muted
               playsInline
               preload="auto"
-              onTimeUpdate={handleTimeUpdateB}
               onCanPlay={() => setIsVideoReady(true)}
-              className="absolute top-0 left-0 w-full h-full object-cover"
+              onError={() => setHasVideoError(true)}
+              className="absolute top-0 left-0 w-full h-full"
               style={{
+                objectFit: "cover",
+                objectPosition: "80% center", // Keep products in view on mobile
+                transform: "scale(1.08)", // Push watermark out of bounds
+                transformOrigin: "center center",
+                opacity: activeVideo === 'A' ? 1 : 0,
+                transition: `opacity ${CROSSFADE_DURATION}ms linear`,
+              }}
+              aria-label="Animação flutuante"
+            >
+              <source src={VIDEO_SRC} type="video/mp4" />
+            </video>
+
+            {/* VIDEO B (For Crossfade) */}
+            <video
+              ref={videoRefB}
+              muted
+              playsInline
+              preload="auto"
+              onCanPlay={() => setIsVideoReady(true)}
+              className="absolute top-0 left-0 w-full h-full"
+              style={{
+                objectFit: "cover",
                 objectPosition: "80% center",
-                opacity: activeVideo === 1 ? 1 : 0,
-                transition: `opacity ${CROSSFADE_DURATION_S}s linear`,
+                transform: "scale(1.08)", // Match scale of Video A
+                transformOrigin: "center center",
+                opacity: activeVideo === 'B' ? 1 : 0,
+                transition: `opacity ${CROSSFADE_DURATION}ms linear`,
               }}
               aria-hidden="true"
-            />
-          )}
-        </div>
+            >
+              <source src={VIDEO_SRC} type="video/mp4" />
+            </video>
+          </div>
+        )}
 
-        {/* ── Legibility Gradient Overlay ────────────────────────────────────── */}
+        {/* Legibility Gradient Overlay (ensures text is readable over the video) */}
         <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-[#FFFFFF] via-[#FFFFFF]/85 to-transparent w-full md:w-2/3" />
       </div>
 
-      {/* ── Foreground Content Layer ───────────────────────────────────────── */}
-      <div className="relative z-10 w-full mx-auto max-w-7xl px-6 pb-10 pt-32 md:pb-24 md:pt-36 flex">
+      {/* ── Foreground Content Layer (z-index 10) ──────────────────────────── */}
+      <div className="relative w-full mx-auto max-w-7xl px-6 pb-10 pt-32 md:pb-24 md:pt-36 flex" style={{ zIndex: 10 }}>
         <div
           className="w-full max-w-xl"
           style={{
@@ -297,8 +332,8 @@ export default function HeroSlider() {
         </div>
       </div>
 
-      {/* ── Slide Controls (Bottom Left aligned to container) ─────────────── */}
-      <div className="absolute bottom-8 left-0 w-full pointer-events-none z-10">
+      {/* ── Slide Controls ─────────────────────────────────────────────────── */}
+      <div className="absolute bottom-8 left-0 w-full pointer-events-none" style={{ zIndex: 10 }}>
         <div className="mx-auto max-w-7xl px-6 flex items-center gap-4 pointer-events-auto">
           <div className="flex items-center gap-2">
             <button
