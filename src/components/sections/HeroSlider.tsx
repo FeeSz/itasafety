@@ -280,7 +280,7 @@ export default function HeroSlider() {
       </div>
 
       {/* ── Foreground Content Layer (z-index 10) ──────────────────────────── */}
-      <div className="relative w-full mx-auto max-w-7xl px-6 pb-10 pt-32 md:pb-24 md:pt-36 flex" style={{ zIndex: 10 }}>
+      <div className="relative w-full mx-auto max-w-7xl px-6 pb-10 pt-12 md:pb-24 md:pt-16 flex" style={{ zIndex: 10 }}>
         <div
           className="w-full max-w-xl"
           style={{

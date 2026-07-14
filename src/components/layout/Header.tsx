@@ -90,9 +90,7 @@ export default function Header() {
   const showWhite = !isHome || scrolled;
   return (
     <header
-      className={`left-0 right-0 top-0 z-50 ${
-        isHome ? "absolute" : "sticky"
-      } ${showWhite ? "header-scrolled" : "header-transparent"}`}
+      className="left-0 right-0 top-0 z-50 sticky header-scrolled"
       style={{ height: "clamp(84px, 10vw, 136px)" }}
     >
       <div
