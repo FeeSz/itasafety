@@ -66,13 +66,14 @@ export default function HeroSlider() {
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
 
-  // ── States for Video Background ─────────────────────────────────────────────
+  // ── Video refs & loop state (all DOM-direct to avoid re-render stutter) ──────
   const [isVideoReady, setIsVideoReady] = useState(false);
   const [hasVideoError, setHasVideoError] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
-  const [activeVideo, setActiveVideo] = useState<'A' | 'B'>('A');
 
-  const videoRef = useRef<HTMLVideoElement>(null);
+  // Qual vídeo é "ativo" — guardado em ref para não disparar re-render
+  const activeVideoRef = useRef<'A' | 'B'>('A');
+  const videoRef  = useRef<HTMLVideoElement>(null);
   const videoRefB = useRef<HTMLVideoElement>(null);
 
   // ── Ensure video shows up if already cached ───────────────────────────────
@@ -119,7 +120,8 @@ export default function HeroSlider() {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            const current = activeVideo === 'A' ? videoRef.current : videoRefB.current;
+            // Retomar o vídeo corrente sem depender de state
+            const current = activeVideoRef.current === 'A' ? videoRef.current : videoRefB.current;
             current?.play().catch(() => {});
           } else {
             videoRef.current?.pause();
@@ -133,34 +135,68 @@ export default function HeroSlider() {
     const section = document.getElementById("hero-section");
     if (section) observer.observe(section);
     return () => observer.disconnect();
-  }, [prefersReducedMotion, hasVideoError, activeVideo]);
+  }, [prefersReducedMotion, hasVideoError]);
 
-  // ── Crossfade Loop Logic (Precision RAF) ────────────────────────────────────
+  // ── Crossfade Loop — 100% DOM-direct, zero React re-renders ──────────────────
   useEffect(() => {
     if (prefersReducedMotion || hasVideoError) return;
 
-    const current = activeVideo === 'A' ? videoRef.current : videoRefB.current;
-    const next = activeVideo === 'A' ? videoRefB.current : videoRef.current;
-    if (!current || !next) return;
+    const vidA = videoRef.current;
+    const vidB = videoRefB.current;
+    if (!vidA || !vidB) return;
 
-    let animationFrameId: number;
-    const CROSSFADE_SEC = CROSSFADE_DURATION / 1000;
+    const FADE_S  = CROSSFADE_DURATION / 1000;
+    const FADE_MS = CROSSFADE_DURATION;
+    let rafId: number;
+    let fading = false;
 
-    const checkLoop = () => {
-      // Usamos requestAnimationFrame para precisão de milissegundos (~60fps)
-      // Isso evita o 'stutter' (travada) do evento timeupdate que só dispara a cada 250ms
-      if (current.duration && current.currentTime >= current.duration - CROSSFADE_SEC) {
-        next.currentTime = LOOP_START_TIME;
-        next.play().catch(() => {});
-        setActiveVideo(activeVideo === 'A' ? 'B' : 'A');
-        return; // Pára de checar, pois o state vai mudar e engatilhar o próximo ciclo
-      }
-      animationFrameId = requestAnimationFrame(checkLoop);
+    const setOpacity = (el: HTMLVideoElement, v: number) => {
+      el.style.opacity = String(v);
     };
 
-    animationFrameId = requestAnimationFrame(checkLoop);
-    return () => cancelAnimationFrame(animationFrameId);
-  }, [activeVideo, prefersReducedMotion, hasVideoError]);
+    const doFade = (outgoing: HTMLVideoElement, incoming: HTMLVideoElement) => {
+      if (fading) return;
+      fading = true;
+
+      // Prepare incoming: posiciona e inicia play antes de aparecer
+      incoming.currentTime = LOOP_START_TIME;
+      incoming.play().catch(() => {});
+
+      const start = performance.now();
+
+      const tick = (now: number) => {
+        const p = Math.min((now - start) / FADE_MS, 1); // 0 → 1
+        const eased = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2; // ease-in-out quad
+        setOpacity(outgoing, 1 - eased);
+        setOpacity(incoming, eased);
+
+        if (p < 1) {
+          rafId = requestAnimationFrame(tick);
+        } else {
+          // Crossfade concluído: trocar qual é ativo e zerar o outro
+          activeVideoRef.current = activeVideoRef.current === 'A' ? 'B' : 'A';
+          fading = false;
+        }
+      };
+
+      rafId = requestAnimationFrame(tick);
+    };
+
+    const monitor = () => {
+      if (fading) { rafId = requestAnimationFrame(monitor); return; }
+
+      const current  = activeVideoRef.current === 'A' ? vidA : vidB;
+      const next     = activeVideoRef.current === 'A' ? vidB : vidA;
+
+      if (current.duration && current.currentTime >= current.duration - FADE_S - 0.05) {
+        doFade(current, next);
+      }
+      rafId = requestAnimationFrame(monitor);
+    };
+
+    rafId = requestAnimationFrame(monitor);
+    return () => cancelAnimationFrame(rafId);
+  }, [prefersReducedMotion, hasVideoError]);
 
   // ── Slide auto-rotate ───────────────────────────────────────────────────────
   useEffect(() => {
@@ -246,12 +282,12 @@ export default function HeroSlider() {
               preload="auto"
               onCanPlay={() => setIsVideoReady(true)}
               onError={() => setHasVideoError(true)}
-              className="absolute top-0 left-0 w-full h-full"
+              className="absolute top-0 left-0 w-full h-full scale-[1.08]"
               style={{
                 objectFit: "cover",
-                objectPosition: "80% 35%", // Shift upward slightly to reveal top of helmet
-                opacity: activeVideo === 'A' ? 1 : 0,
-                transition: `opacity ${CROSSFADE_DURATION}ms ease-in-out`,
+                objectPosition: "80% 35%",
+                opacity: 1,
+                transition: "none",
               }}
               aria-label="Animação flutuante"
             >
@@ -265,12 +301,12 @@ export default function HeroSlider() {
               playsInline
               preload="auto"
               onCanPlay={() => setIsVideoReady(true)}
-              className="absolute top-0 left-0 w-full h-full"
+              className="absolute top-0 left-0 w-full h-full scale-[1.08]"
               style={{
                 objectFit: "cover",
                 objectPosition: "80% 35%",
-                opacity: activeVideo === 'B' ? 1 : 0,
-                transition: `opacity ${CROSSFADE_DURATION}ms ease-in-out`,
+                opacity: 0,
+                transition: "none",
               }}
               aria-hidden="true"
             >
