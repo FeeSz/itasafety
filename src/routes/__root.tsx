@@ -161,6 +161,14 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const location = useRouter().state.location;
+  
+  const isAuthRoute = 
+    location.pathname.startsWith('/auth') || 
+    location.pathname.startsWith('/login') || 
+    location.pathname.startsWith('/cadastro') || 
+    location.pathname.startsWith('/reset-password');
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
@@ -171,13 +179,13 @@ function RootComponent() {
           >
             Ir para o conteúdo
           </a>
-          <Header />
+          {!isAuthRoute && <Header />}
           <main id="main">
             <Outlet />
           </main>
-          <Footer />
+          {!isAuthRoute && <Footer />}
           <CookieBanner />
-          <QuoteFab />
+          {!isAuthRoute && <QuoteFab />}
           <Toaster position="top-right" />
         </QuoteCartProvider>
       </AuthProvider>

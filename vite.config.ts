@@ -128,7 +128,7 @@ const githubPagesViteConfig = isGithubPagesBuild
 // @cloudflare/vite-plugin builds from this — wrangler.jsonc main alone is insufficient.
 export default defineConfig({
   nitro: isGithubPagesBuild ? false : undefined,
-  plugins: [safePublicBuildPlugin(), mcpPlugin()],
+  plugins: [safePublicBuildPlugin()],
   vite: githubPagesViteConfig,
   tanstackStart: {
     router: {
