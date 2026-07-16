@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   Eye,
   EyeOff,
+  Check,
 } from "lucide-react";
 import { checkAuthRateLimit, recordAuthAttempt } from "@/lib/auth.functions";
 import brandLogo from "@/assets/itasafety-header-logo.png";
@@ -133,24 +134,28 @@ function AuthPage() {
       {/* Background Decor */}
       <div className="pointer-events-none absolute left-0 top-0 h-[800px] w-[800px] -translate-x-1/2 -translate-y-1/4 rounded-full bg-brand-blue/10 blur-[120px]" />
 
-      {/* Header Minimalista (Logo e Voltar) */}
-      <div className="absolute top-6 left-6 md:top-8 md:left-12 z-50 flex flex-row items-center gap-6">
-        <Link to="/" className="inline-flex w-max items-center text-xs font-bold uppercase tracking-wider text-white/50 hover:text-white transition">
+      {/* Header Minimalista (Voltar) */}
+      <div className="absolute top-6 left-6 md:top-8 md:left-12 z-[100] flex items-center">
+        <Link to="/" className="inline-flex items-center text-xs font-bold uppercase tracking-wider text-white/50 hover:text-white transition">
           <ArrowLeft className="mr-2 size-4" /> Voltar ao site
         </Link>
+      </div>
+
+      {/* Logo Centralizada */}
+      <div className="absolute top-6 left-1/2 -translate-x-1/2 md:top-8 z-[100] flex items-center justify-center pointer-events-none">
         <img src={brandLogo} alt="ItaSafety" className="h-[28px] w-auto brightness-0 invert drop-shadow-md" />
       </div>
 
       {/* Main Container */}
-      <div className="relative w-full min-h-[100dvh] flex flex-col md:block">
+      <div className="relative w-full h-[100dvh] overflow-hidden flex flex-col md:block">
 
         {/* ============================================================ */}
         {/* SIGN IN / FORGOT FORM (Left side desktop, crossfade mobile) */}
         {/* ============================================================ */}
-        <div className={`absolute inset-0 md:w-1/2 h-[100dvh] z-20 flex flex-col justify-center p-8 pt-24 sm:p-12 md:px-16 lg:px-24 transition-all duration-700 ease-in-out overflow-y-auto
+        <div className={`absolute inset-0 md:w-1/2 h-[100dvh] z-20 flex flex-col justify-center p-6 pt-20 sm:p-8 md:p-12 lg:px-20 transition-all duration-700 ease-in-out overflow-y-auto md:overflow-hidden
           ${isSignUp ? 'opacity-0 pointer-events-none md:translate-x-full' : 'opacity-100 md:translate-x-0'}`}>
 
-          <div className={`transition-all duration-500 ease-in-out absolute inset-0 p-8 pt-24 sm:p-12 md:px-16 lg:px-24 flex flex-col justify-center overflow-y-auto ${isForgot ? 'opacity-0 pointer-events-none scale-95' : 'opacity-100 scale-100'}`}>
+          <div className={`transition-all duration-500 ease-in-out absolute inset-0 p-6 pt-20 sm:p-8 md:p-12 lg:px-20 flex flex-col justify-center overflow-y-auto md:overflow-hidden ${isForgot ? 'opacity-0 pointer-events-none scale-95' : 'opacity-100 scale-100'}`}>
             <SignInForm
               email={email}
               setEmail={setEmail}
@@ -169,7 +174,7 @@ function AuthPage() {
             </div>
           </div>
 
-          <div className={`transition-all duration-500 ease-in-out absolute inset-0 p-8 pt-24 sm:p-12 md:px-16 lg:px-24 flex flex-col justify-center overflow-y-auto ${!isForgot ? 'opacity-0 pointer-events-none scale-105' : 'opacity-100 scale-100'}`}>
+          <div className={`transition-all duration-500 ease-in-out absolute inset-0 p-6 pt-20 sm:p-8 md:p-12 lg:px-20 flex flex-col justify-center overflow-y-auto md:overflow-hidden ${!isForgot ? 'opacity-0 pointer-events-none scale-105' : 'opacity-100 scale-100'}`}>
             <ForgotForm
               email={email}
               setEmail={setEmail}
@@ -186,7 +191,7 @@ function AuthPage() {
         {/* ============================================================ */}
         {/* SIGN UP FORM (Right side desktop, crossfade mobile) */}
         {/* ============================================================ */}
-        <div className={`absolute inset-0 md:w-1/2 h-[100dvh] flex flex-col justify-center p-8 pt-24 sm:p-12 md:px-16 lg:px-24 transition-all duration-700 ease-in-out overflow-y-auto
+        <div className={`absolute inset-0 md:w-1/2 h-[100dvh] flex flex-col justify-center p-6 pt-20 sm:p-8 md:p-12 lg:px-20 transition-all duration-700 ease-in-out overflow-y-auto md:overflow-hidden
           ${isSignUp ? 'opacity-100 z-20 md:translate-x-full' : 'opacity-0 pointer-events-none z-10 md:translate-x-0'}`}>
           <SignUpForm
             email={email}
@@ -247,8 +252,8 @@ function AuthPage() {
       </div>
 
       {/* Footer Trust Badges */}
-      <div className="absolute bottom-6 left-0 w-full text-center pointer-events-none hidden md:block">
-        <p className="flex items-center justify-center gap-2 text-xs font-medium text-white/30">
+      <div className="absolute bottom-4 left-0 w-full text-center pointer-events-none hidden md:block z-[100] px-4">
+        <p className="flex items-center justify-center gap-2 text-[11px] lg:text-xs font-medium text-white/40 bg-slate-950/50 rounded-full py-1.5 w-max mx-auto px-4 backdrop-blur-sm">
           <ShieldCheck className="size-4" />
           Protegido por TLS · bcrypt · rate-limit · LGPD
         </p>
@@ -315,7 +320,7 @@ function SignInForm({ email, setEmail, onForgot, checkLimit, recordAttempt, call
   return (
     <form onSubmit={submit} className="w-full max-w-sm mx-auto" noValidate>
       <h2 className="text-3xl font-bold text-white mb-1">Entrar</h2>
-      <p className="text-white/50 text-sm mb-6">Utilize suas credenciais para acessar.</p>
+      <p className="text-white/50 text-sm mb-5">Utilize suas credenciais para acessar.</p>
 
       <div className="space-y-4">
         <FloatingInput id="login-email" label="E-mail" type="email" value={email} onChange={(e: any) => setEmail(e.target.value)} error={errors.email} disabled={loading} />
@@ -335,19 +340,27 @@ function SignInForm({ email, setEmail, onForgot, checkLimit, recordAttempt, call
         />
       </div>
 
-      <div className="flex items-center justify-between mt-6 mb-6">
-        <label className="flex cursor-pointer items-center gap-2 text-sm text-white/60 hover:text-white transition">
-          <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="size-4 rounded border-white/20 bg-white/10 accent-brand-blue-light" />
-          Lembrar acesso
+      <div className="flex items-center justify-between mt-4 mb-4">
+        <label className="flex items-center space-x-2 text-sm text-white/70 cursor-pointer hover:text-white transition group">
+          <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${remember ? 'bg-brand-blue border-brand-blue' : 'border-white/30 group-hover:border-white/50'}`}>
+            {remember && <Check className="size-3 text-white" />}
+          </div>
+          <input type="checkbox" className="hidden" checked={remember} onChange={(e) => setRemember(e.target.checked)} />
+          <span>Lembrar acesso</span>
         </label>
-        <button type="button" onClick={onForgot} className="text-sm font-semibold text-brand-blue-light hover:underline">
+        <button type="button" onClick={onForgot} className="text-sm text-brand-blue font-medium hover:underline">
           Esqueceu a senha?
         </button>
       </div>
 
-      <button type="submit" disabled={loading} className="w-full rounded-full bg-white py-3.5 text-sm font-bold uppercase tracking-widest text-slate-900 shadow-md transition-all hover:bg-white/90 disabled:opacity-60 flex justify-center items-center h-[52px]">
+      <button type="submit" disabled={loading} className="w-full rounded-full bg-white py-3.5 text-sm font-bold uppercase tracking-widest text-brand-blue shadow-md transition-all hover:bg-gray-100 disabled:opacity-60 flex justify-center items-center h-[52px]">
         {loading ? <Loader2 className="size-5 animate-spin" /> : "Entrar"}
       </button>
+
+      <div className="relative my-6">
+        <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-white/10" /></div>
+        <div className="relative flex justify-center text-xs uppercase"><span className="bg-slate-900 px-2 text-white/40">Ou entre com</span></div>
+      </div>
 
       <SocialLogin loading={loading} handleSocial={handleSocial} />
     </form>
@@ -400,9 +413,9 @@ function SignUpForm({ email, setEmail, checkLimit, recordAttempt, callbackUrl, s
   return (
     <form onSubmit={submit} className="w-full max-w-sm mx-auto" noValidate>
       <h2 className="text-3xl font-bold text-white mb-1">Criar Conta</h2>
-      <p className="text-white/50 text-sm mb-4">Preencha seus dados abaixo.</p>
+      <p className="text-white/50 text-sm mb-3">Preencha seus dados abaixo.</p>
 
-      <div className="space-y-4">
+      <div className="space-y-3">
         <FloatingInput id="reg-name" label="Nome completo" type="text" value={name} onChange={(e: any) => setName(e.target.value)} error={errors.name} disabled={loading} />
         <FloatingInput id="reg-email" label="E-mail" type="email" value={email} onChange={(e: any) => setEmail(e.target.value)} error={errors.email} disabled={loading} />
         
@@ -436,9 +449,14 @@ function SignUpForm({ email, setEmail, checkLimit, recordAttempt, callbackUrl, s
         />
       </div>
 
-      <button type="submit" disabled={loading} className="w-full rounded-full bg-brand-blue py-3.5 text-sm font-bold uppercase tracking-widest text-white shadow-md transition-all hover:bg-brand-blue-hover disabled:opacity-60 flex justify-center items-center h-[52px] mt-8">
+      <button type="submit" disabled={loading} className="w-full rounded-full bg-brand-blue py-3.5 text-sm font-bold uppercase tracking-widest text-white shadow-md transition-all hover:bg-brand-blue-hover disabled:opacity-60 flex justify-center items-center h-[52px] mt-5">
         {loading ? <Loader2 className="size-5 animate-spin" /> : "Cadastrar"}
       </button>
+
+      <div className="relative my-5">
+        <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-white/10" /></div>
+        <div className="relative flex justify-center text-xs uppercase"><span className="bg-slate-900 px-2 text-white/40">Ou entre com</span></div>
+      </div>
 
       <SocialLogin loading={loading} handleSocial={handleSocial} />
     </form>
