@@ -143,7 +143,7 @@ function AuthPage() {
 
       {/* Logo Centralizada */}
       <div className="absolute top-6 left-1/2 -translate-x-1/2 md:top-8 z-[100] flex items-center justify-center pointer-events-none">
-        <img src={brandLogo} alt="ItaSafety" className="h-[28px] w-auto brightness-0 invert drop-shadow-md" />
+        <img src={brandLogo} alt="ItaSafety" className="h-[150px] w-auto brightness-0 invert drop-shadow-md" />
       </div>
 
       {/* Main Container */}
@@ -324,14 +324,14 @@ function SignInForm({ email, setEmail, onForgot, checkLimit, recordAttempt, call
 
       <div className="space-y-4">
         <FloatingInput id="login-email" label="E-mail" type="email" value={email} onChange={(e: any) => setEmail(e.target.value)} error={errors.email} disabled={loading} />
-        <FloatingInput 
-          id="login-password" 
-          label="Senha" 
-          type={showPw ? "text" : "password"} 
-          value={password} 
-          onChange={(e: any) => setPassword(e.target.value)} 
-          error={errors.password} 
-          disabled={loading} 
+        <FloatingInput
+          id="login-password"
+          label="Senha"
+          type={showPw ? "text" : "password"}
+          value={password}
+          onChange={(e: any) => setPassword(e.target.value)}
+          error={errors.password}
+          disabled={loading}
           rightElement={
             <button type="button" onClick={() => setShowPw(!showPw)} className="text-white/40 hover:text-white transition">
               {showPw ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
@@ -357,10 +357,6 @@ function SignInForm({ email, setEmail, onForgot, checkLimit, recordAttempt, call
         {loading ? <Loader2 className="size-5 animate-spin" /> : "Entrar"}
       </button>
 
-      <div className="relative my-6">
-        <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-white/10" /></div>
-        <div className="relative flex justify-center text-xs uppercase"><span className="bg-slate-900 px-2 text-white/40">Ou entre com</span></div>
-      </div>
 
       <SocialLogin loading={loading} handleSocial={handleSocial} />
     </form>
@@ -418,14 +414,14 @@ function SignUpForm({ email, setEmail, checkLimit, recordAttempt, callbackUrl, s
       <div className="space-y-3">
         <FloatingInput id="reg-name" label="Nome completo" type="text" value={name} onChange={(e: any) => setName(e.target.value)} error={errors.name} disabled={loading} />
         <FloatingInput id="reg-email" label="E-mail" type="email" value={email} onChange={(e: any) => setEmail(e.target.value)} error={errors.email} disabled={loading} />
-        
-        <FloatingInput 
-          id="reg-password" 
-          label="Senha" 
-          type={showPw ? "text" : "password"} 
-          value={password} 
-          onChange={(e: any) => setPassword(e.target.value)} 
-          error={errors.password} 
+
+        <FloatingInput
+          id="reg-password"
+          label="Senha"
+          type={showPw ? "text" : "password"}
+          value={password}
+          onChange={(e: any) => setPassword(e.target.value)}
+          error={errors.password}
           disabled={loading}
           rightElement={
             <button type="button" onClick={() => setShowPw(!showPw)} className="text-white/40 hover:text-white transition">
@@ -433,13 +429,13 @@ function SignUpForm({ email, setEmail, checkLimit, recordAttempt, callbackUrl, s
             </button>
           }
         />
-        <FloatingInput 
-          id="reg-confirm" 
-          label="Confirmar" 
-          type={showPw ? "text" : "password"} 
-          value={confirm} 
-          onChange={(e: any) => setConfirm(e.target.value)} 
-          error={errors.confirm} 
+        <FloatingInput
+          id="reg-confirm"
+          label="Confirmar"
+          type={showPw ? "text" : "password"}
+          value={confirm}
+          onChange={(e: any) => setConfirm(e.target.value)}
+          error={errors.confirm}
           disabled={loading}
           rightElement={
             <button type="button" onClick={() => setShowPw(!showPw)} className="text-white/40 hover:text-white transition">
@@ -453,10 +449,6 @@ function SignUpForm({ email, setEmail, checkLimit, recordAttempt, callbackUrl, s
         {loading ? <Loader2 className="size-5 animate-spin" /> : "Cadastrar"}
       </button>
 
-      <div className="relative my-5">
-        <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-white/10" /></div>
-        <div className="relative flex justify-center text-xs uppercase"><span className="bg-slate-900 px-2 text-white/40">Ou entre com</span></div>
-      </div>
 
       <SocialLogin loading={loading} handleSocial={handleSocial} />
     </form>
