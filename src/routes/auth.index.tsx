@@ -46,7 +46,7 @@ function AuthPage() {
   const [isForgot, setIsForgot] = useState(false);
   const [loading, setLoading] = useState(false);
   const [successView, setSuccessView] = useState<null | "signup" | "forgot">(null);
-  
+
   const [email, setEmail] = useState("");
 
   // Auto-login check
@@ -72,7 +72,7 @@ function AuthPage() {
       }
     }
     redirectExistingSession();
-    
+
     const remembered = typeof window !== "undefined" ? localStorage.getItem("ita_remember_email") : null;
     if (remembered) {
       setEmail(remembered);
@@ -129,33 +129,31 @@ function AuthPage() {
   }
 
   return (
-    <div className="relative flex min-h-[100dvh] items-center justify-center bg-slate-950 p-4 md:p-8 overflow-hidden">
+    <div className="relative w-full min-h-[100dvh] bg-slate-950 overflow-hidden flex flex-col md:block">
       {/* Background Decor */}
       <div className="pointer-events-none absolute left-0 top-0 h-[800px] w-[800px] -translate-x-1/2 -translate-y-1/4 rounded-full bg-brand-blue/10 blur-[120px]" />
-      
-      {/* Header Minimalista */}
-      <div className="absolute top-6 left-6 md:top-8 md:left-8 z-50 flex items-center gap-6">
-        <Link to="/" className="inline-flex items-center text-xs font-bold uppercase tracking-wider text-white/50 hover:text-white transition">
+
+      {/* Header Minimalista (Logo e Voltar) */}
+      <div className="absolute top-6 left-6 md:top-8 md:left-12 z-50 flex flex-col gap-6">
+        <img src={brandLogo} alt="ItaSafety" className="h-25 md:h-25 brightness-0 invert drop-shadow-md" />
+        <Link to="/" className="inline-flex w-max items-center text-xs font-bold uppercase tracking-wider text-white/50 hover:text-white transition">
           <ArrowLeft className="mr-2 size-4" /> Voltar ao site
         </Link>
       </div>
-      <div className="absolute top-6 right-6 md:top-8 md:right-8 z-50">
-        <img src={brandLogo} alt="ItaSafety" className="h-8 bg-white p-1.5 rounded-sm shadow-lg" />
-      </div>
 
       {/* Main Container */}
-      <div className="relative w-full max-w-[1000px] min-h-[650px] bg-slate-900 rounded-3xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/5 flex flex-col md:block">
-        
+      <div className="relative w-full min-h-[100dvh] flex flex-col md:block">
+
         {/* ============================================================ */}
         {/* SIGN IN / FORGOT FORM (Left side desktop, crossfade mobile) */}
         {/* ============================================================ */}
-        <div className={`absolute inset-0 md:w-1/2 h-full z-20 flex flex-col justify-center p-8 sm:p-12 transition-all duration-700 ease-in-out
+        <div className={`absolute inset-0 md:w-1/2 h-[100dvh] z-20 flex flex-col justify-center p-8 pt-40 sm:p-12 md:px-20 lg:px-32 transition-all duration-700 ease-in-out overflow-y-auto
           ${isSignUp ? 'opacity-0 pointer-events-none md:translate-x-full' : 'opacity-100 md:translate-x-0'}`}>
-          
-          <div className={`transition-all duration-500 ease-in-out absolute inset-0 p-8 sm:p-12 flex flex-col justify-center ${isForgot ? 'opacity-0 pointer-events-none scale-95' : 'opacity-100 scale-100'}`}>
-            <SignInForm 
-              email={email} 
-              setEmail={setEmail} 
+
+          <div className={`transition-all duration-500 ease-in-out absolute inset-0 p-8 pt-40 sm:p-12 md:px-20 lg:px-32 flex flex-col justify-center overflow-y-auto ${isForgot ? 'opacity-0 pointer-events-none scale-95' : 'opacity-100 scale-100'}`}>
+            <SignInForm
+              email={email}
+              setEmail={setEmail}
               onForgot={() => setIsForgot(true)}
               checkLimit={checkLimit}
               recordAttempt={recordAttempt}
@@ -171,8 +169,8 @@ function AuthPage() {
             </div>
           </div>
 
-          <div className={`transition-all duration-500 ease-in-out absolute inset-0 p-8 sm:p-12 flex flex-col justify-center ${!isForgot ? 'opacity-0 pointer-events-none scale-105' : 'opacity-100 scale-100'}`}>
-            <ForgotForm 
+          <div className={`transition-all duration-500 ease-in-out absolute inset-0 p-8 pt-40 sm:p-12 md:px-20 lg:px-32 flex flex-col justify-center overflow-y-auto ${!isForgot ? 'opacity-0 pointer-events-none scale-105' : 'opacity-100 scale-100'}`}>
+            <ForgotForm
               email={email}
               setEmail={setEmail}
               onBack={() => setIsForgot(false)}
@@ -188,9 +186,9 @@ function AuthPage() {
         {/* ============================================================ */}
         {/* SIGN UP FORM (Right side desktop, crossfade mobile) */}
         {/* ============================================================ */}
-        <div className={`absolute inset-0 md:w-1/2 h-full flex flex-col justify-center p-8 sm:p-12 transition-all duration-700 ease-in-out
+        <div className={`absolute inset-0 md:w-1/2 h-[100dvh] flex flex-col justify-center p-8 pt-40 sm:p-12 md:px-20 lg:px-32 transition-all duration-700 ease-in-out overflow-y-auto
           ${isSignUp ? 'opacity-100 z-20 md:translate-x-full' : 'opacity-0 pointer-events-none z-10 md:translate-x-0'}`}>
-          <SignUpForm 
+          <SignUpForm
             email={email}
             setEmail={setEmail}
             checkLimit={checkLimit}
@@ -210,7 +208,7 @@ function AuthPage() {
         {/* ============================================================ */}
         {/* SLIDING OVERLAY (Desktop Only) */}
         {/* ============================================================ */}
-        <div className={`hidden md:block absolute top-0 left-1/2 w-1/2 h-full bg-brand-blue overflow-hidden transition-transform duration-700 ease-in-out z-30 shadow-2xl ${isSignUp ? '-translate-x-full' : 'translate-x-0'}`}>
+        <div className={`hidden md:block absolute top-0 left-1/2 w-1/2 h-[100dvh] bg-brand-blue overflow-hidden transition-transform duration-700 ease-in-out z-30 shadow-2xl ${isSignUp ? '-translate-x-full' : 'translate-x-0'}`}>
           <div className="relative w-full h-full bg-gradient-to-br from-brand-blue to-[#0f1f38]">
             {/* Decorative background circle */}
             <div className="absolute -top-32 -right-32 w-96 h-96 bg-white/5 rounded-full blur-3xl pointer-events-none" />
@@ -218,11 +216,11 @@ function AuthPage() {
 
             {/* Panel Left (Sign In CTA) */}
             <div className={`absolute inset-0 flex flex-col items-center justify-center p-12 text-center transition-all duration-700 ease-in-out ${isSignUp ? 'translate-x-0 opacity-100' : '-translate-x-[20%] opacity-0 pointer-events-none'}`}>
-              <h2 className="text-4xl font-display font-black text-white mb-6 leading-tight">Já tem uma<br/>conta?</h2>
+              <h2 className="text-4xl font-display font-black text-white mb-6 leading-tight">Já tem uma<br />conta?</h2>
               <p className="text-white/80 mb-10 max-w-sm leading-relaxed">
                 Acesse sua área restrita para conferir seus pedidos e as cotações de EPIs.
               </p>
-              <button 
+              <button
                 onClick={() => { setIsSignUp(false); setIsForgot(false); }}
                 className="rounded-full border-2 border-white/30 px-10 py-3.5 text-sm font-bold uppercase tracking-widest text-white transition-all hover:bg-white hover:text-brand-blue active:scale-95"
               >
@@ -232,11 +230,11 @@ function AuthPage() {
 
             {/* Panel Right (Sign Up CTA) */}
             <div className={`absolute inset-0 flex flex-col items-center justify-center p-12 text-center transition-all duration-700 ease-in-out ${isSignUp ? 'translate-x-[20%] opacity-0 pointer-events-none' : 'translate-x-0 opacity-100'}`}>
-              <h2 className="text-4xl font-display font-black text-white mb-6 leading-tight">Novo por<br/>aqui?</h2>
+              <h2 className="text-4xl font-display font-black text-white mb-6 leading-tight">Novo por<br />aqui?</h2>
               <p className="text-white/80 mb-10 max-w-sm leading-relaxed">
                 Cadastre-se para solicitar cotações e ter acesso ao nosso catálogo de proteção completo.
               </p>
-              <button 
+              <button
                 onClick={() => { setIsSignUp(true); setIsForgot(false); }}
                 className="rounded-full border-2 border-white/30 px-10 py-3.5 text-sm font-bold uppercase tracking-widest text-white transition-all hover:bg-white hover:text-brand-blue active:scale-95"
               >
@@ -247,7 +245,7 @@ function AuthPage() {
         </div>
 
       </div>
-      
+
       {/* Footer Trust Badges */}
       <div className="absolute bottom-6 left-0 w-full text-center pointer-events-none hidden md:block">
         <p className="flex items-center justify-center gap-2 text-xs font-medium text-white/30">
@@ -284,16 +282,16 @@ function SignInForm({ email, setEmail, onForgot, checkLimit, recordAttempt, call
     try {
       const limit = await checkLimit({ data: { email, attempt_type: "login" } });
       if (limit.blocked) throw new Error(limit.reason || "Limite excedido. Aguarde alguns minutos.");
-      
+
       const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      
+
       await recordAuthenticatedAttempt(recordAttempt, "login");
       const userIsAdmin = authData?.user ? await getUserIsAdmin(authData.user.id) : false;
       sessionStorage.setItem("ita_is_admin", userIsAdmin ? "true" : "false");
       if (remember) localStorage.setItem("ita_remember_email", email);
       else localStorage.removeItem("ita_remember_email");
-      
+
       toast.success("Bem-vindo de volta!");
       if (userIsAdmin) {
         if (safeNext) window.location.assign(safeNext);
@@ -306,7 +304,7 @@ function SignInForm({ email, setEmail, onForgot, checkLimit, recordAttempt, call
       const msg = err.message || "Erro";
       const friendly = /invalid login credentials/i.test(msg) ? "E-mail ou senha incorretos."
         : /email not confirmed/i.test(msg) ? "Confirme seu e-mail antes de entrar."
-        : msg;
+          : msg;
       toast.error(friendly);
     } finally {
       setLoading(false);
@@ -317,13 +315,13 @@ function SignInForm({ email, setEmail, onForgot, checkLimit, recordAttempt, call
     <form onSubmit={submit} className="w-full max-w-sm mx-auto" noValidate>
       <h2 className="text-3xl font-bold text-white mb-2">Entrar</h2>
       <p className="text-white/50 text-sm mb-8">Utilize suas credenciais para acessar.</p>
-      
+
       <div className="space-y-6">
         <FloatingInput id="login-email" label="E-mail" type="email" value={email} onChange={(e: any) => setEmail(e.target.value)} error={errors.email} disabled={loading} />
         <div className="relative">
           <FloatingInput id="login-password" label="Senha" type={showPw ? "text" : "password"} value={password} onChange={(e: any) => setPassword(e.target.value)} error={errors.password} disabled={loading} />
           <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-4 top-4 text-white/40 hover:text-white transition">
-            {showPw ? <EyeOff className="size-4"/> : <Eye className="size-4"/>}
+            {showPw ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
           </button>
         </div>
       </div>
@@ -371,14 +369,14 @@ function SignUpForm({ email, setEmail, checkLimit, recordAttempt, callbackUrl, s
     try {
       const limit = await checkLimit({ data: { email, attempt_type: "signup" } });
       if (limit.blocked) throw new Error(limit.reason || "Limite excedido. Aguarde alguns minutos.");
-      
+
       const { error } = await supabase.auth.signUp({
         email,
         password,
         options: { emailRedirectTo: callbackUrl, data: { full_name: name } },
       });
       if (error) throw error;
-      
+
       await recordAuthenticatedAttempt(recordAttempt, "signup");
       setSuccessView("signup");
     } catch (err: any) {
@@ -394,7 +392,7 @@ function SignUpForm({ email, setEmail, checkLimit, recordAttempt, callbackUrl, s
     <form onSubmit={submit} className="w-full max-w-sm mx-auto" noValidate>
       <h2 className="text-3xl font-bold text-white mb-2">Criar Conta</h2>
       <p className="text-white/50 text-sm mb-6">Preencha seus dados abaixo.</p>
-      
+
       <div className="space-y-6">
         <FloatingInput id="reg-name" label="Nome completo" type="text" value={name} onChange={(e: any) => setName(e.target.value)} error={errors.name} disabled={loading} />
         <FloatingInput id="reg-email" label="E-mail" type="email" value={email} onChange={(e: any) => setEmail(e.target.value)} error={errors.email} disabled={loading} />
@@ -406,7 +404,7 @@ function SignUpForm({ email, setEmail, checkLimit, recordAttempt, callbackUrl, s
             <FloatingInput id="reg-confirm" label="Confirmar" type={showPw ? "text" : "password"} value={confirm} onChange={(e: any) => setConfirm(e.target.value)} error={errors.confirm} disabled={loading} />
           </div>
           <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-4 top-4 text-white/40 hover:text-white transition">
-            {showPw ? <EyeOff className="size-4"/> : <Eye className="size-4"/>}
+            {showPw ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
           </button>
         </div>
       </div>
@@ -434,7 +432,7 @@ function ForgotForm({ email, setEmail, onBack, checkLimit, setSuccessView, setLo
     try {
       const limit = await checkLimit({ data: { email, attempt_type: "reset" } });
       if (limit.blocked) throw new Error(limit.reason || "Limite excedido. Aguarde alguns minutos.");
-      
+
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/reset-password`,
       });
@@ -451,7 +449,7 @@ function ForgotForm({ email, setEmail, onBack, checkLimit, setSuccessView, setLo
     <form onSubmit={submit} className="w-full max-w-sm mx-auto" noValidate>
       <h2 className="text-3xl font-bold text-white mb-2">Recuperar Senha</h2>
       <p className="text-white/50 text-sm mb-8">Enviaremos um link de redefinição para o seu e-mail.</p>
-      
+
       <div className="space-y-6 mb-8">
         <FloatingInput id="forgot-email" label="E-mail de cadastro" type="email" value={email} onChange={(e: any) => setEmail(e.target.value)} error={errors.email} disabled={loading} />
       </div>
@@ -462,7 +460,7 @@ function ForgotForm({ email, setEmail, onBack, checkLimit, setSuccessView, setLo
 
       <div className="text-center">
         <button type="button" onClick={onBack} className="text-white hover:underline font-bold inline-flex items-center gap-1 text-sm">
-           <ArrowLeft className="size-4" /> Voltar ao Login
+          <ArrowLeft className="size-4" /> Voltar ao Login
         </button>
       </div>
     </form>
