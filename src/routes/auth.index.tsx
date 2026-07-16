@@ -134,11 +134,11 @@ function AuthPage() {
       <div className="pointer-events-none absolute left-0 top-0 h-[800px] w-[800px] -translate-x-1/2 -translate-y-1/4 rounded-full bg-brand-blue/10 blur-[120px]" />
 
       {/* Header Minimalista (Logo e Voltar) */}
-      <div className="absolute top-6 left-6 md:top-8 md:left-12 z-50 flex flex-col gap-6">
-        <img src={brandLogo} alt="ItaSafety" className="h-25 md:h-25 brightness-0 invert drop-shadow-md" />
+      <div className="absolute top-6 left-6 md:top-8 md:left-12 z-50 flex flex-row items-center gap-6">
         <Link to="/" className="inline-flex w-max items-center text-xs font-bold uppercase tracking-wider text-white/50 hover:text-white transition">
           <ArrowLeft className="mr-2 size-4" /> Voltar ao site
         </Link>
+        <img src={brandLogo} alt="ItaSafety" className="h-[28px] w-auto brightness-0 invert drop-shadow-md" />
       </div>
 
       {/* Main Container */}
@@ -147,10 +147,10 @@ function AuthPage() {
         {/* ============================================================ */}
         {/* SIGN IN / FORGOT FORM (Left side desktop, crossfade mobile) */}
         {/* ============================================================ */}
-        <div className={`absolute inset-0 md:w-1/2 h-[100dvh] z-20 flex flex-col justify-center p-8 pt-40 sm:p-12 md:px-20 lg:px-32 transition-all duration-700 ease-in-out overflow-y-auto
+        <div className={`absolute inset-0 md:w-1/2 h-[100dvh] z-20 flex flex-col justify-center p-8 pt-24 sm:p-12 md:px-16 lg:px-24 transition-all duration-700 ease-in-out overflow-y-auto
           ${isSignUp ? 'opacity-0 pointer-events-none md:translate-x-full' : 'opacity-100 md:translate-x-0'}`}>
 
-          <div className={`transition-all duration-500 ease-in-out absolute inset-0 p-8 pt-40 sm:p-12 md:px-20 lg:px-32 flex flex-col justify-center overflow-y-auto ${isForgot ? 'opacity-0 pointer-events-none scale-95' : 'opacity-100 scale-100'}`}>
+          <div className={`transition-all duration-500 ease-in-out absolute inset-0 p-8 pt-24 sm:p-12 md:px-16 lg:px-24 flex flex-col justify-center overflow-y-auto ${isForgot ? 'opacity-0 pointer-events-none scale-95' : 'opacity-100 scale-100'}`}>
             <SignInForm
               email={email}
               setEmail={setEmail}
@@ -169,7 +169,7 @@ function AuthPage() {
             </div>
           </div>
 
-          <div className={`transition-all duration-500 ease-in-out absolute inset-0 p-8 pt-40 sm:p-12 md:px-20 lg:px-32 flex flex-col justify-center overflow-y-auto ${!isForgot ? 'opacity-0 pointer-events-none scale-105' : 'opacity-100 scale-100'}`}>
+          <div className={`transition-all duration-500 ease-in-out absolute inset-0 p-8 pt-24 sm:p-12 md:px-16 lg:px-24 flex flex-col justify-center overflow-y-auto ${!isForgot ? 'opacity-0 pointer-events-none scale-105' : 'opacity-100 scale-100'}`}>
             <ForgotForm
               email={email}
               setEmail={setEmail}
@@ -186,7 +186,7 @@ function AuthPage() {
         {/* ============================================================ */}
         {/* SIGN UP FORM (Right side desktop, crossfade mobile) */}
         {/* ============================================================ */}
-        <div className={`absolute inset-0 md:w-1/2 h-[100dvh] flex flex-col justify-center p-8 pt-40 sm:p-12 md:px-20 lg:px-32 transition-all duration-700 ease-in-out overflow-y-auto
+        <div className={`absolute inset-0 md:w-1/2 h-[100dvh] flex flex-col justify-center p-8 pt-24 sm:p-12 md:px-16 lg:px-24 transition-all duration-700 ease-in-out overflow-y-auto
           ${isSignUp ? 'opacity-100 z-20 md:translate-x-full' : 'opacity-0 pointer-events-none z-10 md:translate-x-0'}`}>
           <SignUpForm
             email={email}
@@ -301,10 +301,11 @@ function SignInForm({ email, setEmail, onForgot, checkLimit, recordAttempt, call
         else window.location.assign("/");
       }
     } catch (err: any) {
+      console.error("[Auth] Sign in failed:", err);
       const msg = err.message || "Erro";
-      const friendly = /invalid login credentials/i.test(msg) ? "E-mail ou senha incorretos."
+      const friendly = /invalid login credentials/i.test(msg) ? "E-mail ou senha inválidos."
         : /email not confirmed/i.test(msg) ? "Confirme seu e-mail antes de entrar."
-          : msg;
+          : "E-mail ou senha inválidos.";
       toast.error(friendly);
     } finally {
       setLoading(false);
@@ -313,17 +314,25 @@ function SignInForm({ email, setEmail, onForgot, checkLimit, recordAttempt, call
 
   return (
     <form onSubmit={submit} className="w-full max-w-sm mx-auto" noValidate>
-      <h2 className="text-3xl font-bold text-white mb-2">Entrar</h2>
-      <p className="text-white/50 text-sm mb-8">Utilize suas credenciais para acessar.</p>
+      <h2 className="text-3xl font-bold text-white mb-1">Entrar</h2>
+      <p className="text-white/50 text-sm mb-6">Utilize suas credenciais para acessar.</p>
 
-      <div className="space-y-6">
+      <div className="space-y-4">
         <FloatingInput id="login-email" label="E-mail" type="email" value={email} onChange={(e: any) => setEmail(e.target.value)} error={errors.email} disabled={loading} />
-        <div className="relative">
-          <FloatingInput id="login-password" label="Senha" type={showPw ? "text" : "password"} value={password} onChange={(e: any) => setPassword(e.target.value)} error={errors.password} disabled={loading} />
-          <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-4 top-4 text-white/40 hover:text-white transition">
-            {showPw ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-          </button>
-        </div>
+        <FloatingInput 
+          id="login-password" 
+          label="Senha" 
+          type={showPw ? "text" : "password"} 
+          value={password} 
+          onChange={(e: any) => setPassword(e.target.value)} 
+          error={errors.password} 
+          disabled={loading} 
+          rightElement={
+            <button type="button" onClick={() => setShowPw(!showPw)} className="text-white/40 hover:text-white transition">
+              {showPw ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+            </button>
+          }
+        />
       </div>
 
       <div className="flex items-center justify-between mt-6 mb-6">
@@ -390,23 +399,41 @@ function SignUpForm({ email, setEmail, checkLimit, recordAttempt, callbackUrl, s
 
   return (
     <form onSubmit={submit} className="w-full max-w-sm mx-auto" noValidate>
-      <h2 className="text-3xl font-bold text-white mb-2">Criar Conta</h2>
-      <p className="text-white/50 text-sm mb-6">Preencha seus dados abaixo.</p>
+      <h2 className="text-3xl font-bold text-white mb-1">Criar Conta</h2>
+      <p className="text-white/50 text-sm mb-4">Preencha seus dados abaixo.</p>
 
-      <div className="space-y-6">
+      <div className="space-y-4">
         <FloatingInput id="reg-name" label="Nome completo" type="text" value={name} onChange={(e: any) => setName(e.target.value)} error={errors.name} disabled={loading} />
         <FloatingInput id="reg-email" label="E-mail" type="email" value={email} onChange={(e: any) => setEmail(e.target.value)} error={errors.email} disabled={loading} />
-        <div className="grid grid-cols-2 gap-4">
-          <div className="relative">
-            <FloatingInput id="reg-password" label="Senha" type={showPw ? "text" : "password"} value={password} onChange={(e: any) => setPassword(e.target.value)} error={errors.password} disabled={loading} />
-          </div>
-          <div className="relative">
-            <FloatingInput id="reg-confirm" label="Confirmar" type={showPw ? "text" : "password"} value={confirm} onChange={(e: any) => setConfirm(e.target.value)} error={errors.confirm} disabled={loading} />
-          </div>
-          <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-4 top-4 text-white/40 hover:text-white transition">
-            {showPw ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-          </button>
-        </div>
+        
+        <FloatingInput 
+          id="reg-password" 
+          label="Senha" 
+          type={showPw ? "text" : "password"} 
+          value={password} 
+          onChange={(e: any) => setPassword(e.target.value)} 
+          error={errors.password} 
+          disabled={loading}
+          rightElement={
+            <button type="button" onClick={() => setShowPw(!showPw)} className="text-white/40 hover:text-white transition">
+              {showPw ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+            </button>
+          }
+        />
+        <FloatingInput 
+          id="reg-confirm" 
+          label="Confirmar" 
+          type={showPw ? "text" : "password"} 
+          value={confirm} 
+          onChange={(e: any) => setConfirm(e.target.value)} 
+          error={errors.confirm} 
+          disabled={loading}
+          rightElement={
+            <button type="button" onClick={() => setShowPw(!showPw)} className="text-white/40 hover:text-white transition">
+              {showPw ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+            </button>
+          }
+        />
       </div>
 
       <button type="submit" disabled={loading} className="w-full rounded-full bg-brand-blue py-3.5 text-sm font-bold uppercase tracking-widest text-white shadow-md transition-all hover:bg-brand-blue-hover disabled:opacity-60 flex justify-center items-center h-[52px] mt-8">
@@ -447,10 +474,10 @@ function ForgotForm({ email, setEmail, onBack, checkLimit, setSuccessView, setLo
 
   return (
     <form onSubmit={submit} className="w-full max-w-sm mx-auto" noValidate>
-      <h2 className="text-3xl font-bold text-white mb-2">Recuperar Senha</h2>
-      <p className="text-white/50 text-sm mb-8">Enviaremos um link de redefinição para o seu e-mail.</p>
+      <h2 className="text-3xl font-bold text-white mb-1">Recuperar Senha</h2>
+      <p className="text-white/50 text-sm mb-6">Enviaremos um link de redefinição para o seu e-mail.</p>
 
-      <div className="space-y-6 mb-8">
+      <div className="space-y-4 mb-6">
         <FloatingInput id="forgot-email" label="E-mail de cadastro" type="email" value={email} onChange={(e: any) => setEmail(e.target.value)} error={errors.email} disabled={loading} />
       </div>
 
@@ -495,16 +522,21 @@ function SocialLogin({ loading, handleSocial }: any) {
 // MICRO-COMPONENTS
 // ============================================================================
 
-function FloatingInput({ id, label, type, error, ...props }: any) {
+function FloatingInput({ id, label, type, error, rightElement, ...props }: any) {
   return (
     <div className="relative">
       <input
         id={id}
         type={type}
-        className={`peer w-full h-[52px] bg-black/20 text-white rounded-lg border ${error ? 'border-brand-red' : 'border-white/10'} px-4 pt-4 pb-1 text-sm outline-none transition-all focus:border-brand-blue focus:ring-1 focus:ring-brand-blue focus:bg-black/40`}
+        className={`peer w-full h-[52px] bg-black/20 text-white rounded-lg border ${error ? 'border-brand-red' : 'border-white/10'} pl-4 pt-4 pb-1 text-sm outline-none transition-all focus:border-brand-blue focus:ring-1 focus:ring-brand-blue focus:bg-black/40 ${rightElement ? 'pr-10' : 'pr-4'}`}
         placeholder=" "
         {...props}
       />
+      {rightElement && (
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center">
+          {rightElement}
+        </div>
+      )}
       <label
         htmlFor={id}
         className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[13px] text-white/40 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-[13px] peer-focus:top-3 peer-focus:text-[10px] peer-focus:text-brand-blue peer-[&:not(:placeholder-shown)]:top-3 peer-[&:not(:placeholder-shown)]:text-[10px] peer-[&:not(:placeholder-shown)]:text-white/60"
