@@ -125,9 +125,16 @@ function AdminLayout() {
             <ShieldAlert className="size-5 shrink-0 text-amber-600" />
             <div className="flex-1">
               <span className="font-semibold">Recomendação de Segurança (MFA):</span> Sua conta
-              administrativa não possui Autenticação de Dois Fatores (MFA) configurada. Habilite o
-              MFA no console do Supabase para garantir conformidade com as diretrizes de acesso
-              seguro.
+              administrativa não possui Autenticação de Dois Fatores (MFA) configurada. O MFA
+              protege sua conta mesmo que sua senha seja comprometida.{" "}
+              <a
+                href="https://supabase.com/dashboard/project/_/auth/users"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold underline text-amber-700 hover:text-amber-900"
+              >
+                Configurar MFA agora →
+              </a>
             </div>
             <button
               onClick={() => setMfaAlert(false)}

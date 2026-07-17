@@ -180,6 +180,7 @@ function AuthPage() {
               setEmail={setEmail}
               onBack={() => setIsForgot(false)}
               checkLimit={checkLimit}
+              recordAttempt={recordAttempt}
               setSuccessView={setSuccessView}
               setLoading={setLoading}
               loading={loading}
@@ -291,7 +292,7 @@ function SignInForm({ email, setEmail, onForgot, checkLimit, recordAttempt, call
       const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
 
-      await recordAuthenticatedAttempt(recordAttempt, "login");
+      await recordAuthenticatedAttempt(recordAttempt, "login", email);
       const userIsAdmin = authData?.user ? await getUserIsAdmin(authData.user.id) : false;
       sessionStorage.setItem("ita_is_admin", userIsAdmin ? "true" : "false");
       if (remember) localStorage.setItem("ita_remember_email", email);
@@ -312,6 +313,9 @@ function SignInForm({ email, setEmail, onForgot, checkLimit, recordAttempt, call
         : /email not confirmed/i.test(msg) ? "Confirme seu e-mail antes de entrar."
           : "E-mail ou senha inválidos.";
       toast.error(friendly);
+      if (/invalid login credentials/i.test(msg)) {
+        await recordAttempt({ data: { attempt_type: "login", success: false, email } }).catch(() => {});
+      }
     } finally {
       setLoading(false);
     }
@@ -395,12 +399,15 @@ function SignUpForm({ email, setEmail, checkLimit, recordAttempt, callbackUrl, s
       });
       if (error) throw error;
 
-      await recordAuthenticatedAttempt(recordAttempt, "signup");
+      await recordAuthenticatedAttempt(recordAttempt, "signup", email);
       setSuccessView("signup");
     } catch (err: any) {
       const msg = err.message || "Erro";
       const friendly = /already registered/i.test(msg) ? "Este e-mail já está cadastrado." : msg;
       toast.error(friendly);
+      if (err.status >= 400 && err.status < 500) {
+        await recordAttempt({ data: { attempt_type: "signup", success: false, email } }).catch(() => {});
+      }
     } finally {
       setLoading(false);
     }
@@ -455,7 +462,7 @@ function SignUpForm({ email, setEmail, checkLimit, recordAttempt, callbackUrl, s
   );
 }
 
-function ForgotForm({ email, setEmail, onBack, checkLimit, setSuccessView, setLoading, loading }: any) {
+function ForgotForm({ email, setEmail, onBack, checkLimit, recordAttempt, setSuccessView, setLoading, loading }: any) {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const submit = async (e: FormEvent) => {
@@ -477,6 +484,9 @@ function ForgotForm({ email, setEmail, onBack, checkLimit, setSuccessView, setLo
       setSuccessView("forgot");
     } catch (err: any) {
       toast.error(err.message || "Erro");
+      if (err.status >= 400 && err.status < 500) {
+        await recordAttempt({ data: { attempt_type: "reset", success: false, email } }).catch(() => {});
+      }
     } finally {
       setLoading(false);
     }
@@ -563,11 +573,12 @@ function FloatingInput({ id, label, type, error, rightElement, ...props }: any) 
 // ============================================================================
 
 async function recordAuthenticatedAttempt(
-  recordAttempt: (input: { data: { attempt_type: AuthAttemptType; success?: true } }) => Promise<{ ok: boolean }>,
+  recordAttempt: (input: { data: { attempt_type: AuthAttemptType; success?: boolean; email?: string } }) => Promise<{ ok: boolean }>,
   attempt_type: AuthAttemptType,
+  email: string
 ) {
   try {
-    await recordAttempt({ data: { attempt_type, success: true } });
+    await recordAttempt({ data: { attempt_type, success: true, email } });
   } catch (error) {
     console.warn("[Auth] Skipping authenticated attempt audit:", error);
   }

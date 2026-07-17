@@ -14,7 +14,8 @@ const checkSchema = z.object({
 
 const recordSchema = z.object({
   attempt_type: z.enum(["login", "signup", "reset"]),
-  success: z.literal(true).optional(),
+  success: z.boolean().optional(),
+  email: z.string().email().max(254).optional(),
 });
 
 function clientIp() {
@@ -103,9 +104,8 @@ export const checkAuthRateLimit = createServerFn({ method: "POST" })
   });
 
 export const recordAuthAttempt = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => recordSchema.parse(d))
-  .handler(async ({ data, context }) => {
+  .handler(async ({ data }) => {
     try {
       const supabaseAdmin = await getSafeSupabaseAdmin();
 
@@ -115,13 +115,12 @@ export const recordAuthAttempt = createServerFn({ method: "POST" })
         return { ok: true };
       }
 
-      const { claims } = context as { claims?: { email?: string } };
       const ip = clientIp();
       await supabaseAdmin.from("auth_attempts").insert({
-        email: claims?.email?.toLowerCase() ?? null,
+        email: data.email?.toLowerCase() ?? null,
         ip,
         attempt_type: data.attempt_type,
-        success: true,
+        success: data.success ?? true,
       });
       return { ok: true };
     } catch (error) {
