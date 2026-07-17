@@ -2,6 +2,7 @@
 -- ItaSafety — Schema Completo (aplicar no SQL Editor do Supabase)
 -- Projeto: porgyoqngtshxdxuwaft
 -- Admin: felypelopes7@gmail.com
+-- Versao: idempotente (seguro para re-executar)
 -- ============================================================
 
 -- ============================================================
@@ -13,7 +14,7 @@ EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 
 -- ============================================================
--- 2. FUNÇÃO has_role (SECURITY INVOKER — mais seguro)
+-- 2. FUNCAO has_role (SECURITY INVOKER)
 -- ============================================================
 CREATE OR REPLACE FUNCTION public.has_role(_user_id uuid, _role public.app_role)
 RETURNS boolean
@@ -32,7 +33,7 @@ REVOKE ALL ON FUNCTION public.has_role(uuid, public.app_role) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.has_role(uuid, public.app_role) TO authenticated, service_role;
 
 -- ============================================================
--- 3. FUNÇÃO tg_set_updated_at (trigger utilitário)
+-- 3. FUNCAO tg_set_updated_at
 -- ============================================================
 CREATE OR REPLACE FUNCTION public.tg_set_updated_at()
 RETURNS trigger
@@ -66,8 +67,7 @@ ALTER TABLE public.user_roles ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Users read own roles" ON public.user_roles;
 CREATE POLICY "Users read own roles"
-  ON public.user_roles FOR SELECT
-  TO authenticated
+  ON public.user_roles FOR SELECT TO authenticated
   USING (auth.uid() = user_id);
 
 -- ============================================================
@@ -88,22 +88,21 @@ ALTER TABLE public.app_settings ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Admins manage settings" ON public.app_settings;
 CREATE POLICY "Admins manage settings"
-  ON public.app_settings FOR ALL
-  TO authenticated
+  ON public.app_settings FOR ALL TO authenticated
   USING (public.has_role(auth.uid(), 'admin'))
   WITH CHECK (public.has_role(auth.uid(), 'admin'));
 
+DROP TRIGGER IF EXISTS set_app_settings_updated_at ON public.app_settings;
 CREATE TRIGGER set_app_settings_updated_at
   BEFORE UPDATE ON public.app_settings
   FOR EACH ROW EXECUTE FUNCTION public.tg_set_updated_at();
 
--- Seed: admin email
 INSERT INTO public.app_settings (key, value)
 VALUES ('admin_email', 'felypelopes7@gmail.com')
 ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value;
 
 -- ============================================================
--- 6. FUNÇÃO handle_first_user_admin (bootstrap admin via email)
+-- 6. FUNCAO handle_first_user_admin
 -- ============================================================
 CREATE OR REPLACE FUNCTION public.handle_first_user_admin()
 RETURNS trigger
@@ -203,6 +202,7 @@ CREATE POLICY "Admins delete products"
   ON public.products FOR DELETE TO authenticated
   USING (public.has_role(auth.uid(), 'admin'));
 
+DROP TRIGGER IF EXISTS products_set_updated_at ON public.products;
 CREATE TRIGGER products_set_updated_at
   BEFORE UPDATE ON public.products
   FOR EACH ROW EXECUTE FUNCTION public.tg_set_updated_at();
@@ -248,20 +248,20 @@ CREATE POLICY "Admins delete categories"
   ON public.categories FOR DELETE TO authenticated
   USING (public.has_role(auth.uid(), 'admin'));
 
+DROP TRIGGER IF EXISTS set_categories_updated_at ON public.categories;
 CREATE TRIGGER set_categories_updated_at
   BEFORE UPDATE ON public.categories
   FOR EACH ROW EXECUTE FUNCTION public.tg_set_updated_at();
 
--- Seed categories
 INSERT INTO public.categories (name, slug, sort_order) VALUES
-  ('Proteção da Cabeça',      'protecao-cabeca',        10),
-  ('Proteção Visual',         'protecao-visual',        20),
-  ('Proteção Auditiva',       'protecao-auditiva',      30),
-  ('Proteção Respiratória',   'protecao-respiratoria',  40),
-  ('Proteção das Mãos',       'protecao-maos',          50),
-  ('Proteção dos Pés',        'protecao-pes',           60),
-  ('Vestimentas',             'vestimentas',            70),
-  ('Proteção contra Quedas',  'protecao-quedas',        80)
+  ('Protecao da Cabeca',       'protecao-cabeca',        10),
+  ('Protecao Visual',          'protecao-visual',        20),
+  ('Protecao Auditiva',        'protecao-auditiva',      30),
+  ('Protecao Respiratoria',    'protecao-respiratoria',  40),
+  ('Protecao das Maos',        'protecao-maos',          50),
+  ('Protecao dos Pes',         'protecao-pes',           60),
+  ('Vestimentas',              'vestimentas',            70),
+  ('Protecao contra Quedas',   'protecao-quedas',        80)
 ON CONFLICT (slug) DO NOTHING;
 
 -- ============================================================
@@ -305,6 +305,7 @@ CREATE POLICY "Admins delete brands"
   ON public.brands FOR DELETE TO authenticated
   USING (public.has_role(auth.uid(), 'admin'));
 
+DROP TRIGGER IF EXISTS set_brands_updated_at ON public.brands;
 CREATE TRIGGER set_brands_updated_at
   BEFORE UPDATE ON public.brands
   FOR EACH ROW EXECUTE FUNCTION public.tg_set_updated_at();
@@ -352,20 +353,20 @@ CREATE POLICY "Admins delete partners"
   ON public.partners FOR DELETE TO authenticated
   USING (public.has_role(auth.uid(), 'admin'));
 
+DROP TRIGGER IF EXISTS set_partners_updated_at ON public.partners;
 CREATE TRIGGER set_partners_updated_at
   BEFORE UPDATE ON public.partners
   FOR EACH ROW EXECUTE FUNCTION public.tg_set_updated_at();
 
--- Seed partners
 INSERT INTO public.partners (name, logo_url, href, tagline, sort_order, active) VALUES
-  ('Canada EPI',    '/partners/canada.png',  'https://www.canadaepi.com.br',       'Calçados profissionais',   10, true),
-  ('Mavaro',        '/partners/mavaro.png',  'https://www.mavaro.com.br',           'Calçados de segurança',    20, true),
-  ('Conforto',      '/partners/conforto.png','https://www.confortoepi.com.br',      'Artefatos de couro',       30, true),
-  ('Volk do Brasil','/partners/volk.png',   'https://www.volkdobrasil.com.br',     'Proteção industrial',      40, true)
+  ('Canada EPI',     '/partners/canada.png',   'https://www.canadaepi.com.br',    'Calcados profissionais', 10, true),
+  ('Mavaro',         '/partners/mavaro.png',   'https://www.mavaro.com.br',       'Calcados de seguranca',  20, true),
+  ('Conforto',       '/partners/conforto.png', 'https://www.confortoepi.com.br',  'Artefatos de couro',     30, true),
+  ('Volk do Brasil', '/partners/volk.png',     'https://www.volkdobrasil.com.br', 'Protecao industrial',    40, true)
 ON CONFLICT DO NOTHING;
 
 -- ============================================================
--- 11. TABELA auth_attempts (rate limiting)
+-- 11. TABELA auth_attempts
 -- ============================================================
 CREATE TABLE IF NOT EXISTS public.auth_attempts (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -390,7 +391,7 @@ CREATE INDEX IF NOT EXISTS idx_auth_attempts_email_time ON public.auth_attempts 
 CREATE INDEX IF NOT EXISTS idx_auth_attempts_ip_time ON public.auth_attempts (ip, created_at DESC);
 
 -- ============================================================
--- 12. STORAGE — bucket logos (para logos de parceiros)
+-- 12. STORAGE — bucket logos
 -- ============================================================
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('logos', 'logos', true)
@@ -407,25 +408,16 @@ CREATE POLICY "Logos public read"
 
 CREATE POLICY "Admins insert logos"
   ON storage.objects FOR INSERT TO authenticated
-  WITH CHECK (
-    bucket_id = 'logos'
-    AND public.has_role(auth.uid(), 'admin')
-  );
+  WITH CHECK (bucket_id = 'logos' AND public.has_role(auth.uid(), 'admin'));
 
 CREATE POLICY "Admins update logos"
   ON storage.objects FOR UPDATE TO authenticated
-  USING (
-    bucket_id = 'logos'
-    AND public.has_role(auth.uid(), 'admin')
-  );
+  USING (bucket_id = 'logos' AND public.has_role(auth.uid(), 'admin'));
 
 CREATE POLICY "Admins delete logos"
   ON storage.objects FOR DELETE TO authenticated
-  USING (
-    bucket_id = 'logos'
-    AND public.has_role(auth.uid(), 'admin')
-  );
+  USING (bucket_id = 'logos' AND public.has_role(auth.uid(), 'admin'));
 
 -- ============================================================
--- FIM — Schema ItaSafety aplicado com sucesso
+-- FIM — Schema ItaSafety v2 (idempotente)
 -- ============================================================
