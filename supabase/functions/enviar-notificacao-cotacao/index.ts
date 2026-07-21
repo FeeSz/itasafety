@@ -53,8 +53,9 @@ async function sendEmailJS(
   templateId: string,
   params: Record<string, string>
 ): Promise<{ ok: boolean; erro?: string }> {
-  const serviceId = Deno.env.get("EMAILJS_SERVICE_ID")!;
-  const privateKey = Deno.env.get("EMAILJS_PRIVATE_KEY")!;
+  const serviceId = Deno.env.get("EMAILJS_ADMIN_SERVICE_ID") || Deno.env.get("EMAILJS_SERVICE_ID")!;
+  const privateKey = Deno.env.get("EMAILJS_ADMIN_PRIVATE_KEY") || Deno.env.get("EMAILJS_PRIVATE_KEY")!;
+  const publicKey = Deno.env.get("EMAILJS_ADMIN_PUBLIC_KEY") || Deno.env.get("EMAILJS_PUBLIC_KEY")!;
 
   try {
     const res = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
@@ -63,7 +64,7 @@ async function sendEmailJS(
       body: JSON.stringify({
         service_id: serviceId,
         template_id: templateId,
-        user_id: Deno.env.get("EMAILJS_PUBLIC_KEY")!,
+        user_id: publicKey,
         accessToken: privateKey,
         template_params: params,
       }),
@@ -169,8 +170,8 @@ serve(async (req) => {
     });
 
     if (rpcErr) {
-      // Inclui o caso de "0 linhas afetadas" (ERRCODE P0001)
-      const jaRespondida = rpcErr.message?.includes("não pôde ser atualizada");
+      // Usa o HINT em vez de substring para diferenciar das outras exceções P0001
+      const jaRespondida = (rpcErr as any).hint === "cotacao_ja_respondida";
       return json({
         ok: false,
         erro: jaRespondida
@@ -204,6 +205,13 @@ serve(async (req) => {
   }
 
   const cotacaoTyped = cotacao as unknown as CotacaoData;
+
+  if (apenas_email && !["respondido", "devolvido"].includes(cotacaoTyped.status)) {
+    return json({ 
+      ok: false, 
+      erro: "A cotação precisa estar respondida ou devolvida para reenviar e-mail." 
+    }, 400);
+  }
 
   // 6. Selecionar template e disparar e-mail ────────────────────────────────
   const templateId =

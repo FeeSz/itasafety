@@ -263,7 +263,7 @@ BEGIN
       'admite resposta (respondido/devolvido), ou o ID não existe. '
       'Atualize a página e verifique o status atual.',
       _cotacao_id
-      USING ERRCODE = 'P0001';
+      USING ERRCODE = 'P0001', HINT = 'cotacao_ja_respondida';
   END IF;
 END;
 $$;
