@@ -26,7 +26,9 @@ import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MinhasCotacoesIndexRouteImport } from './routes/minhas-cotacoes/index'
 import { Route as AuthIndexRouteImport } from './routes/auth.index'
+import { Route as MinhasCotacoesIdRouteImport } from './routes/minhas-cotacoes/$id'
 import { Route as DetalhesSkuRouteImport } from './routes/detalhes.$sku'
 import { Route as DepartamentoSlugRouteImport } from './routes/departamento.$slug'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
@@ -41,6 +43,9 @@ import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_auth
 import { Route as AuthenticatedAdminBrandsRouteImport } from './routes/_authenticated/admin/brands'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
+import { Route as AuthenticatedAdminCotacoesRouteRouteImport } from './routes/_authenticated/admin/cotacoes/route'
+import { Route as AuthenticatedAdminCotacoesIndexRouteImport } from './routes/_authenticated/admin/cotacoes/index'
+import { Route as AuthenticatedAdminCotacoesIdRouteImport } from './routes/_authenticated/admin/cotacoes/$id'
 
 const TermosRoute = TermosRouteImport.update({
   id: '/termos',
@@ -126,10 +131,20 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MinhasCotacoesIndexRoute = MinhasCotacoesIndexRouteImport.update({
+  id: '/minhas-cotacoes/',
+  path: '/minhas-cotacoes/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthIndexRoute = AuthIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthRoute,
+} as any)
+const MinhasCotacoesIdRoute = MinhasCotacoesIdRouteImport.update({
+  id: '/minhas-cotacoes/$id',
+  path: '/minhas-cotacoes/$id',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const DetalhesSkuRoute = DetalhesSkuRouteImport.update({
   id: '/detalhes/$sku',
@@ -208,6 +223,24 @@ const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
   path: '/.lovable/oauth/consent',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminCotacoesRouteRoute =
+  AuthenticatedAdminCotacoesRouteRouteImport.update({
+    id: '/cotacoes',
+    path: '/cotacoes',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminCotacoesIndexRoute =
+  AuthenticatedAdminCotacoesIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAdminCotacoesRouteRoute,
+  } as any)
+const AuthenticatedAdminCotacoesIdRoute =
+  AuthenticatedAdminCotacoesIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedAdminCotacoesRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -232,7 +265,10 @@ export interface FileRoutesByFullPath {
   '/auth/callback': typeof AuthCallbackRoute
   '/departamento/$slug': typeof DepartamentoSlugRoute
   '/detalhes/$sku': typeof DetalhesSkuRoute
+  '/minhas-cotacoes/$id': typeof MinhasCotacoesIdRoute
   '/auth/': typeof AuthIndexRoute
+  '/minhas-cotacoes/': typeof MinhasCotacoesIndexRoute
+  '/admin/cotacoes': typeof AuthenticatedAdminCotacoesRouteRouteWithChildren
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/brands': typeof AuthenticatedAdminBrandsRoute
@@ -241,6 +277,8 @@ export interface FileRoutesByFullPath {
   '/admin/status': typeof AuthenticatedAdminStatusRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/admin/cotacoes/$id': typeof AuthenticatedAdminCotacoesIdRoute
+  '/admin/cotacoes/': typeof AuthenticatedAdminCotacoesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -263,7 +301,9 @@ export interface FileRoutesByTo {
   '/auth/callback': typeof AuthCallbackRoute
   '/departamento/$slug': typeof DepartamentoSlugRoute
   '/detalhes/$sku': typeof DetalhesSkuRoute
+  '/minhas-cotacoes/$id': typeof MinhasCotacoesIdRoute
   '/auth': typeof AuthIndexRoute
+  '/minhas-cotacoes': typeof MinhasCotacoesIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/brands': typeof AuthenticatedAdminBrandsRoute
@@ -272,6 +312,8 @@ export interface FileRoutesByTo {
   '/admin/status': typeof AuthenticatedAdminStatusRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/admin/cotacoes/$id': typeof AuthenticatedAdminCotacoesIdRoute
+  '/admin/cotacoes': typeof AuthenticatedAdminCotacoesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -298,7 +340,10 @@ export interface FileRoutesById {
   '/auth/callback': typeof AuthCallbackRoute
   '/departamento/$slug': typeof DepartamentoSlugRoute
   '/detalhes/$sku': typeof DetalhesSkuRoute
+  '/minhas-cotacoes/$id': typeof MinhasCotacoesIdRoute
   '/auth/': typeof AuthIndexRoute
+  '/minhas-cotacoes/': typeof MinhasCotacoesIndexRoute
+  '/_authenticated/admin/cotacoes': typeof AuthenticatedAdminCotacoesRouteRouteWithChildren
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/_authenticated/admin/brands': typeof AuthenticatedAdminBrandsRoute
@@ -307,6 +352,8 @@ export interface FileRoutesById {
   '/_authenticated/admin/status': typeof AuthenticatedAdminStatusRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/admin/cotacoes/$id': typeof AuthenticatedAdminCotacoesIdRoute
+  '/_authenticated/admin/cotacoes/': typeof AuthenticatedAdminCotacoesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -333,7 +380,10 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/departamento/$slug'
     | '/detalhes/$sku'
+    | '/minhas-cotacoes/$id'
     | '/auth/'
+    | '/minhas-cotacoes/'
+    | '/admin/cotacoes'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/admin/brands'
@@ -342,6 +392,8 @@ export interface FileRouteTypes {
     | '/admin/status'
     | '/api/public/health'
     | '/admin/'
+    | '/admin/cotacoes/$id'
+    | '/admin/cotacoes/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -364,7 +416,9 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/departamento/$slug'
     | '/detalhes/$sku'
+    | '/minhas-cotacoes/$id'
     | '/auth'
+    | '/minhas-cotacoes'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/admin/brands'
@@ -373,6 +427,8 @@ export interface FileRouteTypes {
     | '/admin/status'
     | '/api/public/health'
     | '/admin'
+    | '/admin/cotacoes/$id'
+    | '/admin/cotacoes'
   id:
     | '__root__'
     | '/'
@@ -398,7 +454,10 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/departamento/$slug'
     | '/detalhes/$sku'
+    | '/minhas-cotacoes/$id'
     | '/auth/'
+    | '/minhas-cotacoes/'
+    | '/_authenticated/admin/cotacoes'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/_authenticated/admin/brands'
@@ -407,6 +466,8 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/status'
     | '/api/public/health'
     | '/_authenticated/admin/'
+    | '/_authenticated/admin/cotacoes/$id'
+    | '/_authenticated/admin/cotacoes/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -431,6 +492,8 @@ export interface RootRouteChildren {
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   DepartamentoSlugRoute: typeof DepartamentoSlugRoute
   DetalhesSkuRoute: typeof DetalhesSkuRoute
+  MinhasCotacoesIdRoute: typeof MinhasCotacoesIdRoute
+  MinhasCotacoesIndexRoute: typeof MinhasCotacoesIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicHealthRoute: typeof ApiPublicHealthRoute
@@ -557,12 +620,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/minhas-cotacoes/': {
+      id: '/minhas-cotacoes/'
+      path: '/minhas-cotacoes'
+      fullPath: '/minhas-cotacoes/'
+      preLoaderRoute: typeof MinhasCotacoesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/': {
       id: '/auth/'
       path: '/'
       fullPath: '/auth/'
       preLoaderRoute: typeof AuthIndexRouteImport
       parentRoute: typeof AuthRoute
+    }
+    '/minhas-cotacoes/$id': {
+      id: '/minhas-cotacoes/$id'
+      path: '/minhas-cotacoes/$id'
+      fullPath: '/minhas-cotacoes/$id'
+      preLoaderRoute: typeof MinhasCotacoesIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/detalhes/$sku': {
       id: '/detalhes/$sku'
@@ -662,10 +739,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DotlovableOauthConsentRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin/cotacoes': {
+      id: '/_authenticated/admin/cotacoes'
+      path: '/cotacoes'
+      fullPath: '/admin/cotacoes'
+      preLoaderRoute: typeof AuthenticatedAdminCotacoesRouteRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/cotacoes/': {
+      id: '/_authenticated/admin/cotacoes/'
+      path: '/'
+      fullPath: '/admin/cotacoes/'
+      preLoaderRoute: typeof AuthenticatedAdminCotacoesIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminCotacoesRouteRoute
+    }
+    '/_authenticated/admin/cotacoes/$id': {
+      id: '/_authenticated/admin/cotacoes/$id'
+      path: '/$id'
+      fullPath: '/admin/cotacoes/$id'
+      preLoaderRoute: typeof AuthenticatedAdminCotacoesIdRouteImport
+      parentRoute: typeof AuthenticatedAdminCotacoesRouteRoute
+    }
   }
 }
 
+interface AuthenticatedAdminCotacoesRouteRouteChildren {
+  AuthenticatedAdminCotacoesIdRoute: typeof AuthenticatedAdminCotacoesIdRoute
+  AuthenticatedAdminCotacoesIndexRoute: typeof AuthenticatedAdminCotacoesIndexRoute
+}
+
+const AuthenticatedAdminCotacoesRouteRouteChildren: AuthenticatedAdminCotacoesRouteRouteChildren =
+  {
+    AuthenticatedAdminCotacoesIdRoute: AuthenticatedAdminCotacoesIdRoute,
+    AuthenticatedAdminCotacoesIndexRoute: AuthenticatedAdminCotacoesIndexRoute,
+  }
+
+const AuthenticatedAdminCotacoesRouteRouteWithChildren =
+  AuthenticatedAdminCotacoesRouteRoute._addFileChildren(
+    AuthenticatedAdminCotacoesRouteRouteChildren,
+  )
+
 interface AuthenticatedAdminRouteRouteChildren {
+  AuthenticatedAdminCotacoesRouteRoute: typeof AuthenticatedAdminCotacoesRouteRouteWithChildren
   AuthenticatedAdminBrandsRoute: typeof AuthenticatedAdminBrandsRoute
   AuthenticatedAdminCategoriesRoute: typeof AuthenticatedAdminCategoriesRoute
   AuthenticatedAdminPartnersRoute: typeof AuthenticatedAdminPartnersRoute
@@ -675,6 +790,8 @@ interface AuthenticatedAdminRouteRouteChildren {
 
 const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
   {
+    AuthenticatedAdminCotacoesRouteRoute:
+      AuthenticatedAdminCotacoesRouteRouteWithChildren,
     AuthenticatedAdminBrandsRoute: AuthenticatedAdminBrandsRoute,
     AuthenticatedAdminCategoriesRoute: AuthenticatedAdminCategoriesRoute,
     AuthenticatedAdminPartnersRoute: AuthenticatedAdminPartnersRoute,
@@ -733,6 +850,8 @@ const rootRouteChildren: RootRouteChildren = {
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   DepartamentoSlugRoute: DepartamentoSlugRoute,
   DetalhesSkuRoute: DetalhesSkuRoute,
+  MinhasCotacoesIdRoute: MinhasCotacoesIdRoute,
+  MinhasCotacoesIndexRoute: MinhasCotacoesIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicHealthRoute: ApiPublicHealthRoute,

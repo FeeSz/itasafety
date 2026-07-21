@@ -13,6 +13,7 @@ import {
   LogOut,
   ChevronDown,
   User,
+  ClipboardList,
 } from "lucide-react";
 import Logo from "./Logo";
 import MegaMenu from "./MegaMenu";
@@ -162,6 +163,23 @@ export default function Header() {
             <Search className="size-[22px]" />
           </button>
 
+          {/* Cart Badge */}
+          <Link
+            to="/carrinho"
+            className="group relative flex items-center gap-2 rounded-full border border-hairline bg-white/50 px-3 py-1.5 transition-all hover:bg-brand-blue-tint hover:border-brand-blue/20 hover:text-brand-blue"
+            aria-label="Minha Cotação"
+          >
+            <ShoppingCart className="size-[20px] text-[#374151] group-hover:text-brand-blue transition-colors" />
+            {count > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 grid size-5 place-items-center rounded-full bg-brand-red text-[10px] font-bold text-white shadow-sm ring-2 ring-white animate-in zoom-in-50 duration-300">
+                {count > 99 ? '99+' : count}
+              </span>
+            )}
+            <span className="hidden md:inline text-sm font-semibold text-[#111111] group-hover:text-brand-blue transition-colors">
+              Cotação
+            </span>
+          </Link>
+
           {!loading && user ? (
             <div className="relative" ref={userMenuRef}>
               <button
@@ -206,6 +224,15 @@ export default function Header() {
                     <p className="text-[10px] text-ink-muted truncate">{user.email}</p>
                   </div>
 
+                  <Link
+                    to="/minhas-cotacoes"
+                    onClick={() => setUserMenuOpen(false)}
+                    className="flex w-full items-center gap-2 px-4 py-2 text-xs font-semibold text-[#111111] hover:bg-slate-50 transition-colors"
+                  >
+                    <ClipboardList className="size-4 text-brand-blue" />
+                    Minhas Cotações
+                  </Link>
+
                   {isAdmin && (
                     <Link
                       to="/admin"
@@ -235,6 +262,7 @@ export default function Header() {
           ) : !loading ? (
             <Link
               to="/auth"
+              search={{ mode: "login" }}
               className="hidden rounded-full border border-[#111111] px-5 py-2 text-[14px] font-semibold text-[#111111] transition-all duration-150 hover:bg-[#111111] hover:text-white hover:scale-105 active:scale-95 md:block"
             >
               Entrar
@@ -427,11 +455,12 @@ export default function Header() {
                   </button>
                 </div>
               ) : (
-                <Link
-                  to="/auth"
-                  onClick={() => setDrawer(false)}
-                  className="block w-full rounded-full bg-[#111111] py-3 text-center text-[14px] font-bold text-white transition-colors hover:bg-[#374151]"
-                >
+                  <Link
+                    to="/auth"
+                    search={{ mode: "login" }}
+                    onClick={() => setDrawer(false)}
+                    className="flex w-full justify-center rounded-lg bg-brand-blue py-3.5 text-[15px] font-bold text-white shadow-[0_8px_20px_rgba(27,79,138,0.2)] transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  >
                   Entrar / Cadastrar
                 </Link>
               )}

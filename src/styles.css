@@ -216,6 +216,15 @@
   }
 }
 
+@keyframes drawCheck {
+  from {
+    stroke-dashoffset: 40;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
 @keyframes float-3d {
   0% {
     transform: perspective(1000px) translateY(0) rotateY(0deg) rotateX(5deg);

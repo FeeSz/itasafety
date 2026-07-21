@@ -300,7 +300,7 @@ function DetalhesPage() {
               className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-md bg-brand-blue px-6 py-3.5 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:bg-brand-blue-hover hover:shadow-lift sm:w-auto"
             >
               <ShoppingCart className="size-5" />
-              Adicionar à Lista de Cotação
+              Adicionar à Cotação
             </button>
 
             <div className="mt-8 grid grid-cols-3 gap-4 border-t border-hairline pt-6 text-center text-xs text-ink-muted">

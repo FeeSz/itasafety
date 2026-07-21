@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
-import { LogOut, Home, Tag, Award, ShieldAlert, LayoutDashboard } from "lucide-react";
+import { LogOut, Home, Tag, Award, ShieldAlert, LayoutDashboard, ClipboardList } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect, useRef, useState } from "react";
 
@@ -98,6 +98,9 @@ function AdminLayout() {
               </Link>
               <Link to="/admin/partners" activeProps={activeProps} className={navItem}>
                 <Award className="size-4" /> Parceiros
+              </Link>
+              <Link to="/admin/cotacoes" activeProps={activeProps} className={navItem}>
+                <ClipboardList className="size-4" /> Cotações
               </Link>
             </nav>
           </div>

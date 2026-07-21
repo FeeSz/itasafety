@@ -11,6 +11,22 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/tanstack/vite";
 import type { Plugin } from "vite";
 
+// Load .env.local so process.env is populated for the `define` block below.
+// Vite reads .env.local for import.meta.env automatically, but the `define`
+// replacements run at config-time from process.env, so we must load it manually.
+const envLocalPath = path.resolve(import.meta.dirname, ".env.local");
+if (fs.existsSync(envLocalPath)) {
+  const envContent = fs.readFileSync(envLocalPath, "utf-8");
+  for (const line of envContent.split(/\r?\n/)) {
+    const match = line.match(/^([^#=]+)=(.*)$/);
+    if (match) {
+      const key = match[1].trim();
+      const value = match[2].trim().replace(/^["']|["']$/g, "");
+      if (!process.env[key]) process.env[key] = value;
+    }
+  }
+}
+
 const GITHUB_PAGES_BASE = "/itasafety/";
 
 const SENSITIVE_PUBLIC_FILE_NAMES = new Set([
