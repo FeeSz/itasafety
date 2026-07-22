@@ -37,16 +37,6 @@ export default function FormSuccess() {
           <strong className="text-ink">24h úteis</strong>. Verifique sua caixa de entrada.
         </p>
       </div>
-
-      <a
-        href="https://wa.me/5511517856555"
-        target="_blank"
-        rel="noreferrer"
-        className="inline-flex items-center gap-2 rounded-full border border-green-200 bg-green-50 px-5 py-2.5 text-sm font-semibold text-green-700 transition-colors hover:bg-green-100"
-      >
-        <MessageCircle className="size-4" />
-        Prefere resposta imediata? WhatsApp
-      </a>
     </div>
   );
 }

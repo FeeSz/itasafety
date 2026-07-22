@@ -73,8 +73,8 @@ serve(async (req: Request) => {
     const { data: cotacao, error: fetchErr } = await supabaseUser
       .from("cotacoes")
       .select(`
-        id, numero_cotacao, empresa, nome_contato, email_contato, telefone, status, notificacao_enviada_em,
-        cotacao_itens(sku, nome, quantidade)
+        id, numero_cotacao, empresa, cnpj, nome_contato, email_contato, telefone, status, notificacao_enviada_em, observacoes,
+        cotacao_itens(sku, nome, quantidade, ca_number)
       `)
       .eq("id", cotacao_id)
       .single();
@@ -102,28 +102,37 @@ serve(async (req: Request) => {
     }
 
     const numFormatado = String(cotacao.numero_cotacao).padStart(4, "0");
-    const itensTexto = cotacao.cotacao_itens.map((i: any) => `- ${i.nome} (Qtd: ${i.quantidade})`).join("\n");
+    const messageText = cotacao.cotacao_itens.map((i: any) => 
+      `- ${i.nome} (SKU: ${i.sku})${i.ca_number ? ` | CA: ${i.ca_number}` : ''}\n  Quantidade: ${i.quantidade}`
+    ).join("\n\n");
+    const obsText = cotacao.observacoes ? `\nObservações: ${cotacao.observacoes}\n` : "";
     const linkAdmin = `${SITE_URL}/admin/cotacoes/${cotacao_id}`;
     const linkCliente = `${SITE_URL}/minhas-cotacoes/${cotacao_id}`;
 
     // Disparos
     const envioCliente = await sendEmailJS(templateCliente, {
       empresa: cotacao.empresa,
+      cnpj: cotacao.cnpj || "Não informado",
       nome_contato: cotacao.nome_contato,
       email_contato: cotacao.email_contato,
       telefone: cotacao.telefone,
       numero_cotacao: numFormatado,
-      itens_texto: itensTexto,
+      demand_type: "Cotação de Carrinho",
+      message: obsText || "Sem observações.",
+      itens_texto: messageText,
       link_cotacao: linkCliente
     });
 
     const envioAdmin = await sendEmailJS(templateAdmin, {
       empresa: cotacao.empresa,
+      cnpj: cotacao.cnpj || "Não informado",
       nome_contato: cotacao.nome_contato,
       email_contato: emailAdmin,
       telefone: cotacao.telefone,
       numero_cotacao: numFormatado,
-      itens_texto: itensTexto,
+      demand_type: "Cotação de Carrinho",
+      message: obsText || "Sem observações.",
+      itens_texto: messageText,
       link_cotacao: linkAdmin
     });
 
