@@ -18,6 +18,8 @@ import {
   CheckCircle2,
   XCircle,
   Clock,
+  DollarSign,
+  FileText
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/cotacoes/$id")({
@@ -38,6 +40,9 @@ type CotacaoDetalhe = {
   status: StatusCotacao;
   proposta_mensagem: string | null;
   motivo_devolucao: string | null;
+  impostos: string | null;
+  prazo_entrega: string | null;
+  condicoes_pagamento: string | null;
   visualizado_em: string | null;
   created_at: string;
   cotacao_itens: Array<{
@@ -46,6 +51,7 @@ type CotacaoDetalhe = {
     nome: string;
     ca_number: string | null;
     quantidade: number;
+    preco_unitario: number | null;
     categoria: string | null;
     image_url: string | null;
   }>;
@@ -79,7 +85,14 @@ function AdminCotacaoDetailPage() {
   const markedRef = useRef(false);
 
   const [modo, setModo] = useState<"responder" | "devolver" | null>(null);
+  
+  // Estados para proposta estruturada
   const [proposta, setProposta] = useState("");
+  const [impostos, setImpostos] = useState("");
+  const [prazo_entrega, setPrazoEntrega] = useState("");
+  const [condicoes_pagamento, setCondicoesPagamento] = useState("");
+  const [precos, setPrecos] = useState<Record<string, string>>({});
+  
   const [motivo, setMotivo] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [reenvio, setReenvio] = useState(false);
@@ -92,8 +105,9 @@ function AdminCotacaoDetailPage() {
         .select(`
           id, numero_cotacao, empresa, cnpj, nome_contato, email_contato,
           telefone, observacoes, status, proposta_mensagem, motivo_devolucao,
+          impostos, prazo_entrega, condicoes_pagamento,
           visualizado_em, created_at,
-          cotacao_itens(id, sku, nome, ca_number, quantidade, categoria, image_url),
+          cotacao_itens(id, sku, nome, ca_number, quantidade, preco_unitario, categoria, image_url),
           cotacao_historico_status(id, status_anterior, status_novo, created_at),
           cotacao_notificacoes(id, tipo, status_envio, erro, tentativas, updated_at)
         `)
@@ -104,7 +118,7 @@ function AdminCotacaoDetailPage() {
     },
   });
 
-  // Transição automática Enviado → Em Análise ao abrir (guarda no banco)
+  // Transição automática Enviado → Em Análise ao abrir
   useEffect(() => {
     if (!cotacao || markedRef.current) return;
     if (cotacao.status !== "enviado") return;
@@ -120,8 +134,19 @@ function AdminCotacaoDetailPage() {
 
   // Pré-preencher campos ao trocar de modo
   useEffect(() => {
-    if (modo === "responder" && cotacao?.proposta_mensagem) {
-      setProposta(cotacao.proposta_mensagem);
+    if (modo === "responder" && cotacao) {
+      setProposta(cotacao.proposta_mensagem ?? "");
+      setImpostos(cotacao.impostos ?? "");
+      setPrazoEntrega(cotacao.prazo_entrega ?? "");
+      setCondicoesPagamento(cotacao.condicoes_pagamento ?? "");
+      
+      const p: Record<string, string> = {};
+      cotacao.cotacao_itens.forEach(item => {
+        if (item.preco_unitario) {
+          p[item.id] = Number(item.preco_unitario).toFixed(2).replace('.', ',');
+        }
+      });
+      setPrecos(p);
     }
     if (modo === "devolver" && cotacao?.motivo_devolucao) {
       setMotivo(cotacao.motivo_devolucao);
@@ -148,27 +173,48 @@ function AdminCotacaoDetailPage() {
   }
 
   async function handleResponder() {
-    if (!proposta.trim()) {
-      toast.error("Escreva a proposta antes de enviar.");
+    const itensPayload = cotacao?.cotacao_itens.map(i => {
+      const pStr = precos[i.id] ?? "0";
+      return {
+        id: i.id,
+        preco_unitario: Number(pStr.replace(',', '.'))
+      };
+    }) ?? [];
+
+    if (itensPayload.some(i => i.preco_unitario <= 0)) {
+      toast.error("Preencha o preço unitário válido para todos os itens.");
       return;
     }
+
+    if (!prazo_entrega.trim() || !condicoes_pagamento.trim()) {
+      toast.error("Preencha as condições de pagamento e prazo de entrega.");
+      return;
+    }
+
     setEnviando(true);
     try {
       const result = await callEdgeFunction({
+        acao: "resposta_admin",
         cotacao_id: id,
         status_novo: "respondido",
         proposta_mensagem: proposta,
+        impostos,
+        prazo_entrega,
+        condicoes_pagamento,
+        itens: itensPayload
       });
 
-      if (!result.ok) {
+      if (!result.ok && !result.warning) {
         toast.error(result.erro ?? "Erro ao responder cotação.");
         return;
       }
 
-      toast.success("Proposta enviada com sucesso!");
-      if (!result.email_enviado) {
-        toast.warning(result.aviso ?? "E-mail não enviado — use 'Reenviar' no painel.");
+      if (result.warning) {
+        toast.warning(result.warning, { duration: 6000 });
+      } else {
+        toast.success("Proposta enviada com sucesso!");
       }
+      
       setModo(null);
       qc.invalidateQueries({ queryKey: ["admin-cotacao", id] });
       qc.invalidateQueries({ queryKey: ["admin-cotacoes"] });
@@ -187,20 +233,23 @@ function AdminCotacaoDetailPage() {
     setEnviando(true);
     try {
       const result = await callEdgeFunction({
+        acao: "resposta_admin",
         cotacao_id: id,
         status_novo: "devolvido",
         motivo_devolucao: motivo,
       });
 
-      if (!result.ok) {
+      if (!result.ok && !result.warning) {
         toast.error(result.erro ?? "Erro ao devolver cotação.");
         return;
       }
 
-      toast.success("Cotação devolvida.");
-      if (!result.email_enviado) {
-        toast.warning(result.aviso ?? "E-mail não enviado — use 'Reenviar' no painel.");
+      if (result.warning) {
+        toast.warning(result.warning, { duration: 6000 });
+      } else {
+        toast.success("Cotação devolvida.");
       }
+      
       setModo(null);
       qc.invalidateQueries({ queryKey: ["admin-cotacao", id] });
       qc.invalidateQueries({ queryKey: ["admin-cotacoes"] });
@@ -215,14 +264,15 @@ function AdminCotacaoDetailPage() {
     setReenvio(true);
     try {
       const result = await callEdgeFunction({
+        acao: "resposta_admin",
         cotacao_id: id,
         apenas_email: true,
       });
 
-      if (result.email_enviado) {
+      if (result.ok || result.email_enviado) {
         toast.success("E-mail reenviado com sucesso!");
       } else {
-        toast.error(result.aviso ?? "Falha no reenvio. Tente mais tarde.");
+        toast.error(result.aviso ?? result.erro ?? "Falha no reenvio. Tente mais tarde.");
       }
       qc.invalidateQueries({ queryKey: ["admin-cotacao", id] });
     } catch {
@@ -290,8 +340,8 @@ function AdminCotacaoDetailPage() {
           <div className="flex items-center gap-2 text-amber-800 text-sm">
             <AlertTriangle className="size-4 shrink-0 text-amber-500" />
             <span>
-              <strong>Proposta salva, mas o e-mail não foi enviado ao cliente.</strong>{" "}
-              Clique em "Reenviar" para tentar novamente.
+              <strong>Operação salva, mas o e-mail falhou.</strong>{" "}
+              Clique em "Reenviar" para tentar notificar o cliente novamente.
             </span>
           </div>
           <button
@@ -328,7 +378,7 @@ function AdminCotacaoDetailPage() {
             )}
           </section>
 
-          {/* Produtos solicitados */}
+          {/* Produtos solicitados e Precificação (se responder) */}
           <section className="rounded-xl border border-hairline bg-white p-5 shadow-card">
             <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-ink-muted">
               <span className="flex items-center gap-2">
@@ -338,7 +388,7 @@ function AdminCotacaoDetailPage() {
             </h3>
             <div className="divide-y divide-hairline">
               {cotacao.cotacao_itens.map((item) => (
-                <div key={item.id} className="flex items-center gap-3 py-3">
+                <div key={item.id} className="flex items-center gap-3 py-3 flex-wrap sm:flex-nowrap">
                   {item.image_url ? (
                     <img
                       src={item.image_url}
@@ -355,24 +405,59 @@ function AdminCotacaoDetailPage() {
                     <p className="text-xs text-ink-muted">
                       SKU: {item.sku}
                       {item.ca_number && ` · CA: ${item.ca_number}`}
-                      {item.categoria && ` · ${item.categoria}`}
                     </p>
                   </div>
                   <span className="shrink-0 rounded-full bg-brand-blue-tint px-2.5 py-0.5 text-xs font-bold text-brand-blue">
                     Qtd: {item.quantidade}
                   </span>
+                  
+                  {/* Campo de preço unitário aparece durante a resposta */}
+                  {modo === "responder" && (
+                    <div className="w-full sm:w-32 flex items-center gap-1.5 shrink-0 mt-2 sm:mt-0 relative">
+                      <span className="text-sm font-semibold text-ink-soft absolute left-3 top-2">R$</span>
+                      <input
+                        type="text"
+                        placeholder="0,00"
+                        value={precos[item.id] || ""}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/[^0-9,]/g, "");
+                          setPrecos(prev => ({ ...prev, [item.id]: val }));
+                        }}
+                        className="w-full rounded border border-hairline py-1.5 pl-9 pr-3 text-sm font-bold text-ink outline-none focus:border-brand-blue focus:ring-1 focus:ring-brand-blue"
+                      />
+                    </div>
+                  )}
+                  {isFinished && item.preco_unitario !== null && (
+                    <div className="w-full sm:w-auto text-right mt-2 sm:mt-0 font-mono text-sm font-bold text-green-700 bg-green-50 px-2 py-1 rounded">
+                      R$ {Number(item.preco_unitario).toFixed(2).replace('.', ',')}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
           </section>
 
           {/* Resposta atual (se já respondida/devolvida) */}
-          {cotacao.status === "respondido" && cotacao.proposta_mensagem && (
-            <section className="rounded-xl border border-green-200 bg-green-50 p-5">
-              <h3 className="mb-2 text-xs font-bold uppercase tracking-wider text-green-700">
-                Proposta Enviada
+          {cotacao.status === "respondido" && (
+            <section className="rounded-xl border border-green-200 bg-green-50 p-5 space-y-4">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-green-700">
+                Proposta Comercial Enviada
               </h3>
-              <p className="whitespace-pre-wrap text-sm text-green-900">{cotacao.proposta_mensagem}</p>
+              
+              <div className="grid gap-3 sm:grid-cols-2 text-sm text-green-900 bg-white/50 p-3 rounded-lg border border-green-200/50">
+                <InfoLine icon={<FileText className="size-4" />} label="Prazo de Entrega" value={cotacao.prazo_entrega || "—"} />
+                <InfoLine icon={<DollarSign className="size-4" />} label="Condições de Pagamento" value={cotacao.condicoes_pagamento || "—"} />
+                <div className="sm:col-span-2">
+                  <InfoLine icon={<FileText className="size-4" />} label="Impostos" value={cotacao.impostos || "Inclusos no preço."} />
+                </div>
+              </div>
+              
+              {cotacao.proposta_mensagem && (
+                <div className="text-sm text-green-900 border-t border-green-200 pt-3">
+                  <strong className="block mb-1 opacity-80 text-xs">Mensagem Adicional:</strong>
+                  <p className="whitespace-pre-wrap">{cotacao.proposta_mensagem}</p>
+                </div>
+              )}
             </section>
           )}
           {cotacao.status === "devolvido" && cotacao.motivo_devolucao && (
@@ -388,7 +473,7 @@ function AdminCotacaoDetailPage() {
           {!isFinished && (
             <section className="rounded-xl border border-hairline bg-white p-5 shadow-card space-y-4">
               <h3 className="text-xs font-bold uppercase tracking-wider text-ink-muted">
-                Responder Cotação
+                Finalizar Cotação
               </h3>
 
               {modo === null && (
@@ -398,44 +483,79 @@ function AdminCotacaoDetailPage() {
                     onClick={() => setModo("responder")}
                     className="flex-1 flex items-center justify-center gap-2 rounded-lg bg-brand-blue px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-blue/90 transition-colors"
                   >
-                    <Send className="size-4" /> Enviar Proposta
+                    <Send className="size-4" /> Preencher Proposta
                   </button>
                   <button
                     type="button"
                     onClick={() => setModo("devolver")}
                     className="flex-1 flex items-center justify-center gap-2 rounded-lg border border-brand-red/30 bg-red-50 px-4 py-2.5 text-sm font-bold text-brand-red hover:bg-red-100 transition-colors"
                   >
-                    <XCircle className="size-4" /> Devolver Cotação
+                    <XCircle className="size-4" /> Devolver / Recusar
                   </button>
                 </div>
               )}
 
               {modo === "responder" && (
-                <div className="space-y-3">
-                  <label className="block text-sm font-semibold text-ink">
-                    Proposta Comercial
-                  </label>
-                  <textarea
-                    value={proposta}
-                    onChange={(e) => setProposta(e.target.value)}
-                    rows={6}
-                    placeholder="Ex.: Prezado cliente, segue proposta para os itens solicitados…&#10;&#10;Valor total estimado: R$ X.XXX,00&#10;Prazo de entrega: 5 dias úteis&#10;Condições de pagamento: 30/60 dias&#10;Validade da proposta: 7 dias"
-                    className="w-full rounded-lg border border-hairline px-3 py-2 text-sm outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/10 resize-none"
-                  />
-                  <div className="flex gap-2">
+                <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                  <div className="grid gap-4 sm:grid-cols-2 bg-surface-sunken p-4 rounded-xl border border-hairline">
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-bold text-ink">Prazo de Entrega <span className="text-brand-red">*</span></label>
+                      <input 
+                        type="text" 
+                        value={prazo_entrega}
+                        onChange={e => setPrazoEntrega(e.target.value)}
+                        placeholder="Ex: 5 a 10 dias úteis" 
+                        className="w-full rounded border border-hairline px-3 py-2 text-sm outline-none focus:border-brand-blue" 
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-bold text-ink">Condições de Pagamento <span className="text-brand-red">*</span></label>
+                      <input 
+                        type="text" 
+                        value={condicoes_pagamento}
+                        onChange={e => setCondicoesPagamento(e.target.value)}
+                        placeholder="Ex: 28/56 dias via Boleto" 
+                        className="w-full rounded border border-hairline px-3 py-2 text-sm outline-none focus:border-brand-blue" 
+                      />
+                    </div>
+                    <div className="sm:col-span-2 space-y-1.5">
+                      <label className="block text-xs font-bold text-ink">Impostos</label>
+                      <input 
+                        type="text" 
+                        value={impostos}
+                        onChange={e => setImpostos(e.target.value)}
+                        placeholder="Ex: ICMS ST incluso. IPI destacado." 
+                        className="w-full rounded border border-hairline px-3 py-2 text-sm outline-none focus:border-brand-blue" 
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="block text-sm font-bold text-ink">Mensagem Adicional (Opcional)</label>
+                    <textarea
+                      value={proposta}
+                      onChange={(e) => setProposta(e.target.value)}
+                      rows={3}
+                      placeholder="Alguma observação comercial ou termo para adicionar à resposta..."
+                      className="w-full rounded border border-hairline px-3 py-2 text-sm outline-none focus:border-brand-blue resize-none"
+                    />
+                  </div>
+
+                  <div className="flex gap-2 pt-2">
                     <button
                       type="button"
                       onClick={handleResponder}
                       disabled={enviando}
-                      className="flex items-center gap-2 rounded-lg bg-brand-blue px-4 py-2 text-sm font-bold text-white hover:bg-brand-blue/90 disabled:opacity-60 transition-colors"
+                      className="flex items-center gap-2 rounded-lg bg-brand-blue px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-blue/90 disabled:opacity-60 transition-colors"
                     >
                       {enviando ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
-                      Confirmar Envio
+                      Confirmar Envio da Proposta
                     </button>
                     <button
                       type="button"
                       onClick={() => setModo(null)}
-                      className="rounded-lg border border-hairline px-4 py-2 text-sm font-semibold text-ink-muted hover:bg-surface-sunken transition-colors"
+                      disabled={enviando}
+                      className="rounded-lg border border-hairline px-5 py-2.5 text-sm font-semibold text-ink-muted hover:bg-surface-sunken disabled:opacity-60 transition-colors"
                     >
                       Cancelar
                     </button>
@@ -444,7 +564,7 @@ function AdminCotacaoDetailPage() {
               )}
 
               {modo === "devolver" && (
-                <div className="space-y-3">
+                <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
                   <label className="block text-sm font-semibold text-ink">
                     Motivo da Devolução <span className="text-brand-red">*</span>
                   </label>
@@ -452,15 +572,15 @@ function AdminCotacaoDetailPage() {
                     value={motivo}
                     onChange={(e) => setMotivo(e.target.value)}
                     rows={4}
-                    placeholder="Ex.: Item indisponível em estoque · Fora da área de atendimento · Dados incompletos, por favor reenvie com CNPJ."
-                    className="w-full rounded-lg border border-hairline px-3 py-2 text-sm outline-none focus:border-brand-red focus:ring-2 focus:ring-brand-red/10 resize-none"
+                    placeholder="Ex.: Item indisponível em estoque · Dados incompletos, por favor reenvie com CNPJ."
+                    className="w-full rounded-lg border border-hairline px-3 py-2 text-sm outline-none focus:border-brand-red resize-none"
                   />
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 pt-2">
                     <button
                       type="button"
                       onClick={handleDevolver}
                       disabled={enviando}
-                      className="flex items-center gap-2 rounded-lg bg-brand-red px-4 py-2 text-sm font-bold text-white hover:bg-brand-red/90 disabled:opacity-60 transition-colors"
+                      className="flex items-center gap-2 rounded-lg bg-brand-red px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-red/90 disabled:opacity-60 transition-colors"
                     >
                       {enviando ? <Loader2 className="size-4 animate-spin" /> : <XCircle className="size-4" />}
                       Devolver Cotação
@@ -468,7 +588,8 @@ function AdminCotacaoDetailPage() {
                     <button
                       type="button"
                       onClick={() => setModo(null)}
-                      className="rounded-lg border border-hairline px-4 py-2 text-sm font-semibold text-ink-muted hover:bg-surface-sunken transition-colors"
+                      disabled={enviando}
+                      className="rounded-lg border border-hairline px-5 py-2.5 text-sm font-semibold text-ink-muted hover:bg-surface-sunken transition-colors"
                     >
                       Cancelar
                     </button>

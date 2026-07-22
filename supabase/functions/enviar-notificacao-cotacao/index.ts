@@ -1,39 +1,5 @@
-import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-// ── Tipos ────────────────────────────────────────────────────────────────────
-
-type CotacaoStatus = "respondido" | "devolvido";
-
-interface RequestBody {
-  cotacao_id: string;
-  status_novo?: CotacaoStatus;
-  proposta_mensagem?: string;
-  motivo_devolucao?: string;
-  apenas_email?: boolean; // true = reenvio, pula UPDATE de status
-}
-
-interface CotacaoData {
-  id: string;
-  numero_cotacao: number;
-  empresa: string;
-  cnpj: string | null;
-  nome_contato: string;
-  email_contato: string;
-  telefone: string;
-  proposta_mensagem: string | null;
-  motivo_devolucao: string | null;
-  status: CotacaoStatus;
-  cotacao_itens: Array<{
-    sku: string;
-    nome: string;
-    ca_number: string | null;
-    quantidade: number;
-    categoria: string | null;
-  }>;
-}
-
-// ── Helpers ──────────────────────────────────────────────────────────────────
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -47,12 +13,7 @@ function json(body: unknown, status = 200) {
   });
 }
 
-// ── Envio via EmailJS REST API (server-side, chave privada nunca no bundle) ──
-
-async function sendEmailJS(
-  templateId: string,
-  params: Record<string, string>
-): Promise<{ ok: boolean; erro?: string }> {
+async function sendEmailJS(templateId: string, params: Record<string, string>): Promise<{ ok: boolean; erro?: string }> {
   const serviceId = Deno.env.get("EMAILJS_ADMIN_SERVICE_ID") || Deno.env.get("EMAILJS_SERVICE_ID")!;
   const privateKey = Deno.env.get("EMAILJS_ADMIN_PRIVATE_KEY") || Deno.env.get("EMAILJS_PRIVATE_KEY")!;
   const publicKey = Deno.env.get("EMAILJS_ADMIN_PUBLIC_KEY") || Deno.env.get("EMAILJS_PUBLIC_KEY")!;
@@ -69,52 +30,25 @@ async function sendEmailJS(
         template_params: params,
       }),
     });
-
     if (!res.ok) {
       const text = await res.text();
-      return { ok: false, erro: `EmailJS ${res.status}: ${text}` };
+      return { ok: false, erro: text || `HTTP ${res.status}` };
     }
     return { ok: true };
-  } catch (err) {
-    return { ok: false, erro: String(err) };
+  } catch (err: any) {
+    return { ok: false, erro: err.message };
   }
 }
 
-function buildTemplateParams(cotacao: CotacaoData): Record<string, string> {
-  const itensTexto = cotacao.cotacao_itens
-    .map(
-      (i) =>
-        `• ${i.nome} (SKU: ${i.sku})${i.ca_number ? ` | CA: ${i.ca_number}` : ""}\n  Qtd: ${i.quantidade}`
-    )
-    .join("\n\n");
-
-  const numFormatado = String(cotacao.numero_cotacao).padStart(4, "0");
-
-  return {
-    numero_cotacao:    `#${numFormatado}`,
-    empresa:           cotacao.empresa,
-    cnpj:              cotacao.cnpj ?? "Não informado",
-    nome_contato:      cotacao.nome_contato,
-    email_contato:     cotacao.email_contato,
-    telefone:          cotacao.telefone,
-    itens_texto:       itensTexto,
-    proposta_mensagem: cotacao.proposta_mensagem ?? "",
-    motivo_devolucao:  cotacao.motivo_devolucao ?? "",
-    link_cotacao:      `${Deno.env.get("SITE_URL") ?? "https://itasafety.com.br"}/minhas-cotacoes/${cotacao.id}`,
-  };
-}
-
-// ── Handler principal ─────────────────────────────────────────────────────────
-
-serve(async (req) => {
+// Handler principal
+serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   if (req.method !== "POST") return json({ erro: "Método não permitido" }, 405);
 
-  // 1. Extrair e validar JWT do admin ─────────────────────────────────────────
   const authHeader = req.headers.get("Authorization");
   if (!authHeader) return json({ erro: "Não autorizado" }, 401);
 
-  // Client de usuário — usado para verificar a identidade do chamador
+  // Client autenticado via JWT Forwarding
   const supabaseUser = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_ANON_KEY")!,
@@ -124,132 +58,195 @@ serve(async (req) => {
   const { data: { user }, error: userErr } = await supabaseUser.auth.getUser();
   if (userErr || !user) return json({ erro: "Não autorizado" }, 401);
 
-  // Client service_role — usado para chamadas privilegiadas ao banco
-  const supabaseAdmin = createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-  );
+  let body;
+  try { body = await req.json(); } catch { return json({ erro: "Corpo inválido" }, 400); }
 
-  // Verificar que o usuário autenticado é admin via has_role
-  const { data: isAdminRow } = await supabaseAdmin
-    .rpc("has_role", { _user_id: user.id, _role: "admin" });
-
-  if (!isAdminRow) return json({ erro: "Acesso negado: apenas administradores." }, 403);
-
-  // admin_id extraído do JWT validado — nunca do corpo da requisição
-  const adminId = user.id;
-
-  // 2. Ler e validar corpo ────────────────────────────────────────────────────
-  let body: RequestBody;
-  try {
-    body = await req.json();
-  } catch {
-    return json({ erro: "Corpo inválido" }, 400);
-  }
-
-  const { cotacao_id, status_novo, proposta_mensagem, motivo_devolucao, apenas_email } = body;
-
+  const { acao, cotacao_id } = body;
   if (!cotacao_id) return json({ erro: "cotacao_id obrigatório" }, 400);
 
-  if (!apenas_email) {
-    // Fluxo normal: precisa de status_novo
-    if (!status_novo || !["respondido", "devolvido"].includes(status_novo)) {
-      return json({ erro: "status_novo deve ser 'respondido' ou 'devolvido'" }, 400);
-    }
-    if (status_novo === "devolvido" && !motivo_devolucao?.trim()) {
-      return json({ erro: "motivo_devolucao é obrigatório ao devolver" }, 400);
+  const SITE_URL = Deno.env.get("SITE_URL") || "https://itasafety.com.br";
+
+  // -------------------------------------------------------------------------
+  // AÇÃO A: nova_cotacao (Cliente acabou de pedir cotação)
+  // -------------------------------------------------------------------------
+  if (acao === "nova_cotacao") {
+    const { data: cotacao, error: fetchErr } = await supabaseUser
+      .from("cotacoes")
+      .select(`
+        id, numero_cotacao, empresa, nome_contato, email_contato, telefone, status, notificacao_enviada_em,
+        cotacao_itens(sku, nome, quantidade)
+      `)
+      .eq("id", cotacao_id)
+      .single();
+
+    if (fetchErr || !cotacao) return json({ erro: "Cotação não encontrada ou acesso negado." }, 404);
+
+    if (cotacao.status !== "enviado") return json({ erro: "Cotação já está em processamento." }, 400);
+
+    // Proteção contra disparo duplicado (Duplo Clique / Retries)
+    if (cotacao.notificacao_enviada_em) {
+      return json({ erro: "Notificação já enviada para esta cotação anteriormente." }, 400);
     }
 
-    // 3. Chamar responder_cotacao (set_config + UPDATE na mesma transação) ────
-    const { error: rpcErr } = await supabaseAdmin.rpc("responder_cotacao", {
-      _cotacao_id:        cotacao_id,
-      _admin_id:          adminId,
-      _status_novo:       status_novo,
-      _proposta_mensagem: proposta_mensagem ?? null,
-      _motivo_devolucao:  motivo_devolucao ?? null,
+    const emailAdmin = Deno.env.get("ADMIN_QUOTES_EMAIL");
+    if (!emailAdmin) {
+      console.error("[ERRO CRÍTICO] ADMIN_QUOTES_EMAIL não está configurado nas variáveis de ambiente!");
+      return json({ erro: "Falha de configuração do servidor (E-mail Admin ausente)." }, 500);
+    }
+    
+    const templateCliente = Deno.env.get("EMAILJS_TEMPLATE_ID_COTACAO");
+    const templateAdmin = Deno.env.get("EMAILJS_TEMPLATE_ID_NOVA_COTACAO_ADMIN");
+    
+    if (!templateCliente || !templateAdmin) {
+      return json({ erro: "Templates de e-mail ausentes nas variáveis de ambiente." }, 500);
+    }
+
+    const numFormatado = String(cotacao.numero_cotacao).padStart(4, "0");
+    const itensTexto = cotacao.cotacao_itens.map((i: any) => `- ${i.nome} (Qtd: ${i.quantidade})`).join("\n");
+    const linkAdmin = `${SITE_URL}/admin/cotacoes/${cotacao_id}`;
+    const linkCliente = `${SITE_URL}/minhas-cotacoes/${cotacao_id}`;
+
+    // Disparos
+    const envioCliente = await sendEmailJS(templateCliente, {
+      empresa: cotacao.empresa,
+      nome_contato: cotacao.nome_contato,
+      email_contato: cotacao.email_contato,
+      telefone: cotacao.telefone,
+      numero_cotacao: numFormatado,
+      itens_texto: itensTexto,
+      link_cotacao: linkCliente
+    });
+
+    const envioAdmin = await sendEmailJS(templateAdmin, {
+      empresa: cotacao.empresa,
+      nome_contato: cotacao.nome_contato,
+      email_contato: emailAdmin,
+      telefone: cotacao.telefone,
+      numero_cotacao: numFormatado,
+      itens_texto: itensTexto,
+      link_cotacao: linkAdmin
+    });
+
+    // Tratamento robusto e não-silencioso de falhas parciais/totais
+    const falhaCliente = !envioCliente.ok;
+    const falhaAdmin = !envioAdmin.ok;
+
+    if (falhaCliente && falhaAdmin) {
+      console.error("[ERRO EmailJS] Ambos falharam:", envioCliente.erro, envioAdmin.erro);
+      return json({ erro: "Falha geral ao enviar notificações por e-mail." }, 500);
+    }
+
+    // DECISÃO DE ARQUITETURA (Recomendação adotada):
+    // Só atualizamos 'notificacao_enviada_em' se AMBOS os envios tiverem sucesso.
+    // Isso permite que um "retry" futuro pelo front-end não seja bloqueado caso 
+    // um dos e-mails (ex: o do Admin) tenha falhado por limite de cota da API.
+    if (falhaCliente || falhaAdmin) {
+      const msg = falhaAdmin 
+        ? "Cotação salva, mas aviso ao administrador falhou."
+        : "Cotação salva, mas recibo para o cliente falhou.";
+      console.error("[ERRO EmailJS Parcial]", falhaAdmin ? envioAdmin.erro : envioCliente.erro);
+      
+      // Retornamos 207 Multi-Status e NÃO setamos a data no banco
+      return json({ ok: true, warning: msg }, 207);
+    }
+
+    // Ambos tiveram sucesso: grava no banco usando o client do usuário de forma condicional.
+    // Isso evita race conditions e sobrescritas duplas de outras threads no mesmo ms.
+    const { data: updateData, error: updateErr } = await supabaseUser
+      .from("cotacoes")
+      .update({ notificacao_enviada_em: new Date().toISOString() })
+      .eq("id", cotacao_id)
+      .is("notificacao_enviada_em", null) // Trava de concorrência
+      .select();
+
+    if (updateErr) {
+      console.error("[ERRO Update Notificação]", updateErr);
+      return json({ ok: true, warning: "E-mails enviados, mas falha ao marcar flag no banco." }, 207);
+    }
+
+    if (!updateData || updateData.length === 0) {
+      console.warn("[Race Condition Evitada] Outra transação já havia marcado essa cotação.");
+      return json({ ok: true, warning: "E-mails enviados, mas notificação já constava como enviada." }, 207);
+    }
+
+    return json({ ok: true });
+  }
+
+  // -------------------------------------------------------------------------
+  // AÇÃO B: resposta_admin (Admin está respondendo a proposta)
+  // -------------------------------------------------------------------------
+  if (acao === "resposta_admin") {
+    const { 
+      status_novo, proposta_mensagem, motivo_devolucao, 
+      impostos, prazo_entrega, condicoes_pagamento, itens 
+    } = body;
+
+    if (!["respondido", "devolvido"].includes(status_novo)) {
+      return json({ erro: "status_novo inválido" }, 400);
+    }
+
+    const { error: rpcErr } = await supabaseUser.rpc("responder_cotacao", {
+      p_cotacao_id: cotacao_id,
+      p_status_novo: status_novo,
+      p_proposta_mensagem: proposta_mensagem,
+      p_motivo_devolucao: motivo_devolucao,
+      p_impostos: impostos,
+      p_prazo_entrega: prazo_entrega,
+      p_condicoes_pagamento: condicoes_pagamento,
+      p_itens: itens
     });
 
     if (rpcErr) {
-      // Usa o HINT em vez de substring para diferenciar das outras exceções P0001
-      const jaRespondida = (rpcErr as any).hint === "cotacao_ja_respondida";
-      return json({
-        ok: false,
-        erro: jaRespondida
-          ? "Esta cotação já foi respondida ou está em outro status. Atualize a página."
-          : rpcErr.message,
-      }, 400);
+      console.error("[RPC responder_cotacao falhou]", rpcErr);
+      return json({ erro: rpcErr.message }, 400);
     }
 
-    // 4. Registrar notificação como pendente ──────────────────────────────────
-    await supabaseAdmin.from("cotacao_notificacoes").insert({
-      cotacao_id,
-      tipo: status_novo as "respondido" | "devolvido",
-      status_envio: "pendente",
-      tentativas: 0,
+    const { data: cotAtualizada, error: fetchErr } = await supabaseUser
+      .from("cotacoes")
+      .select(`
+        id, numero_cotacao, empresa, cnpj, nome_contato, email_contato, telefone,
+        status, proposta_mensagem, motivo_devolucao, impostos, prazo_entrega, condicoes_pagamento,
+        cotacao_itens(sku, nome, ca_number, quantidade, preco_unitario)
+      `)
+      .eq("id", cotacao_id)
+      .single();
+
+    if (fetchErr || !cotAtualizada) {
+      return json({ erro: "Erro ao buscar cotação atualizada para notificação." }, 500);
+    }
+
+    const itensFormatados = cotAtualizada.cotacao_itens
+      .map((i: any) => `• ${i.nome} (Qtd: ${i.quantidade}) - R$ ${Number(i.preco_unitario).toFixed(2)}`)
+      .join("\n");
+
+    const templateId = status_novo === "respondido" 
+      ? Deno.env.get("EMAILJS_TEMPLATE_ID_RESPONDIDO")
+      : Deno.env.get("EMAILJS_TEMPLATE_ID_DEVOLVIDO");
+
+    if (!templateId) return json({ erro: "Template de e-mail (resposta) não configurado." }, 500);
+
+    const envioResposta = await sendEmailJS(templateId, {
+      numero_cotacao: `#${String(cotAtualizada.numero_cotacao).padStart(4, "0")}`,
+      nome_contato: cotAtualizada.nome_contato,
+      email_contato: cotAtualizada.email_contato,
+      empresa: cotAtualizada.empresa,
+      telefone: cotAtualizada.telefone,
+      itens_texto: itensFormatados,
+      proposta_mensagem: cotAtualizada.proposta_mensagem ?? "",
+      motivo_devolucao: cotAtualizada.motivo_devolucao ?? "",
+      impostos: cotAtualizada.impostos ?? "",
+      prazo_entrega: cotAtualizada.prazo_entrega ?? "",
+      condicoes_pagamento: cotAtualizada.condicoes_pagamento ?? "",
+      link_cotacao: `${SITE_URL}/minhas-cotacoes/${cotacao_id}`
     });
+
+    if (!envioResposta.ok) {
+      console.error("[ERRO EmailJS Resposta]", envioResposta.erro);
+      return json({ ok: true, warning: "Cotação respondida no banco, mas houve falha ao notificar o cliente.", detalhes: envioResposta.erro }, 207);
+    }
+
+    return json({ ok: true });
   }
 
-  // 5. Buscar dados completos da cotação (incluindo itens) ──────────────────
-  const { data: cotacao, error: fetchErr } = await supabaseAdmin
-    .from("cotacoes")
-    .select(`
-      id, numero_cotacao, empresa, cnpj, nome_contato,
-      email_contato, telefone, proposta_mensagem, motivo_devolucao, status,
-      cotacao_itens(sku, nome, ca_number, quantidade, categoria)
-    `)
-    .eq("id", cotacao_id)
-    .single();
-
-  if (fetchErr || !cotacao) {
-    return json({ ok: false, erro: "Cotação não encontrada após update." }, 404);
-  }
-
-  const cotacaoTyped = cotacao as unknown as CotacaoData;
-
-  if (apenas_email && !["respondido", "devolvido"].includes(cotacaoTyped.status)) {
-    return json({ 
-      ok: false, 
-      erro: "A cotação precisa estar respondida ou devolvida para reenviar e-mail." 
-    }, 400);
-  }
-
-  // 6. Selecionar template e disparar e-mail ────────────────────────────────
-  const templateId =
-    cotacaoTyped.status === "respondido"
-      ? Deno.env.get("EMAILJS_TEMPLATE_ID_RESPONDIDO")!
-      : Deno.env.get("EMAILJS_TEMPLATE_ID_DEVOLVIDO")!;
-
-  const emailResult = await sendEmailJS(templateId, buildTemplateParams(cotacaoTyped));
-
-  // 7. Atualizar registro de notificação ────────────────────────────────────
-  const { data: notifRow } = await supabaseAdmin
-    .from("cotacao_notificacoes")
-    .select("id, tentativas")
-    .eq("cotacao_id", cotacao_id)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .single();
-
-  if (notifRow) {
-    await supabaseAdmin
-      .from("cotacao_notificacoes")
-      .update({
-        status_envio: emailResult.ok ? "enviado" : "falhou",
-        erro:         emailResult.ok ? null : emailResult.erro,
-        tentativas:   (notifRow.tentativas ?? 0) + 1,
-      })
-      .eq("id", notifRow.id);
-  }
-
-  // 8. Responder ao painel admin ────────────────────────────────────────────
-  if (emailResult.ok) {
-    return json({ ok: true, email_enviado: true });
-  }
-
-  return json({
-    ok: true,
-    email_enviado: false,
-    aviso: "Status da cotação salvo com sucesso, mas o e-mail não pôde ser enviado. Use o botão 'Reenviar' no painel.",
-    erro_email: emailResult.erro,
-  });
+  return json({ erro: "Ação não reconhecida" }, 400);
 });

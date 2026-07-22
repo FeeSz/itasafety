@@ -9,12 +9,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { pageMeta } from "@/lib/seo";
 import Container from "@/components/ui/Container";
 import Reveal from "@/components/ui/Reveal";
-import emailjs from "@emailjs/browser";
-
-const EMAILJS_SERVICE_ID  = "service_qz2af8x";
-const EMAILJS_TEMPLATE_ID_COTACAO = "template_wdyquq6";
-const EMAILJS_PUBLIC_KEY  = "KUpCqP8GI8O64tYfB";
-
 export const Route = createFileRoute("/carrinho")({
   head: () =>
     pageMeta({
@@ -101,39 +95,34 @@ function CarrinhoPage() {
 
       if (itemErr) throw itemErr;
 
-      // 3. Formatar lista de produtos para o email (texto puro já que o template não processa HTML dinâmico com double curly braces)
-      const messageText = items.map(i => 
-        `- ${i.name} (SKU: ${i.sku})${i.ca_number ? ` | CA: ${i.ca_number}` : ''}\n  Quantidade: ${i.qty}`
-      ).join("\n\n");
-
-      let obsText = parsed.data.observacoes ? `\nObservações: ${parsed.data.observacoes}\n` : "";
-      let finalText = `PRODUTOS SOLICITADOS:\n\n${messageText}\n${obsText}`;
-
-      // 4. Enviar e-mail usando EmailJS
-      await emailjs.send(
-        EMAILJS_SERVICE_ID,
-        EMAILJS_TEMPLATE_ID_COTACAO,
+      // 3. Invocar a Edge Function unificada
+      const { data: edgeData, error: edgeErr } = await supabase.functions.invoke(
+        "enviar-notificacao-cotacao",
         {
-          empresa: parsed.data.empresa,
-          cnpj: parsed.data.cnpj || "Não informado",
-          nome_contato: user.user_metadata?.full_name ?? user.email ?? "—",
-          telefone: parsed.data.telefone,
-          email_contato: user.email ?? "",
-          demand_type: "Cotação de Carrinho",
-          message: finalText,
-          numero_cotacao: String(cotacao.numero_cotacao).padStart(4, "0")
-        },
-        EMAILJS_PUBLIC_KEY
+          body: {
+            acao: "nova_cotacao",
+            cotacao_id: cotacao.id,
+          },
+        }
       );
 
-      // 5. Clear cart
+      if (edgeErr) throw edgeErr;
+
+      // Tratamento de HTTP 207 (Multi-Status: salvo, mas email falhou) ou HTTP 200 (ok)
+      // O Supabase JS lança erro apenas se o status >= 400. Então 207 cai aqui no sucesso.
+      if (edgeData?.warning) {
+        toast.warning(edgeData.warning, { duration: 6000 });
+      } else {
+        toast.success("Cotação enviada com sucesso!");
+      }
+
+      // 4. Clear cart
       clear();
       setCotacaoNum(cotacao.numero_cotacao);
       setStep("success");
-      toast.success("Cotação enviada com sucesso!");
     } catch (err) {
       console.error(err);
-      toast.error("Erro ao enviar cotação. Tente novamente.");
+      toast.error("Erro ao processar cotação. Tente novamente.");
     } finally {
       setSubmitting(false);
     }
