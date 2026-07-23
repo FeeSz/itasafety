@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useNavigate, redirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { LogOut, Home, Tag, Award, ShieldAlert, LayoutDashboard, ClipboardList } from "lucide-react";
 import { toast } from "sonner";
@@ -7,7 +7,16 @@ import { useEffect, useRef, useState } from "react";
 /** Tempo de inatividade em ms antes de encerrar a sessão (15 minutos) */
 const INACTIVITY_TIMEOUT_MS = 15 * 60 * 1000;
 
+import { verifyAdminAccess } from "@/lib/admin.functions";
+
 export const Route = createFileRoute("/_authenticated/admin")({
+  beforeLoad: async () => {
+    try {
+      await verifyAdminAccess();
+    } catch {
+      throw redirect({ to: "/" });
+    }
+  },
   component: AdminLayout,
 });
 

@@ -9,13 +9,8 @@ export const Route = createFileRoute("/_authenticated")({
     if (error || !data.user) {
       throw redirect({ to: "/auth" });
     }
-    // Server-side admin verification (validates JWT + role check on the server).
-    // This ensures the admin route cannot be reached by tampering with the client.
-    try {
-      await verifyAdminAccess();
-    } catch {
-      throw redirect({ to: "/" });
-    }
+    // Rota apenas para usuários autenticados.
+    // A verificação de admin foi movida para as rotas filhas específicas de admin.
     return { user: data.user, isAdmin: true as const };
   },
   component: () => <Outlet />,
