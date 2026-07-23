@@ -6,6 +6,7 @@ import { z } from "zod";
 import { useQuoteCart } from "@/components/quote/QuoteCartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 import { pageMeta } from "@/lib/seo";
 import Container from "@/components/ui/Container";
 import Reveal from "@/components/ui/Reveal";
@@ -42,6 +43,22 @@ function CarrinhoPage() {
   const { items, remove, setQty, clear, syncing } = useQuoteCart();
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  const { data: empresa, isLoading: loadingEmpresa } = useQuery({
+    queryKey: ["empresa", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data, error } = await supabase
+        .from("empresas")
+        .select("status, razao_social, cnpj, telefone_contato")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
 
   const [step, setStep] = useState<Step>("review");
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
@@ -391,8 +408,9 @@ function CarrinhoPage() {
                   className="space-y-6 rounded-2xl border border-hairline bg-white p-8 shadow-card"
                 >
                   <div className="space-y-2">
-                    <label htmlFor="empresa" className="block text-xs font-bold uppercase tracking-wider text-ink-soft">
-                      Empresa / Razão Social *
+                    <label htmlFor="empresa" className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-ink-soft">
+                      <span>Empresa / Razão Social *</span>
+                      {!!empresa && <span className="text-[10px] text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded-full flex items-center gap-1"><CheckCircle2 className="size-3" /> Conta Verificada</span>}
                     </label>
                     <input
                       id="empresa"
@@ -400,10 +418,12 @@ function CarrinhoPage() {
                       type="text"
                       autoComplete="organization"
                       placeholder="Ex: Indústria ABC Ltda"
+                      defaultValue={empresa?.razao_social || ""}
+                      readOnly={!!empresa}
                       onChange={maskEmpresaOuCnpj}
                       className={[
                         "w-full rounded-lg border bg-white px-4 py-3 text-sm font-medium text-ink outline-none transition placeholder:text-ink-soft/50",
-                        fieldErrors.empresa
+                        !!empresa ? "bg-surface-sunken text-ink-muted cursor-not-allowed border-hairline" : fieldErrors.empresa
                           ? "border-brand-red focus:border-brand-red focus:ring-2 focus:ring-brand-red/15"
                           : "border-hairline focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15",
                       ].join(" ")}
@@ -424,8 +444,10 @@ function CarrinhoPage() {
                         name="cnpj"
                         type="text"
                         placeholder="00.000.000/0000-00"
+                        defaultValue={empresa?.cnpj || ""}
+                        readOnly={!!empresa}
                         onChange={maskCnpj}
-                        className="w-full rounded-lg border border-hairline bg-white px-4 py-3 text-sm font-medium text-ink outline-none transition placeholder:text-ink-soft/50 focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15"
+                        className={`w-full rounded-lg border border-hairline bg-white px-4 py-3 text-sm font-medium text-ink outline-none transition placeholder:text-ink-soft/50 focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15 ${!!empresa ? "bg-surface-sunken text-ink-muted cursor-not-allowed" : ""}`}
                       />
                     </div>
                     <div className="space-y-2">
@@ -439,10 +461,12 @@ function CarrinhoPage() {
                         inputMode="tel"
                         autoComplete="tel"
                         placeholder="(00) 00000-0000"
+                        defaultValue={empresa?.telefone_contato || ""}
+                        readOnly={!!empresa}
                         onChange={maskPhone}
                         className={[
                           "w-full rounded-lg border bg-white px-4 py-3 text-sm font-medium text-ink outline-none transition placeholder:text-ink-soft/50",
-                          fieldErrors.telefone
+                          !!empresa ? "bg-surface-sunken text-ink-muted cursor-not-allowed border-hairline" : fieldErrors.telefone
                             ? "border-brand-red focus:border-brand-red focus:ring-2 focus:ring-brand-red/15"
                             : "border-hairline focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15",
                         ].join(" ")}
@@ -525,8 +549,27 @@ function CarrinhoPage() {
                 </div>
               )}
 
+              {/* Status da Empresa gate */}
+              {user && !loadingEmpresa && (!empresa || empresa.status !== "aprovada") && step === "review" && (
+                <div className={`mt-5 rounded-xl border p-4 text-sm ${empresa?.status === "pendente_aprovacao" ? "border-amber-200 bg-amber-50" : empresa?.status === "rejeitada" ? "border-red-200 bg-red-50" : "border-brand-blue/20 bg-brand-blue-tint"}`}>
+                  <p className={`font-semibold ${empresa?.status === "pendente_aprovacao" ? "text-amber-900" : empresa?.status === "rejeitada" ? "text-red-900" : "text-brand-blue"}`}>
+                    {empresa?.status === "pendente_aprovacao" ? "Cadastro em análise" : empresa?.status === "rejeitada" ? "Cadastro não aprovado" : "Complete seu perfil"}
+                  </p>
+                  <p className={`mt-1 text-xs leading-relaxed ${empresa?.status === "pendente_aprovacao" ? "text-amber-700" : empresa?.status === "rejeitada" ? "text-red-700" : "text-brand-blue/80"}`}>
+                    {empresa?.status === "pendente_aprovacao" ? "Você poderá enviar cotações assim que sua empresa for aprovada." : empresa?.status === "rejeitada" ? "Seu cadastro de empresa foi rejeitado." : "Você precisa cadastrar os dados da sua empresa antes de enviar cotações."}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => navigate({ to: "/perfil" })}
+                    className={`mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-bold shadow-sm transition ${empresa?.status === "pendente_aprovacao" ? "bg-amber-600 text-white hover:bg-amber-700" : empresa?.status === "rejeitada" ? "bg-red-600 text-white hover:bg-red-700" : "bg-brand-blue text-white hover:bg-brand-blue-hover"}`}
+                  >
+                    <Building2 className="size-4" /> Acessar Meu Perfil
+                  </button>
+                </div>
+              )}
+
               {/* Actions */}
-              {user && step === "review" && (
+              {user && step === "review" && empresa?.status === "aprovada" && (
                 <button
                   type="button"
                   onClick={() => setStep("form")}

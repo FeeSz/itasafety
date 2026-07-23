@@ -69,6 +69,9 @@ type CotacaoDetalhe = {
     tentativas: number;
     updated_at: string;
   }>;
+  frete: string | null;
+  validade_orcamento_dias: number | null;
+  endereco_entrega: string | null;
 };
 
 const STATUS_META: Record<StatusCotacao, { label: string; icon: React.ReactNode; cls: string }> = {
@@ -91,6 +94,9 @@ function AdminCotacaoDetailPage() {
   const [impostos, setImpostos] = useState("");
   const [prazo_entrega, setPrazoEntrega] = useState("");
   const [condicoes_pagamento, setCondicoesPagamento] = useState("");
+  const [frete, setFrete] = useState("");
+  const [validade_orcamento, setValidadeOrcamento] = useState("");
+  const [endereco_entrega, setEnderecoEntrega] = useState("");
   const [precos, setPrecos] = useState<Record<string, string>>({});
   
   const [motivo, setMotivo] = useState("");
@@ -106,6 +112,7 @@ function AdminCotacaoDetailPage() {
           id, numero_cotacao, empresa, cnpj, nome_contato, email_contato,
           telefone, observacoes, status, proposta_mensagem, motivo_devolucao,
           impostos, prazo_entrega, condicoes_pagamento,
+          frete, validade_orcamento_dias, endereco_entrega,
           visualizado_em, created_at,
           cotacao_itens(id, sku, nome, ca_number, quantidade, preco_unitario, categoria, image_url),
           cotacao_historico_status(id, status_anterior, status_novo, created_at),
@@ -139,6 +146,9 @@ function AdminCotacaoDetailPage() {
       setImpostos(cotacao.impostos ?? "");
       setPrazoEntrega(cotacao.prazo_entrega ?? "");
       setCondicoesPagamento(cotacao.condicoes_pagamento ?? "");
+      setFrete(cotacao.frete ?? "");
+      setValidadeOrcamento(cotacao.validade_orcamento_dias?.toString() ?? "");
+      setEnderecoEntrega(cotacao.endereco_entrega ?? "");
       
       const p: Record<string, string> = {};
       cotacao.cotacao_itens.forEach(item => {
@@ -186,8 +196,8 @@ function AdminCotacaoDetailPage() {
       return;
     }
 
-    if (!prazo_entrega.trim() || !condicoes_pagamento.trim()) {
-      toast.error("Preencha as condições de pagamento e prazo de entrega.");
+    if (!prazo_entrega.trim() || !condicoes_pagamento.trim() || !frete.trim() || !validade_orcamento.trim()) {
+      toast.error("Preencha prazo de entrega, condições de pagamento, frete e validade.");
       return;
     }
 
@@ -197,10 +207,13 @@ function AdminCotacaoDetailPage() {
         acao: "resposta_admin",
         cotacao_id: id,
         status_novo: "respondido",
-        proposta_mensagem: proposta,
-        impostos,
+        proposta_mensagem: proposta || null,
+        impostos: impostos || null,
         prazo_entrega,
         condicoes_pagamento,
+        frete,
+        validade_orcamento_dias: parseInt(validade_orcamento, 10),
+        endereco_entrega: endereco_entrega || null,
         itens: itensPayload
       });
 
@@ -447,9 +460,18 @@ function AdminCotacaoDetailPage() {
               <div className="grid gap-3 sm:grid-cols-2 text-sm text-green-900 bg-white/50 p-3 rounded-lg border border-green-200/50">
                 <InfoLine icon={<FileText className="size-4" />} label="Prazo de Entrega" value={cotacao.prazo_entrega || "—"} />
                 <InfoLine icon={<DollarSign className="size-4" />} label="Condições de Pagamento" value={cotacao.condicoes_pagamento || "—"} />
-                <div className="sm:col-span-2">
-                  <InfoLine icon={<FileText className="size-4" />} label="Impostos" value={cotacao.impostos || "Inclusos no preço."} />
-                </div>
+                <InfoLine icon={<Package className="size-4" />} label="Frete" value={cotacao.frete || "—"} />
+                <InfoLine icon={<Clock className="size-4" />} label="Validade da Proposta" value={cotacao.validade_orcamento_dias ? `${cotacao.validade_orcamento_dias} dias` : "—"} />
+                {cotacao.endereco_entrega && (
+                  <div className="sm:col-span-2 border-t border-green-200/50 pt-2 mt-1">
+                    <InfoLine icon={<Building2 className="size-4" />} label="Endereço de Entrega" value={cotacao.endereco_entrega} />
+                  </div>
+                )}
+                {cotacao.impostos && (
+                  <div className="sm:col-span-2 border-t border-green-200/50 pt-2 mt-1">
+                    <InfoLine icon={<FileText className="size-4" />} label="Impostos" value={cotacao.impostos} />
+                  </div>
+                )}
               </div>
               
               {cotacao.proposta_mensagem && (
@@ -518,13 +540,46 @@ function AdminCotacaoDetailPage() {
                         className="w-full rounded border border-hairline px-3 py-2 text-sm outline-none focus:border-brand-blue" 
                       />
                     </div>
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-bold text-ink">Frete <span className="text-brand-red">*</span></label>
+                      <input 
+                        type="text" 
+                        value={frete}
+                        onChange={e => setFrete(e.target.value)}
+                        placeholder="Ex: CIF (Incluso) ou FOB" 
+                        className="w-full rounded border border-hairline px-3 py-2 text-sm outline-none focus:border-brand-blue" 
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-bold text-ink">Validade do Orçamento (Dias) <span className="text-brand-red">*</span></label>
+                      <input 
+                        type="number" 
+                        value={validade_orcamento}
+                        onChange={e => setValidadeOrcamento(e.target.value)}
+                        placeholder="Ex: 15" 
+                        className="w-full rounded border border-hairline px-3 py-2 text-sm outline-none focus:border-brand-blue" 
+                      />
+                    </div>
                     <div className="sm:col-span-2 space-y-1.5">
-                      <label className="block text-xs font-bold text-ink">Impostos</label>
+                      <div className="flex items-center justify-between">
+                        <label className="block text-xs font-bold text-ink">Endereço de Entrega (Opcional)</label>
+                        {/* Removido o botão de atalho até definirmos como buscar a empresa pelo user_id do cliente */}
+                      </div>
+                      <input 
+                        type="text" 
+                        value={endereco_entrega}
+                        onChange={e => setEnderecoEntrega(e.target.value)}
+                        placeholder="Ex: Rua das Indústrias, 1000 - Galpão 3" 
+                        className="w-full rounded border border-hairline px-3 py-2 text-sm outline-none focus:border-brand-blue" 
+                      />
+                    </div>
+                    <div className="sm:col-span-2 space-y-1.5">
+                      <label className="block text-xs font-bold text-ink">Impostos (Opcional)</label>
                       <input 
                         type="text" 
                         value={impostos}
                         onChange={e => setImpostos(e.target.value)}
-                        placeholder="Ex: ICMS ST incluso. IPI destacado." 
+                        placeholder="Ex: ICMS ST incluso. IPI destacado. Se vazio, assumimos inclusos no preço." 
                         className="w-full rounded border border-hairline px-3 py-2 text-sm outline-none focus:border-brand-blue" 
                       />
                     </div>

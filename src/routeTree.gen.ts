@@ -35,6 +35,7 @@ import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
+import { Route as AuthenticatedPerfilIndexRouteImport } from './routes/_authenticated/perfil/index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
 import { Route as AuthenticatedAdminStatusRouteImport } from './routes/_authenticated/admin/status'
@@ -44,6 +45,7 @@ import { Route as AuthenticatedAdminBrandsRouteImport } from './routes/_authenti
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as AuthenticatedAdminCotacoesRouteRouteImport } from './routes/_authenticated/admin/cotacoes/route'
+import { Route as AuthenticatedAdminEmpresasIndexRouteImport } from './routes/_authenticated/admin/empresas/index'
 import { Route as AuthenticatedAdminCotacoesIndexRouteImport } from './routes/_authenticated/admin/cotacoes/index'
 import { Route as AuthenticatedAdminCotacoesIdRouteImport } from './routes/_authenticated/admin/cotacoes/$id'
 
@@ -178,6 +180,12 @@ const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPerfilIndexRoute =
+  AuthenticatedPerfilIndexRouteImport.update({
+    id: '/perfil/',
+    path: '/perfil/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -229,6 +237,12 @@ const AuthenticatedAdminCotacoesRouteRoute =
     path: '/cotacoes',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminEmpresasIndexRoute =
+  AuthenticatedAdminEmpresasIndexRouteImport.update({
+    id: '/empresas/',
+    path: '/empresas/',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminCotacoesIndexRoute =
   AuthenticatedAdminCotacoesIndexRouteImport.update({
     id: '/',
@@ -277,8 +291,10 @@ export interface FileRoutesByFullPath {
   '/admin/status': typeof AuthenticatedAdminStatusRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/perfil/': typeof AuthenticatedPerfilIndexRoute
   '/admin/cotacoes/$id': typeof AuthenticatedAdminCotacoesIdRoute
   '/admin/cotacoes/': typeof AuthenticatedAdminCotacoesIndexRoute
+  '/admin/empresas/': typeof AuthenticatedAdminEmpresasIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -312,8 +328,10 @@ export interface FileRoutesByTo {
   '/admin/status': typeof AuthenticatedAdminStatusRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/perfil': typeof AuthenticatedPerfilIndexRoute
   '/admin/cotacoes/$id': typeof AuthenticatedAdminCotacoesIdRoute
   '/admin/cotacoes': typeof AuthenticatedAdminCotacoesIndexRoute
+  '/admin/empresas': typeof AuthenticatedAdminEmpresasIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -352,8 +370,10 @@ export interface FileRoutesById {
   '/_authenticated/admin/status': typeof AuthenticatedAdminStatusRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/perfil/': typeof AuthenticatedPerfilIndexRoute
   '/_authenticated/admin/cotacoes/$id': typeof AuthenticatedAdminCotacoesIdRoute
   '/_authenticated/admin/cotacoes/': typeof AuthenticatedAdminCotacoesIndexRoute
+  '/_authenticated/admin/empresas/': typeof AuthenticatedAdminEmpresasIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -392,8 +412,10 @@ export interface FileRouteTypes {
     | '/admin/status'
     | '/api/public/health'
     | '/admin/'
+    | '/perfil/'
     | '/admin/cotacoes/$id'
     | '/admin/cotacoes/'
+    | '/admin/empresas/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -427,8 +449,10 @@ export interface FileRouteTypes {
     | '/admin/status'
     | '/api/public/health'
     | '/admin'
+    | '/perfil'
     | '/admin/cotacoes/$id'
     | '/admin/cotacoes'
+    | '/admin/empresas'
   id:
     | '__root__'
     | '/'
@@ -466,8 +490,10 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/status'
     | '/api/public/health'
     | '/_authenticated/admin/'
+    | '/_authenticated/perfil/'
     | '/_authenticated/admin/cotacoes/$id'
     | '/_authenticated/admin/cotacoes/'
+    | '/_authenticated/admin/empresas/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -683,6 +709,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/perfil/': {
+      id: '/_authenticated/perfil/'
+      path: '/perfil'
+      fullPath: '/perfil/'
+      preLoaderRoute: typeof AuthenticatedPerfilIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
       path: '/'
@@ -746,6 +779,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCotacoesRouteRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/empresas/': {
+      id: '/_authenticated/admin/empresas/'
+      path: '/empresas'
+      fullPath: '/admin/empresas/'
+      preLoaderRoute: typeof AuthenticatedAdminEmpresasIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/cotacoes/': {
       id: '/_authenticated/admin/cotacoes/'
       path: '/'
@@ -786,6 +826,7 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminPartnersRoute: typeof AuthenticatedAdminPartnersRoute
   AuthenticatedAdminStatusRoute: typeof AuthenticatedAdminStatusRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminEmpresasIndexRoute: typeof AuthenticatedAdminEmpresasIndexRoute
 }
 
 const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
@@ -797,6 +838,7 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminPartnersRoute: AuthenticatedAdminPartnersRoute,
     AuthenticatedAdminStatusRoute: AuthenticatedAdminStatusRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+    AuthenticatedAdminEmpresasIndexRoute: AuthenticatedAdminEmpresasIndexRoute,
   }
 
 const AuthenticatedAdminRouteRouteWithChildren =
@@ -806,10 +848,12 @@ const AuthenticatedAdminRouteRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
+  AuthenticatedPerfilIndexRoute: typeof AuthenticatedPerfilIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
+  AuthenticatedPerfilIndexRoute: AuthenticatedPerfilIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

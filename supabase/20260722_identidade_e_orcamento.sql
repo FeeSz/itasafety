@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS public.empresas (
   cnpj text NOT NULL,
   telefone_contato text NOT NULL,
   nome_contato text NOT NULL,
+  endereco_cadastral text, -- Adicionado para facilitar preenchimento da entrega
   status public.empresa_status NOT NULL DEFAULT 'pendente_aprovacao',
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now()
@@ -42,8 +43,17 @@ CREATE POLICY "admin_update_empresas"
   USING (has_role(auth.uid(), 'admin'))
   WITH CHECK (has_role(auth.uid(), 'admin'));
 
--- Nota: Usuário comum propositalmente não tem policy de UPDATE. 
--- Dessa forma ele não pode contornar aprovações editando a empresa posteriormente.
+-- POLICY: Usuários atualizam a PRÓPRIA empresa APENAS quando rejeitada (para corrigir)
+CREATE POLICY "user_update_rejected_empresa"
+  ON public.empresas FOR UPDATE TO authenticated
+  USING (
+    auth.uid() = user_id 
+    AND status = 'rejeitada'::public.empresa_status
+  )
+  WITH CHECK (
+    auth.uid() = user_id 
+    AND status = 'pendente_aprovacao'::public.empresa_status
+  );
 
 -- 2. Trigger para Travar a Identidade da Empresa na Cotação
 CREATE OR REPLACE FUNCTION public.tg_resolver_empresa_cotacao()
@@ -67,7 +77,7 @@ BEGIN
   
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- (Ajuste 1: Trigger em BEFORE INSERT OR UPDATE OF empresa, cnpj)
 DROP TRIGGER IF EXISTS tg_cotacoes_resolver_empresa ON public.cotacoes;

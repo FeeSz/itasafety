@@ -187,7 +187,8 @@ serve(async (req: Request) => {
   if (acao === "resposta_admin") {
     const { 
       status_novo, proposta_mensagem, motivo_devolucao, 
-      impostos, prazo_entrega, condicoes_pagamento, itens 
+      impostos, prazo_entrega, condicoes_pagamento, itens,
+      frete, validade_orcamento_dias, endereco_entrega
     } = body;
 
     if (!["respondido", "devolvido"].includes(status_novo)) {
@@ -202,6 +203,9 @@ serve(async (req: Request) => {
       p_impostos: impostos,
       p_prazo_entrega: prazo_entrega,
       p_condicoes_pagamento: condicoes_pagamento,
+      p_frete: frete,
+      p_validade_orcamento_dias: validade_orcamento_dias,
+      p_endereco_entrega: endereco_entrega,
       p_itens: itens
     });
 
@@ -215,6 +219,7 @@ serve(async (req: Request) => {
       .select(`
         id, numero_cotacao, empresa, cnpj, nome_contato, email_contato, telefone,
         status, proposta_mensagem, motivo_devolucao, impostos, prazo_entrega, condicoes_pagamento,
+        frete, validade_orcamento_dias, endereco_entrega,
         cotacao_itens(sku, nome, ca_number, quantidade, preco_unitario)
       `)
       .eq("id", cotacao_id)
@@ -246,6 +251,9 @@ serve(async (req: Request) => {
       impostos: cotAtualizada.impostos ?? "",
       prazo_entrega: cotAtualizada.prazo_entrega ?? "",
       condicoes_pagamento: cotAtualizada.condicoes_pagamento ?? "",
+      frete: cotAtualizada.frete ?? "",
+      validade_orcamento_dias: cotAtualizada.validade_orcamento_dias ?? "",
+      endereco_entrega: cotAtualizada.endereco_entrega ?? "",
       link_cotacao: `${SITE_URL}/minhas-cotacoes/${cotacao_id}`
     });
 
