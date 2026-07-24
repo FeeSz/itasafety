@@ -212,11 +212,145 @@ export type Database = {
         }
         Relationships: []
       }
+      empresa_change_requests: {
+        Row: {
+          id: string
+          empresa_id: string
+          user_id: string
+          campo_alterado: string
+          valor_atual: string | null
+          valor_proposto: string | null
+          status: "pendente" | "aprovada" | "rejeitada"
+          created_at: string
+          reviewed_by: string | null
+          reviewed_at: string | null
+        }
+        Insert: {
+          id?: string
+          empresa_id: string
+          user_id: string
+          campo_alterado: string
+          valor_atual?: string | null
+          valor_proposto?: string | null
+          status?: "pendente" | "aprovada" | "rejeitada"
+          created_at?: string
+          reviewed_by?: string | null
+          reviewed_at?: string | null
+        }
+        Update: {
+          id?: string
+          empresa_id?: string
+          user_id?: string
+          campo_alterado?: string
+          valor_atual?: string | null
+          valor_proposto?: string | null
+          status?: "pendente" | "aprovada" | "rejeitada"
+          created_at?: string
+          reviewed_by?: string | null
+          reviewed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "empresa_change_requests_empresa_id_fkey"
+            columns: ["empresa_id"]
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      empresas: {
+        Row: {
+          id: string
+          user_id: string
+          razao_social: string
+          cnpj: string
+          telefone_contato: string
+          nome_contato: string
+          endereco_cadastral: string | null
+          logo_url: string | null
+          status: "pendente_aprovacao" | "aprovada" | "rejeitada"
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          razao_social: string
+          cnpj: string
+          telefone_contato: string
+          nome_contato: string
+          endereco_cadastral?: string | null
+          logo_url?: string | null
+          status?: "pendente_aprovacao" | "aprovada" | "rejeitada"
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          razao_social?: string
+          cnpj?: string
+          telefone_contato?: string
+          nome_contato?: string
+          endereco_cadastral?: string | null
+          logo_url?: string | null
+          status?: "pendente_aprovacao" | "aprovada" | "rejeitada"
+          created_at?: string
+          updated_at?: string
+        }
+      partners: {
+        Row: {
+          id: string
+          name: string
+          logo_url: string
+          href: string | null
+          tagline: string | null
+          sort_order: number
+          active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          logo_url: string
+          href?: string | null
+          tagline?: string | null
+          sort_order?: number
+          active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          logo_url?: string
+          href?: string | null
+          tagline?: string | null
+          sort_order?: number
+          active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      aprovar_change_request: {
+        Args: {
+          p_request_id: string
+        }
+        Returns: undefined
+      }
+      atualizar_logo_empresa: {
+        Args: {
+          p_logo_url: string
+        }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -227,12 +361,15 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "editor" | "user"
+      change_request_status: "pendente" | "aprovada" | "rejeitada"
+      empresa_status: "pendente_aprovacao" | "aprovada" | "rejeitada"
     }
     CompositeTypes: {
       [_ in never]: never
     }
   }
 }
+
 
 type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
 

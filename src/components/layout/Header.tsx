@@ -14,6 +14,8 @@ import {
   ChevronDown,
   User,
   ClipboardList,
+  Settings,
+  Building2,
 } from "lucide-react";
 import Logo from "./Logo";
 import MegaMenu from "./MegaMenu";
@@ -231,6 +233,24 @@ export default function Header() {
                   >
                     <ClipboardList className="size-4 text-brand-blue" />
                     Minhas Cotações
+                  </Link>
+
+                  <Link
+                    to="/perfil"
+                    onClick={() => setUserMenuOpen(false)}
+                    className="flex w-full items-center gap-2 px-4 py-2 text-xs font-semibold text-[#111111] hover:bg-slate-50 transition-colors"
+                  >
+                    <Building2 className="size-4 text-brand-blue" />
+                    Meu Perfil
+                  </Link>
+
+                  <Link
+                    to="/configuracoes"
+                    onClick={() => setUserMenuOpen(false)}
+                    className="flex w-full items-center gap-2 px-4 py-2 text-xs font-semibold text-[#111111] hover:bg-slate-50 transition-colors"
+                  >
+                    <Settings className="size-4 text-brand-blue" />
+                    Configurações
                   </Link>
 
                   {isAdmin && (

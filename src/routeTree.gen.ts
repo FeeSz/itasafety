@@ -36,6 +36,7 @@ import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } fr
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedPerfilIndexRouteImport } from './routes/_authenticated/perfil/index'
+import { Route as AuthenticatedConfiguracoesIndexRouteImport } from './routes/_authenticated/configuracoes/index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
 import { Route as AuthenticatedAdminStatusRouteImport } from './routes/_authenticated/admin/status'
@@ -47,6 +48,7 @@ import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.
 import { Route as AuthenticatedAdminCotacoesRouteRouteImport } from './routes/_authenticated/admin/cotacoes/route'
 import { Route as AuthenticatedAdminEmpresasIndexRouteImport } from './routes/_authenticated/admin/empresas/index'
 import { Route as AuthenticatedAdminCotacoesIndexRouteImport } from './routes/_authenticated/admin/cotacoes/index'
+import { Route as AuthenticatedAdminEmpresasSolicitacoesRouteImport } from './routes/_authenticated/admin/empresas/solicitacoes'
 import { Route as AuthenticatedAdminCotacoesIdRouteImport } from './routes/_authenticated/admin/cotacoes/$id'
 
 const TermosRoute = TermosRouteImport.update({
@@ -186,6 +188,12 @@ const AuthenticatedPerfilIndexRoute =
     path: '/perfil/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedConfiguracoesIndexRoute =
+  AuthenticatedConfiguracoesIndexRouteImport.update({
+    id: '/configuracoes/',
+    path: '/configuracoes/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -249,6 +257,12 @@ const AuthenticatedAdminCotacoesIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedAdminCotacoesRouteRoute,
   } as any)
+const AuthenticatedAdminEmpresasSolicitacoesRoute =
+  AuthenticatedAdminEmpresasSolicitacoesRouteImport.update({
+    id: '/empresas/solicitacoes',
+    path: '/empresas/solicitacoes',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminCotacoesIdRoute =
   AuthenticatedAdminCotacoesIdRouteImport.update({
     id: '/$id',
@@ -291,8 +305,10 @@ export interface FileRoutesByFullPath {
   '/admin/status': typeof AuthenticatedAdminStatusRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/configuracoes/': typeof AuthenticatedConfiguracoesIndexRoute
   '/perfil/': typeof AuthenticatedPerfilIndexRoute
   '/admin/cotacoes/$id': typeof AuthenticatedAdminCotacoesIdRoute
+  '/admin/empresas/solicitacoes': typeof AuthenticatedAdminEmpresasSolicitacoesRoute
   '/admin/cotacoes/': typeof AuthenticatedAdminCotacoesIndexRoute
   '/admin/empresas/': typeof AuthenticatedAdminEmpresasIndexRoute
 }
@@ -328,8 +344,10 @@ export interface FileRoutesByTo {
   '/admin/status': typeof AuthenticatedAdminStatusRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/configuracoes': typeof AuthenticatedConfiguracoesIndexRoute
   '/perfil': typeof AuthenticatedPerfilIndexRoute
   '/admin/cotacoes/$id': typeof AuthenticatedAdminCotacoesIdRoute
+  '/admin/empresas/solicitacoes': typeof AuthenticatedAdminEmpresasSolicitacoesRoute
   '/admin/cotacoes': typeof AuthenticatedAdminCotacoesIndexRoute
   '/admin/empresas': typeof AuthenticatedAdminEmpresasIndexRoute
 }
@@ -370,8 +388,10 @@ export interface FileRoutesById {
   '/_authenticated/admin/status': typeof AuthenticatedAdminStatusRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/configuracoes/': typeof AuthenticatedConfiguracoesIndexRoute
   '/_authenticated/perfil/': typeof AuthenticatedPerfilIndexRoute
   '/_authenticated/admin/cotacoes/$id': typeof AuthenticatedAdminCotacoesIdRoute
+  '/_authenticated/admin/empresas/solicitacoes': typeof AuthenticatedAdminEmpresasSolicitacoesRoute
   '/_authenticated/admin/cotacoes/': typeof AuthenticatedAdminCotacoesIndexRoute
   '/_authenticated/admin/empresas/': typeof AuthenticatedAdminEmpresasIndexRoute
 }
@@ -412,8 +432,10 @@ export interface FileRouteTypes {
     | '/admin/status'
     | '/api/public/health'
     | '/admin/'
+    | '/configuracoes/'
     | '/perfil/'
     | '/admin/cotacoes/$id'
+    | '/admin/empresas/solicitacoes'
     | '/admin/cotacoes/'
     | '/admin/empresas/'
   fileRoutesByTo: FileRoutesByTo
@@ -449,8 +471,10 @@ export interface FileRouteTypes {
     | '/admin/status'
     | '/api/public/health'
     | '/admin'
+    | '/configuracoes'
     | '/perfil'
     | '/admin/cotacoes/$id'
+    | '/admin/empresas/solicitacoes'
     | '/admin/cotacoes'
     | '/admin/empresas'
   id:
@@ -490,8 +514,10 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/status'
     | '/api/public/health'
     | '/_authenticated/admin/'
+    | '/_authenticated/configuracoes/'
     | '/_authenticated/perfil/'
     | '/_authenticated/admin/cotacoes/$id'
+    | '/_authenticated/admin/empresas/solicitacoes'
     | '/_authenticated/admin/cotacoes/'
     | '/_authenticated/admin/empresas/'
   fileRoutesById: FileRoutesById
@@ -716,6 +742,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPerfilIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/configuracoes/': {
+      id: '/_authenticated/configuracoes/'
+      path: '/configuracoes'
+      fullPath: '/configuracoes/'
+      preLoaderRoute: typeof AuthenticatedConfiguracoesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
       path: '/'
@@ -793,6 +826,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCotacoesIndexRouteImport
       parentRoute: typeof AuthenticatedAdminCotacoesRouteRoute
     }
+    '/_authenticated/admin/empresas/solicitacoes': {
+      id: '/_authenticated/admin/empresas/solicitacoes'
+      path: '/empresas/solicitacoes'
+      fullPath: '/admin/empresas/solicitacoes'
+      preLoaderRoute: typeof AuthenticatedAdminEmpresasSolicitacoesRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/cotacoes/$id': {
       id: '/_authenticated/admin/cotacoes/$id'
       path: '/$id'
@@ -826,6 +866,7 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminPartnersRoute: typeof AuthenticatedAdminPartnersRoute
   AuthenticatedAdminStatusRoute: typeof AuthenticatedAdminStatusRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminEmpresasSolicitacoesRoute: typeof AuthenticatedAdminEmpresasSolicitacoesRoute
   AuthenticatedAdminEmpresasIndexRoute: typeof AuthenticatedAdminEmpresasIndexRoute
 }
 
@@ -838,6 +879,8 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
     AuthenticatedAdminPartnersRoute: AuthenticatedAdminPartnersRoute,
     AuthenticatedAdminStatusRoute: AuthenticatedAdminStatusRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+    AuthenticatedAdminEmpresasSolicitacoesRoute:
+      AuthenticatedAdminEmpresasSolicitacoesRoute,
     AuthenticatedAdminEmpresasIndexRoute: AuthenticatedAdminEmpresasIndexRoute,
   }
 
@@ -848,11 +891,13 @@ const AuthenticatedAdminRouteRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
+  AuthenticatedConfiguracoesIndexRoute: typeof AuthenticatedConfiguracoesIndexRoute
   AuthenticatedPerfilIndexRoute: typeof AuthenticatedPerfilIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
+  AuthenticatedConfiguracoesIndexRoute: AuthenticatedConfiguracoesIndexRoute,
   AuthenticatedPerfilIndexRoute: AuthenticatedPerfilIndexRoute,
 }
 

@@ -1,10 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/integrations/supabase/client";
 import Container from "@/components/ui/Container";
 import Reveal from "@/components/ui/Reveal";
 import { toast } from "sonner";
-import { Building2, CheckCircle2, Clock, Loader2, XCircle, Search } from "lucide-react";
+import { Building2, CheckCircle2, Loader2, XCircle, Search, ClipboardList } from "lucide-react";
 import { useState } from "react";
 
 export const Route = createFileRoute("/_authenticated/admin/empresas/")({
@@ -101,6 +101,13 @@ function AdminEmpresasPage() {
                 Controle o acesso das empresas para que elas possam enviar cotações na plataforma.
               </p>
             </div>
+            <Link
+              to="/admin/empresas/solicitacoes"
+              className="flex shrink-0 items-center gap-2 rounded-lg border border-hairline bg-white px-4 py-2.5 text-sm font-bold text-ink shadow-sm transition hover:border-brand-blue hover:text-brand-blue"
+            >
+              <ClipboardList className="size-4" />
+              Solicitações de Alteração
+            </Link>
           </div>
 
           <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center justify-between">
