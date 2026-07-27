@@ -73,7 +73,7 @@ serve(async (req: Request) => {
     const { data: cotacao, error: fetchErr } = await supabaseUser
       .from("cotacoes")
       .select(`
-        id, numero_cotacao, empresa, cnpj, nome_contato, email_contato, telefone, status, notificacao_enviada_em, observacoes,
+        id, numero_cotacao, empresa, cnpj, nome_contato, email_contato, telefone, status, notificacao_enviada_em, observacoes, user_id,
         cotacao_itens(sku, nome, quantidade, ca_number)
       `)
       .eq("id", cotacao_id)
@@ -101,7 +101,68 @@ serve(async (req: Request) => {
       return json({ erro: "Templates de e-mail ausentes nas variáveis de ambiente." }, 500);
     }
 
+    // Buscando histórico de pedidos do cliente (para o SLA/Histórico)
+    const { count: pedidosAnteriores } = await supabaseUser
+      .from("cotacoes")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", cotacao.user_id)
+      .neq("id", cotacao_id);
+      
+    const qtd_pedidos = pedidosAnteriores || 0;
+    const tipo_cliente = qtd_pedidos > 0 ? "Cliente Recorrente" : "Novo Cliente";
+
+    // Cálculo de Datas (SLA de 24h)
+    const agora = new Date();
+    const dataHoraSolicitacao = agora.toLocaleString("pt-BR");
+    const dataSla = new Date(agora.getTime() + 24 * 60 * 60 * 1000);
+    const prazoResposta = dataSla.toLocaleString("pt-BR");
+
     const numFormatado = String(cotacao.numero_cotacao).padStart(4, "0");
+    
+    // Geração do HTML dos itens (porque EmailJS não faz loop de array)
+    let valorTotal = 0;
+    const itensHtmlArray = cotacao.cotacao_itens.map((i: any) => {
+      // Mock de valores conforme solicitado até a segunda ordem
+      const valorUnitario = 150.00; 
+      valorTotal += (valorUnitario * i.quantidade);
+      const precoFormatado = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valorUnitario);
+      const categoria = "EPI";
+      const estoqueStatus = "Em Estoque";
+      const estoqueCorFundo = "#D1FAE5"; // bg-emerald-100
+      const estoqueCorTexto = "#065F46"; // text-emerald-800
+
+      return `
+                <tr>
+                  <td style="padding:16px 0; border-bottom:1px solid #EFEFF1; vertical-align:top;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="vertical-align:top;">
+                          <p style="margin:0 0 3px 0; font-size:14px; line-height:19px; color:#0A0A0A; font-weight:500;">${i.nome}</p>
+                          <p style="margin:0; font-size:12.5px; line-height:18px; color:#9CA3AF; font-family: 'SF Mono', 'Roboto Mono', Consolas, monospace;">
+                            ${i.sku} &middot; CA ${i.ca_number || 'N/A'} &middot; ${categoria}
+                          </p>
+                          <p style="margin:4px 0 0 0; font-size:12px; line-height:16px;">
+                            <span style="display:inline-block; padding:2px 8px; border-radius:10px; font-weight:600; letter-spacing:0.02em; text-transform:uppercase; font-size:10.5px; background-color:${estoqueCorFundo}; color:${estoqueCorTexto};">${estoqueStatus}</span>
+                          </p>
+                        </td>
+                        <td width="60" align="right" style="vertical-align:top; white-space:nowrap;">
+                          <p style="margin:0; font-size:14px; line-height:19px; color:#0A0A0A; font-weight:600;">&times;${i.quantidade}</p>
+                        </td>
+                        <td width="90" align="right" class="price-col" style="vertical-align:top; white-space:nowrap;">
+                          <p style="margin:0; font-size:13px; line-height:19px; color:#374151;">${precoFormatado}</p>
+                          <p style="margin:1px 0 0 0; font-size:11px; line-height:15px; color:#9CA3AF;">un.</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+      `;
+    });
+    
+    const itens_html = itensHtmlArray.join("");
+    const valor_total_estimado = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valorTotal);
+
+    // Texto puro para o cliente (fallback ou se o template cliente não for HTML)
     const messageText = cotacao.cotacao_itens.map((i: any) => 
       `- ${i.nome} (SKU: ${i.sku})${i.ca_number ? ` | CA: ${i.ca_number}` : ''}\n  Quantidade: ${i.quantidade}`
     ).join("\n\n");
@@ -124,15 +185,23 @@ serve(async (req: Request) => {
     });
 
     const envioAdmin = await sendEmailJS(templateAdmin, {
+      NUMERO_COTACAO: numFormatado,
       empresa: cotacao.empresa,
-      cnpj: cotacao.cnpj || "Não informado",
-      nome_contato: cotacao.nome_contato,
-      email_contato: emailAdmin,
+      qtd_itens: cotacao.cotacao_itens.length.toString(),
+      data_hora_solicitacao: dataHoraSolicitacao,
+      canal_origem: "Site / B2B",
+      prazo_resposta: prazoResposta,
+      responsavel: "Equipe de Vendas",
+      nome: cotacao.nome_contato,
       telefone: cotacao.telefone,
-      numero_cotacao: numFormatado,
-      demand_type: "Cotação de Carrinho",
-      message: obsText || "Sem observações.",
-      itens_texto: messageText,
+      email: cotacao.email_contato,
+      cnpj: cotacao.cnpj || "Não informado",
+      tipo_cliente: tipo_cliente,
+      qtd_pedidos_anteriores: qtd_pedidos.toString(),
+      observacoes: cotacao.observacoes || "Nenhuma observação enviada.",
+      QTD_ITENS: cotacao.cotacao_itens.length.toString(), // Por via das dúvidas caso seja case sensitive lá
+      valor_total_estimado: valor_total_estimado,
+      itens_html: itens_html,
       link_cotacao: linkAdmin
     });
 
