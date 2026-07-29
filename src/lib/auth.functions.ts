@@ -4,8 +4,9 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const RATE_WINDOW_MIN = 15;
-const MAX_ATTEMPTS_EMAIL = 5;
 const MAX_ATTEMPTS_IP = 20;
+const RECORD_WINDOW_MIN = 1;
+const MAX_RECORDS_PER_IP = 30;
 
 const checkSchema = z.object({
   email: z.string().email().max(254).optional(),
@@ -60,16 +61,6 @@ export const checkAuthRateLimit = createServerFn({ method: "POST" })
       const since = new Date(Date.now() - RATE_WINDOW_MIN * 60_000).toISOString();
       const ip = clientIp();
 
-      const failedByEmail = data.email
-        ? await supabaseAdmin
-            .from("auth_attempts")
-            .select("id", { count: "exact", head: true })
-            .eq("email", data.email.toLowerCase())
-            .eq("attempt_type", data.attempt_type)
-            .eq("success", false)
-            .gte("created_at", since)
-        : { count: 0, error: null };
-
       const failedByIp = ip
         ? await supabaseAdmin
             .from("auth_attempts")
@@ -79,17 +70,13 @@ export const checkAuthRateLimit = createServerFn({ method: "POST" })
             .gte("created_at", since)
         : { count: 0, error: null };
 
-      const emailCount = failedByEmail.count ?? 0;
       const ipCount = failedByIp.count ?? 0;
-
-      const blocked = emailCount >= MAX_ATTEMPTS_EMAIL || ipCount >= MAX_ATTEMPTS_IP;
+      const blocked = ipCount >= MAX_ATTEMPTS_IP;
       return {
         blocked,
         retry_after_min: blocked ? RATE_WINDOW_MIN : 0,
         reason: blocked
-          ? emailCount >= MAX_ATTEMPTS_EMAIL
-            ? "Muitas tentativas para este e-mail. Tente novamente em alguns minutos."
-            : "Muitas tentativas a partir do seu IP. Tente novamente em alguns minutos."
+          ? "Muitas tentativas a partir do seu IP. Tente novamente em alguns minutos."
           : null,
       };
     } catch (error) {
@@ -116,6 +103,25 @@ export const recordAuthAttempt = createServerFn({ method: "POST" })
       }
 
       const ip = clientIp();
+
+      // This endpoint is public by design because it records failed sign-in
+      // attempts. Never let caller-supplied email/success fields become an
+      // authorization decision, and cap telemetry writes by server-observed IP.
+      if (!ip) {
+        return { ok: true };
+      }
+
+      const recordSince = new Date(Date.now() - RECORD_WINDOW_MIN * 60_000).toISOString();
+      const recentRecords = await supabaseAdmin
+        .from("auth_attempts")
+        .select("id", { count: "exact", head: true })
+        .eq("ip", ip)
+        .gte("created_at", recordSince);
+
+      if ((recentRecords.count ?? 0) >= MAX_RECORDS_PER_IP) {
+        return { ok: true };
+      }
+
       await supabaseAdmin.from("auth_attempts").insert({
         email: data.email?.toLowerCase() ?? null,
         ip,

@@ -1,0 +1,153 @@
+# Segurança
+
+## Objetivo
+
+Proteger identidade, dados empresariais, cotações e operações administrativas,
+mantendo o estado de produção auditável e reproduzível.
+
+Este documento descreve o modelo vigente e as pendências. A análise detalhada de
+origem está em `auditoria-inicial-seguranca-2026-07-27.md`.
+
+## Fronteiras de confiança
+
+| Fronteira         | Confiança                     | Regra                                                      |
+| ----------------- | ----------------------------- | ---------------------------------------------------------- |
+| Browser           | Não confiável                 | Validar no servidor/banco; estado visual não autoriza.     |
+| JWT Supabase      | Condicional                   | Validar assinatura/claims e aplicar RLS.                   |
+| Cloudflare Worker | Servidor confiável            | Segredos apenas em runtime e operações limitadas.          |
+| `service_role`    | Altamente privilegiado        | Uso mínimo, server-side e com validação própria.           |
+| Edge Function     | Servidor confiável            | Validar JWT, ação e propriedade dos recursos.              |
+| PostgreSQL/RLS    | Autoridade de dados           | Grants, policies, constraints e RPCs são o controle final. |
+| EmailJS           | Serviço externo               | Enviar apenas dados necessários e conteúdo codificado.     |
+| Storage público   | Conteúdo publicamente legível | Restringir escrita, tipo, tamanho e caminho.               |
+
+## Autenticação
+
+- Supabase Auth gerencia e-mail/senha e OAuth;
+- Server Functions recebem bearer token anexado pelo cliente;
+- o middleware valida claims;
+- administradores são identificados por `user_roles`;
+- o painel possui timeout de 15 minutos;
+- MFA é recomendado e sinalizado, mas não está imposto pela aplicação.
+
+O rate limit atual opera por IP. Ele não deve bloquear um e-mail com base em
+telemetria controlada pelo próprio chamador.
+
+## Autorização
+
+### Usuário
+
+- lê e altera apenas recursos autorizados por RLS;
+- carrinho, empresa, cotações e solicitações são vinculados a `auth.uid()`;
+- não atribui roles diretamente;
+- não executa funções internas de trigger;
+- não chama RPCs exclusivas de `service_role`.
+
+### Administrador
+
+- precisa de sessão válida;
+- `verifyAdminAccess` consulta `has_role` no servidor;
+- policies e RPCs repetem a autorização no banco;
+- nenhuma operação administrativa deve confiar em parâmetro `_admin_id`.
+
+### Anônimo
+
+Deve acessar somente catálogo público e endpoints públicos planejados. Tabelas
+privadas não podem ficar disponíveis por grants default.
+
+## Proteções aplicadas
+
+Migration P0 de 28/07/2026:
+
+- `has_role` não recursiva e com `search_path` seguro;
+- policies históricas recursivas removidas;
+- overload legado de resposta removido;
+- grants explícitos para tabelas e sequences;
+- default privileges restritos;
+- funções privilegiadas com `PUBLIC` revogado;
+- operações administrativas vinculadas a `auth.uid()`.
+
+Migrations complementares:
+
+- claim atômico para notificação inicial;
+- validações positivas de quantidade e preço;
+- allowlist de alteração empresarial;
+- limite de tamanho do valor proposto;
+- validação do caminho da logo.
+
+Código complementar:
+
+- escape HTML em notificações;
+- redução do risco de envenenamento do rate limit;
+- filtro de arquivos sensíveis no build;
+- verificação pós-build.
+
+## Segredos
+
+Segredos nunca devem aparecer em:
+
+- Git;
+- documentação;
+- mensagens de erro públicas;
+- bundle do browser;
+- parâmetros de URL;
+- screenshots;
+- histórico de comandos compartilhado.
+
+Uma senha do usuário PostgreSQL foi compartilhada em conversa durante a
+investigação. Ela deve ser considerada exposta até que exista evidência de
+rotação. Não reutilizá-la para novas consultas.
+
+## Estado dos achados
+
+| ID     | Estado em 29/07/2026                   | Próxima evidência                                                |
+| ------ | -------------------------------------- | ---------------------------------------------------------------- |
+| AUD-01 | Parcial                                | Catálogo e testes registrados; código versionado.                |
+| AUD-02 | Pendente                               | Replay limpo e cron confirmado por migration nova se necessário. |
+| AUD-03 | Aplicado, não retestado funcionalmente | Matriz de grants do catálogo remoto.                             |
+| AUD-04 | Aplicado, não retestado funcionalmente | Admin=true e usuário comum=false sem recursão.                   |
+| AUD-05 | Parcial                                | Concorrência e outbox por destinatário.                          |
+| AUD-06 | Parcial                                | Snapshots server-side e limites.                                 |
+| AUD-07 | Implementado localmente                | Deploy Cloudflare e teste de abuso.                              |
+| AUD-08 | Pendente                               | Quota e destinatário verificado.                                 |
+| AUD-09 | Pendente                               | Submissão e outbox transacionais.                                |
+| AUD-10 | Parcial                                | Limites MIME/tamanho e validação de conteúdo.                    |
+| AUD-11 | Parcial                                | Constraints restantes e backfill.                                |
+| AUD-12 | Parcial                                | Audit online autorizado e triagem por runtime.                   |
+| AUD-13 | Pendente                               | Typecheck/lint/replay em CI.                                     |
+
+## Testes funcionais mínimos
+
+Executar em staging quando existir; para produção, usar contas de teste aprovadas
+e operações reversíveis.
+
+1. usuário comum lê apenas o próprio role;
+2. `has_role(uid, admin)` retorna `false` para usuário comum;
+3. retorna `true` para admin sem recursão;
+4. usuário comum não escreve `user_roles`;
+5. anônimo não acessa tabelas privadas;
+6. usuário A não acessa empresa/carrinho/cotação de B;
+7. usuário só cria solicitação para a própria empresa e campo permitido;
+8. admin consegue listar e responder cotação;
+9. duas respostas simultâneas geram uma transição;
+10. duas notificações simultâneas geram um único envio lógico;
+11. `PUBLIC` não executa funções `SECURITY DEFINER`;
+12. upload inválido é rejeitado no servidor.
+
+## Processo de mudança de segurança
+
+1. descrever ameaça e ativo;
+2. coletar evidência remota somente leitura;
+3. definir controle e rollback;
+4. implementar migration/código;
+5. validar em ambiente seguro;
+6. aplicar com autorização;
+7. testar como cada papel;
+8. guardar resultados sem dados pessoais;
+9. atualizar este documento e o bloco de evidência;
+10. versionar antes de iniciar nova feature.
+
+## Bloco ativo
+
+O trabalho prioritário iniciado em 29/07/2026 está em
+`security/priority-block-2026-07-29.md`.
