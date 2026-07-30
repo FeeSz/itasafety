@@ -50,7 +50,7 @@ Data da verificação: 28/07/2026, timezone America/Sao_Paulo.
 |     7 | Reconciliar cron de retenção                   | Pendente                        | Job remoto correto ou migration nova aplicada.                                           |
 |     8 | Versionar migrations e código aplicados        | Em andamento                    | Working tree revisada e commit/push autorizado.                                          |
 |     9 | Confirmar deploy Cloudflare do rate limit      | Bloqueado — credencial          | Deployment identificado e smoke test executado.                                          |
-|    10 | Fechar gates                                   | Pendente                        | Typecheck, lint e build integrados ao processo.                                          |
+|    10 | Fechar gates                                   | Parcial                         | Typecheck, lint e build passam; correção do CI ainda requer novo run remoto.              |
 
 ## Ação 1 — rotação da senha
 
@@ -342,3 +342,24 @@ e permanecem visíveis para triagem posterior.
 
 Nenhuma query, migration, chamada Supabase, publicação, commit, push ou deploy
 foi executado nesta etapa.
+
+### 30/07/2026 — replay efêmero e validação do workflow
+
+- `HEAD` e `origin/main` foram confirmados em
+  `694de4bd57d62e0ae5c709cde6d16f40c4435ded`;
+- o replay usou somente containers locais, sem connection string ou acesso ao
+  Supabase de produção;
+- as 18 migrations foram copiadas com hashes idênticos;
+- as 11 primeiras migrations foram aplicadas;
+- `20260708000000_create_partners.sql` falhou no terceiro statement com
+  `SQLSTATE 42883`, por comparar `app_role` com `text`;
+- nenhuma migration foi editada ou criada;
+- o run remoto `30539013879` do workflow `Quality` falhou em `npm ci`;
+- a reprodução Linux com Node 22 e npm `10.9.8` retornou `EUSAGE` por ausência
+  de `lru-cache@11.5.2` no lockfile;
+- com npm `11.18.0`, `npm ci`, typecheck e lint passaram em container Linux
+  descartável;
+- `package.json` e o workflow passaram a fixar npm `11.18.0`;
+- a confirmação no GitHub permanece pendente de commit/push e novo run;
+- containers, volumes, redes, processos e arquivos temporários da rodada foram
+  removidos; imagens Docker permaneceram apenas como cache reutilizável.

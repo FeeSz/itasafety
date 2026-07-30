@@ -103,7 +103,7 @@ rotação. Não reutilizá-la para novas consultas.
 | ID     | Estado em 29/07/2026                   | Próxima evidência                                                |
 | ------ | -------------------------------------- | ---------------------------------------------------------------- |
 | AUD-01 | Parcial                                | Catálogo e testes registrados; código versionado.                |
-| AUD-02 | Pendente                               | Replay limpo e cron confirmado por migration nova se necessário. |
+| AUD-02 | Replay bloqueado na migration de parceiros | Reconciliar produção antes de qualquer migration corretiva.      |
 | AUD-03 | Aplicado, não retestado funcionalmente | Matriz de grants do catálogo remoto.                             |
 | AUD-04 | Aplicado, não retestado funcionalmente | Admin=true e usuário comum=false sem recursão.                   |
 | AUD-05 | Parcial                                | Concorrência e outbox por destinatário.                          |
@@ -114,7 +114,7 @@ rotação. Não reutilizá-la para novas consultas.
 | AUD-10 | Parcial                                | Limites MIME/tamanho e validação de conteúdo.                    |
 | AUD-11 | Parcial                                | Constraints restantes e backfill.                                |
 | AUD-12 | Triado online, risco residual aceito   | Remover exceção por upgrades major isolados.                     |
-| AUD-13 | Gates locais limpos                    | Validar CI remoto e adicionar replay SQL.                        |
+| AUD-13 | Correção do CI validada localmente em Linux | Publicar a correção e confirmar novo run remoto.              |
 
 ## Testes funcionais mínimos
 

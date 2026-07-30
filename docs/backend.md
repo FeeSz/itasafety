@@ -215,6 +215,15 @@ Existe hoje uma alteração local em
 histórico remoto. O estado do job `purge_old_auth_attempts` deve ser confirmado e
 qualquer correção precisa de migration nova.
 
+Em 30/07/2026, um replay desde zero em PostgreSQL Supabase `17.6.1.143` aplicou
+as 11 primeiras migrations e parou em
+`20260708000000_create_partners.sql`. O terceiro statement compara
+`user_roles.role` (`app_role`) com `'admin'::text` e retorna `SQLSTATE 42883`.
+As migrations posteriores não foram exercitadas. Esse resultado comprova uma
+falha da trilha histórica local, não o estado de produção; qualquer solução
+continua condicionada à reconciliação remota e não autoriza reescrever a
+migration aplicada.
+
 ## Pendências estruturais
 
 - RPC transacional para criar cabeçalho, itens e outbox;
@@ -222,6 +231,6 @@ qualquer correção precisa de migration nova.
 - quota de cotação/e-mail;
 - destinatário derivado de identidade verificada;
 - constraints restantes de negócio;
-- replay completo em banco efêmero;
+- replay limpo de toda a trilha em banco efêmero;
 - teste funcional autenticado de RLS;
 - observabilidade e alertas de volume.

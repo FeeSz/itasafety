@@ -1,6 +1,7 @@
 {
   "name": "tanstack_start_ts",
   "private": true,
+  "packageManager": "npm@11.18.0",
   "sideEffects": [
     "src/lib/error-capture.ts",
     "*.css",

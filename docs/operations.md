@@ -99,11 +99,17 @@ Os valores ficam em gerenciadores de segredo, nunca no repositório.
 ## Desenvolvimento
 
 ```bash
-npm install
+npm ci
 npm run dev
 ```
 
 O arquivo local esperado é `.env.local`, ignorado pelo Git.
+
+O toolchain reproduzível usa Node.js 22 e npm `11.18.0`. O `package.json`
+declara essa versão e o workflow instala explicitamente o mesmo npm antes de
+executar `npm ci`. A declaração `packageManager` documenta o contrato, mas não
+substitui a instalação explícita porque o Corepack não intercepta o binário npm
+por padrão.
 
 ## Gates locais
 
@@ -130,9 +136,16 @@ Estado local após saneamento de 29/07/2026:
   depreciado de `inputValidator()`;
 - hooks, contextos e variantes foram separados sem desabilitar
   `react-refresh/only-export-components`;
-- workflow `.github/workflows/quality.yml`: implementado localmente com
-  `npm ci`, typecheck e lint;
-- replay SQL e validação do workflow remoto: pendentes;
+- workflow `.github/workflows/quality.yml`: publicado com `npm ci`, typecheck e
+  lint;
+- o primeiro run remoto, `30539013879`, falhou em `npm ci` porque o npm `10.9.8`
+  do Node 22 considerou ausente `lru-cache@11.5.2` no lockfile; typecheck e lint
+  foram pulados;
+- a correção local fixa npm `11.18.0`, versão que aceitou o lockfile e passou
+  `npm ci`, typecheck e lint em container Linux Node 22;
+- a validação remota da correção permanece pendente de commit/push e novo run;
+- o replay SQL foi executado em banco efêmero e parou na migration
+  `20260708000000_create_partners.sql`; detalhes estão na seção de migrations;
 - `npm run check`: gate local agregado para typecheck, lint e build.
 
 Triagem AUD-12 em 29/07/2026:
@@ -254,6 +267,21 @@ Regras:
 8. regenerar tipos;
 9. executar testes por papel;
 10. documentar evidências e rollback.
+
+Replay efêmero de 30/07/2026:
+
+- Supabase CLI `2.109.1`;
+- PostgreSQL Supabase `17.6.1.143`;
+- 18 migrations copiadas com hashes idênticos ao repositório;
+- as 11 primeiras migrations foram registradas;
+- `20260708000000_create_partners.sql` falhou no terceiro statement com
+  `SQLSTATE 42883: operator does not exist: app_role = text`;
+- a policy compara `user_roles.role`, do tipo `app_role`, com
+  `'admin'::text`;
+- migrations posteriores não foram executadas;
+- nenhuma migration aplicada foi editada e nenhuma migration nova foi criada;
+- o ajuste depende primeiro da reconciliação do catálogo e histórico de
+  produção.
 
 ### Tipos
 
