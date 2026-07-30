@@ -114,7 +114,7 @@ rotação. Não reutilizá-la para novas consultas.
 | AUD-10 | Parcial                                | Limites MIME/tamanho e validação de conteúdo.                    |
 | AUD-11 | Parcial                                | Constraints restantes e backfill.                                |
 | AUD-12 | Triado online, risco residual aceito   | Remover exceção por upgrades major isolados.                     |
-| AUD-13 | Correção do CI validada localmente em Linux | Publicar a correção e confirmar novo run remoto.              |
+| AUD-13 | CI local e remoto validado               | Manter os gates e adicionar replay SQL após sanear a trilha.     |
 
 ## Testes funcionais mínimos
 

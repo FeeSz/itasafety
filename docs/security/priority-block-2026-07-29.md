@@ -50,7 +50,7 @@ Data da verificação: 28/07/2026, timezone America/Sao_Paulo.
 |     7 | Reconciliar cron de retenção                   | Pendente                        | Job remoto correto ou migration nova aplicada.                                           |
 |     8 | Versionar migrations e código aplicados        | Em andamento                    | Working tree revisada e commit/push autorizado.                                          |
 |     9 | Confirmar deploy Cloudflare do rate limit      | Bloqueado — credencial          | Deployment identificado e smoke test executado.                                          |
-|    10 | Fechar gates                                   | Parcial                         | Typecheck, lint e build passam; correção do CI ainda requer novo run remoto.              |
+|    10 | Fechar gates                                   | Concluída                       | Typecheck, lint, build e workflow remoto passam.                                          |
 
 ## Ação 1 — rotação da senha
 
@@ -360,6 +360,9 @@ foi executado nesta etapa.
 - com npm `11.18.0`, `npm ci`, typecheck e lint passaram em container Linux
   descartável;
 - `package.json` e o workflow passaram a fixar npm `11.18.0`;
-- a confirmação no GitHub permanece pendente de commit/push e novo run;
+- a correção foi publicada no commit
+  `aec0304cdaf31e7a54492856600e32ec3dd4493b`;
+- o run remoto `30544422644` concluiu com sucesso em Setup Node, Pin npm,
+  `npm ci`, typecheck e lint;
 - containers, volumes, redes, processos e arquivos temporários da rodada foram
   removidos; imagens Docker permaneceram apenas como cache reutilizável.

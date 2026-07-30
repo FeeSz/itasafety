@@ -143,7 +143,10 @@ Estado local após saneamento de 29/07/2026:
   foram pulados;
 - a correção local fixa npm `11.18.0`, versão que aceitou o lockfile e passou
   `npm ci`, typecheck e lint em container Linux Node 22;
-- a validação remota da correção permanece pendente de commit/push e novo run;
+- a correção foi publicada no commit
+  `aec0304cdaf31e7a54492856600e32ec3dd4493b` e o run remoto
+  `30544422644` concluiu com sucesso em Setup Node, Pin npm, `npm ci`,
+  typecheck e lint;
 - o replay SQL foi executado em banco efêmero e parou na migration
   `20260708000000_create_partners.sql`; detalhes estão na seção de migrations;
 - `npm run check`: gate local agregado para typecheck, lint e build.
