@@ -1,5 +1,12 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect, useState, FormEvent } from "react";
+import { useEffect, useState } from "react";
+import type {
+  Dispatch,
+  FormEvent,
+  InputHTMLAttributes,
+  ReactNode,
+  SetStateAction,
+} from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -15,11 +22,64 @@ import {
 } from "lucide-react";
 import { checkAuthRateLimit, recordAuthAttempt } from "@/lib/auth.functions";
 import brandLogo from "@/assets/itasafety-header-logo.png";
+import { getErrorMessage, getErrorStatus } from "@/lib/utils";
 
 type AuthAttemptType = "login" | "signup" | "reset";
 
+type AuthSearch = {
+  next?: string;
+  mode?: string;
+};
+
+type CheckLimit = (input: {
+  data: { email?: string; attempt_type: AuthAttemptType };
+}) => Promise<{ blocked: boolean; retry_after_min: number; reason: string | null }>;
+
+type RecordAttempt = (input: {
+  data: { attempt_type: AuthAttemptType; success?: boolean; email?: string };
+}) => Promise<{ ok: boolean }>;
+
+type SetLoading = Dispatch<SetStateAction<boolean>>;
+type SetEmail = Dispatch<SetStateAction<string>>;
+type SetSuccessView = Dispatch<SetStateAction<"signup" | "forgot" | null>>;
+type SocialProvider = "google" | "apple";
+type HandleSocial = (provider: SocialProvider) => Promise<void>;
+
+type SharedAuthFormProps = {
+  email: string;
+  setEmail: SetEmail;
+  checkLimit: CheckLimit;
+  recordAttempt: RecordAttempt;
+  setLoading: SetLoading;
+  loading: boolean;
+};
+
+type SignInFormProps = SharedAuthFormProps & {
+  onForgot: () => void;
+  safeNext: string | null;
+  handleSocial: HandleSocial;
+};
+
+type SignUpFormProps = SharedAuthFormProps & {
+  callbackUrl: string;
+  setSuccessView: SetSuccessView;
+  handleSocial: HandleSocial;
+};
+
+type ForgotFormProps = SharedAuthFormProps & {
+  onBack: () => void;
+  setSuccessView: SetSuccessView;
+};
+
+type FloatingInputProps = InputHTMLAttributes<HTMLInputElement> & {
+  id: string;
+  label: string;
+  error?: string;
+  rightElement?: ReactNode;
+};
+
 export const Route = createFileRoute("/auth/")({
-  validateSearch: (s: Record<string, unknown>) => ({
+  validateSearch: (s: Record<string, unknown>): AuthSearch => ({
     next: typeof s.next === "string" ? s.next : undefined,
     mode: typeof s.mode === "string" ? s.mode : undefined,
   }),
@@ -162,7 +222,6 @@ function AuthPage() {
               onForgot={() => setIsForgot(true)}
               checkLimit={checkLimit}
               recordAttempt={recordAttempt}
-              callbackUrl={callbackUrl}
               safeNext={safeNext}
               setLoading={setLoading}
               loading={loading}
@@ -267,7 +326,17 @@ function AuthPage() {
 // FORMS
 // ============================================================================
 
-function SignInForm({ email, setEmail, onForgot, checkLimit, recordAttempt, callbackUrl, safeNext, setLoading, loading, handleSocial }: any) {
+function SignInForm({
+  email,
+  setEmail,
+  onForgot,
+  checkLimit,
+  recordAttempt,
+  safeNext,
+  setLoading,
+  loading,
+  handleSocial,
+}: SignInFormProps) {
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [remember, setRemember] = useState(true);
@@ -306,9 +375,9 @@ function SignInForm({ email, setEmail, onForgot, checkLimit, recordAttempt, call
         if (safeNext) window.location.assign(safeNext);
         else window.location.assign("/");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("[Auth] Sign in failed:", err);
-      const msg = err.message || "Erro";
+      const msg = getErrorMessage(err, "Erro");
       const friendly = /invalid login credentials/i.test(msg) ? "E-mail ou senha inválidos."
         : /email not confirmed/i.test(msg) ? "Confirme seu e-mail antes de entrar."
           : "E-mail ou senha inválidos.";
@@ -327,13 +396,13 @@ function SignInForm({ email, setEmail, onForgot, checkLimit, recordAttempt, call
       <p className="text-white/50 text-sm mb-5">Utilize suas credenciais para acessar.</p>
 
       <div className="space-y-4">
-        <FloatingInput id="login-email" label="E-mail" type="email" value={email} onChange={(e: any) => setEmail(e.target.value)} error={errors.email} disabled={loading} />
+        <FloatingInput id="login-email" label="E-mail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} disabled={loading} />
         <FloatingInput
           id="login-password"
           label="Senha"
           type={showPw ? "text" : "password"}
           value={password}
-          onChange={(e: any) => setPassword(e.target.value)}
+          onChange={(e) => setPassword(e.target.value)}
           error={errors.password}
           disabled={loading}
           rightElement={
@@ -367,7 +436,17 @@ function SignInForm({ email, setEmail, onForgot, checkLimit, recordAttempt, call
   );
 }
 
-function SignUpForm({ email, setEmail, checkLimit, recordAttempt, callbackUrl, setSuccessView, setLoading, loading, handleSocial }: any) {
+function SignUpForm({
+  email,
+  setEmail,
+  checkLimit,
+  recordAttempt,
+  callbackUrl,
+  setSuccessView,
+  setLoading,
+  loading,
+  handleSocial,
+}: SignUpFormProps) {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -401,11 +480,12 @@ function SignUpForm({ email, setEmail, checkLimit, recordAttempt, callbackUrl, s
 
       await recordAuthenticatedAttempt(recordAttempt, "signup", email);
       setSuccessView("signup");
-    } catch (err: any) {
-      const msg = err.message || "Erro";
+    } catch (err: unknown) {
+      const msg = getErrorMessage(err, "Erro");
       const friendly = /already registered/i.test(msg) ? "Este e-mail já está cadastrado." : msg;
       toast.error(friendly);
-      if (err.status >= 400 && err.status < 500) {
+      const status = getErrorStatus(err);
+      if (status !== undefined && status >= 400 && status < 500) {
         await recordAttempt({ data: { attempt_type: "signup", success: false, email } }).catch(() => {});
       }
     } finally {
@@ -419,15 +499,15 @@ function SignUpForm({ email, setEmail, checkLimit, recordAttempt, callbackUrl, s
       <p className="text-white/50 text-sm mb-3">Preencha seus dados abaixo.</p>
 
       <div className="space-y-3">
-        <FloatingInput id="reg-name" label="Nome completo" type="text" value={name} onChange={(e: any) => setName(e.target.value)} error={errors.name} disabled={loading} />
-        <FloatingInput id="reg-email" label="E-mail" type="email" value={email} onChange={(e: any) => setEmail(e.target.value)} error={errors.email} disabled={loading} />
+        <FloatingInput id="reg-name" label="Nome completo" type="text" value={name} onChange={(e) => setName(e.target.value)} error={errors.name} disabled={loading} />
+        <FloatingInput id="reg-email" label="E-mail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} disabled={loading} />
 
         <FloatingInput
           id="reg-password"
           label="Senha"
           type={showPw ? "text" : "password"}
           value={password}
-          onChange={(e: any) => setPassword(e.target.value)}
+          onChange={(e) => setPassword(e.target.value)}
           error={errors.password}
           disabled={loading}
           rightElement={
@@ -441,7 +521,7 @@ function SignUpForm({ email, setEmail, checkLimit, recordAttempt, callbackUrl, s
           label="Confirmar"
           type={showPw ? "text" : "password"}
           value={confirm}
-          onChange={(e: any) => setConfirm(e.target.value)}
+          onChange={(e) => setConfirm(e.target.value)}
           error={errors.confirm}
           disabled={loading}
           rightElement={
@@ -462,7 +542,16 @@ function SignUpForm({ email, setEmail, checkLimit, recordAttempt, callbackUrl, s
   );
 }
 
-function ForgotForm({ email, setEmail, onBack, checkLimit, recordAttempt, setSuccessView, setLoading, loading }: any) {
+function ForgotForm({
+  email,
+  setEmail,
+  onBack,
+  checkLimit,
+  recordAttempt,
+  setSuccessView,
+  setLoading,
+  loading,
+}: ForgotFormProps) {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const submit = async (e: FormEvent) => {
@@ -482,9 +571,10 @@ function ForgotForm({ email, setEmail, onBack, checkLimit, recordAttempt, setSuc
       });
       if (error) throw error;
       setSuccessView("forgot");
-    } catch (err: any) {
-      toast.error(err.message || "Erro");
-      if (err.status >= 400 && err.status < 500) {
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Erro"));
+      const status = getErrorStatus(err);
+      if (status !== undefined && status >= 400 && status < 500) {
         await recordAttempt({ data: { attempt_type: "reset", success: false, email } }).catch(() => {});
       }
     } finally {
@@ -498,7 +588,7 @@ function ForgotForm({ email, setEmail, onBack, checkLimit, recordAttempt, setSuc
       <p className="text-white/50 text-sm mb-6">Enviaremos um link de redefinição para o seu e-mail.</p>
 
       <div className="space-y-4 mb-6">
-        <FloatingInput id="forgot-email" label="E-mail de cadastro" type="email" value={email} onChange={(e: any) => setEmail(e.target.value)} error={errors.email} disabled={loading} />
+        <FloatingInput id="forgot-email" label="E-mail de cadastro" type="email" value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} disabled={loading} />
       </div>
 
       <button type="submit" disabled={loading} className="w-full rounded-full bg-brand-blue py-3.5 text-sm font-bold uppercase tracking-widest text-white shadow-md transition-all hover:bg-brand-blue-hover disabled:opacity-60 flex justify-center items-center h-[52px] mb-6">
@@ -514,7 +604,13 @@ function ForgotForm({ email, setEmail, onBack, checkLimit, recordAttempt, setSuc
   );
 }
 
-function SocialLogin({ loading, handleSocial }: any) {
+function SocialLogin({
+  loading,
+  handleSocial,
+}: {
+  loading: boolean;
+  handleSocial: HandleSocial;
+}) {
   return (
     <>
       <div className="relative flex items-center py-6 mt-4">
@@ -542,7 +638,14 @@ function SocialLogin({ loading, handleSocial }: any) {
 // MICRO-COMPONENTS
 // ============================================================================
 
-function FloatingInput({ id, label, type, error, rightElement, ...props }: any) {
+function FloatingInput({
+  id,
+  label,
+  type,
+  error,
+  rightElement,
+  ...props
+}: FloatingInputProps) {
   return (
     <div className="relative">
       <input
@@ -573,7 +676,7 @@ function FloatingInput({ id, label, type, error, rightElement, ...props }: any) 
 // ============================================================================
 
 async function recordAuthenticatedAttempt(
-  recordAttempt: (input: { data: { attempt_type: AuthAttemptType; success?: boolean; email?: string } }) => Promise<{ ok: boolean }>,
+  recordAttempt: RecordAttempt,
   attempt_type: AuthAttemptType,
   email: string
 ) {

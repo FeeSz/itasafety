@@ -14,7 +14,9 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "deploy": "npm run build && wrangler deploy --config .output/server/wrangler.json",
+    "typecheck": "tsc --noEmit",
     "lint": "eslint .",
+    "check": "npm run typecheck && npm run lint && npm run build",
     "format": "prettier --write ."
   },
   "dependencies": {

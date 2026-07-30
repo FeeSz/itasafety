@@ -3,8 +3,8 @@ import { Trash2, ShoppingCart, ArrowRight, Minus, Plus, Loader2, CheckCircle2, L
 import { useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
-import { useQuoteCart } from "@/components/quote/QuoteCartContext";
-import { useAuth } from "@/contexts/AuthContext";
+import { useQuoteCart } from "@/hooks/use-quote-cart";
+import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { pageMeta } from "@/lib/seo";
@@ -88,7 +88,7 @@ function CarrinhoPage() {
   const maskEmpresaOuCnpj = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     // Se só tiver números e pontuação de CNPJ, formata como CNPJ
-    if (/^[\d.\-\/]+$/.test(val)) {
+    if (/^[\d./-]+$/.test(val)) {
       maskCnpj(e);
     }
   };
@@ -119,7 +119,7 @@ function CarrinhoPage() {
 
     try {
       // 1. Insert cotação header
-      const { data: cotacao, error: cotErr } = await (supabase as any)
+      const { data: cotacao, error: cotErr } = await supabase
         .from("cotacoes")
         .insert({
           user_id: user.id,
@@ -146,7 +146,7 @@ function CarrinhoPage() {
         quantidade: i.qty,
       }));
 
-      const { error: itemErr } = await (supabase as any)
+      const { error: itemErr } = await supabase
         .from("cotacao_itens")
         .insert(itensSql);
 
@@ -423,7 +423,7 @@ function CarrinhoPage() {
                       onChange={maskEmpresaOuCnpj}
                       className={[
                         "w-full rounded-lg border bg-white px-4 py-3 text-sm font-medium text-ink outline-none transition placeholder:text-ink-soft/50",
-                        !!empresa ? "bg-surface-sunken text-ink-muted cursor-not-allowed border-hairline" : fieldErrors.empresa
+                        empresa ? "bg-surface-sunken text-ink-muted cursor-not-allowed border-hairline" : fieldErrors.empresa
                           ? "border-brand-red focus:border-brand-red focus:ring-2 focus:ring-brand-red/15"
                           : "border-hairline focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15",
                       ].join(" ")}
@@ -447,7 +447,7 @@ function CarrinhoPage() {
                         defaultValue={empresa?.cnpj || ""}
                         readOnly={!!empresa}
                         onChange={maskCnpj}
-                        className={`w-full rounded-lg border border-hairline bg-white px-4 py-3 text-sm font-medium text-ink outline-none transition placeholder:text-ink-soft/50 focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15 ${!!empresa ? "bg-surface-sunken text-ink-muted cursor-not-allowed" : ""}`}
+                        className={`w-full rounded-lg border border-hairline bg-white px-4 py-3 text-sm font-medium text-ink outline-none transition placeholder:text-ink-soft/50 focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15 ${empresa ? "bg-surface-sunken text-ink-muted cursor-not-allowed" : ""}`}
                       />
                     </div>
                     <div className="space-y-2">
@@ -466,7 +466,7 @@ function CarrinhoPage() {
                         onChange={maskPhone}
                         className={[
                           "w-full rounded-lg border bg-white px-4 py-3 text-sm font-medium text-ink outline-none transition placeholder:text-ink-soft/50",
-                          !!empresa ? "bg-surface-sunken text-ink-muted cursor-not-allowed border-hairline" : fieldErrors.telefone
+                          empresa ? "bg-surface-sunken text-ink-muted cursor-not-allowed border-hairline" : fieldErrors.telefone
                             ? "border-brand-red focus:border-brand-red focus:ring-2 focus:ring-brand-red/15"
                             : "border-hairline focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15",
                         ].join(" ")}
@@ -512,7 +512,7 @@ function CarrinhoPage() {
               </div>
 
               <div className="mt-4 max-h-64 space-y-2.5 overflow-y-auto pr-1">
-                {items.map((row: any) => (
+                {items.map((row) => (
                   <div key={row.sku} className="flex items-center justify-between text-sm">
                     <span className="max-w-[180px] truncate text-ink-muted">{row.name}</span>
                     <span className="ml-2 shrink-0 rounded-md bg-surface-sunken px-2 py-0.5 text-xs font-bold text-ink">

@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 type Partner = {
   id: string;
   name: string;
+  logo_url: string;
   href: string | null;
   tagline: string | null;
 };

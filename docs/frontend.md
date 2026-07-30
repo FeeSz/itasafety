@@ -104,6 +104,21 @@ Ferramentas atuais:
 
 ## Autenticação no browser
 
+### Contrato de navegação
+
+A rota `/auth` aceita os parâmetros de busca opcionais:
+
+- `mode`: modo inicial, como `login` ou `signup`;
+- `next`: caminho interno seguro para retorno após a autenticação.
+
+Os dois parâmetros são opcionais no contrato TypeScript. Links e redirects podem
+abrir `/auth` sem fabricar parâmetros vazios. O parâmetro `next` continua sujeito
+à validação contra redirects externos.
+
+Os formulários de autenticação, carrinho, cotações e parceiros usam os tipos
+concretos do React e do cliente Supabase; casts genéricos para `any` foram
+removidos do caminho auditado em 29/07/2026.
+
 `AuthContext`:
 
 - obtém a sessão inicial;
@@ -111,6 +126,14 @@ Ferramentas atuais:
 - expõe `user`, `session`, `loading` e `isAdmin`;
 - consulta `user_roles` para ajustar a interface;
 - armazena somente um cache visual de admin em `sessionStorage`.
+
+Fronteiras de módulo:
+
+- `contexts/AuthContext.tsx` exporta somente `AuthProvider`;
+- `contexts/auth-context.ts` mantém o contrato e a instância do contexto;
+- `hooks/use-auth.ts` expõe a leitura do contexto para os consumidores.
+
+Essa separação preserva o Fast Refresh sem desabilitar regras do ESLint.
 
 O fluxo suporta:
 
@@ -132,6 +155,10 @@ O painel administrativo encerra a sessão após 15 minutos de inatividade.
 - operações de adicionar, remover, alterar quantidade e limpar;
 - estado visual do carrinho;
 - estado de sincronização.
+
+O provider permanece em `components/quote/QuoteCartContext.tsx`; contrato e
+instância ficam em `contexts/quote-cart-context.ts`; consumidores usam
+`hooks/use-quote-cart.ts`.
 
 Persistência:
 
@@ -190,12 +217,26 @@ artefatos sensíveis.
 
 `scripts/verify-build-env.mjs` verifica o bundle após o build.
 
+## Fronteiras de Fast Refresh
+
+Arquivos que exportam componentes React não exportam hooks ou configurações de
+variantes usadas por outros módulos:
+
+- hooks de autenticação e carrinho ficam em `src/hooks/`;
+- contextos compartilhados ficam em `src/contexts/`;
+- variantes de `Button` e `Toggle` ficam em `button.variants.ts` e
+  `toggle.variants.ts`;
+- variantes internas e hooks internos não utilizados fora do próprio componente
+  deixaram de fazer parte da API pública do módulo.
+
+Em 29/07/2026, `react-refresh/only-export-components` passou sem avisos e sem
+alteração ou exceção na regra.
+
 ## Débitos conhecidos
 
-- typecheck apresenta erros de contrato de rotas e um tipo de parceiro;
-- lint contém grande volume de violações, principalmente formatação;
-- existem usos de `as any` nos fluxos Supabase;
 - dados editoriais locais podem divergir do banco;
 - a tela `/admin/status` espera um payload de health mais rico do que o endpoint
   público atualmente retorna;
-- há avisos de APIs depreciadas em Server Functions.
+- o bundle principal do cliente ainda supera 500 kB minificado;
+- o build ainda apresenta avisos originados no toolchain e em dependências, sem
+  aviso de API TanStack depreciada no código da aplicação.

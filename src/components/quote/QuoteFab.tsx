@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { ShoppingCart, X, Trash2 } from "lucide-react";
-import { useQuoteCart } from "./QuoteCartContext";
-import { useAuth } from "@/contexts/AuthContext";
+import { useQuoteCart } from "@/hooks/use-quote-cart";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function QuoteFab() {
   const { user, loading } = useAuth();

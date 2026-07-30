@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/use-auth";
 import Container from "@/components/ui/Container";
 import Reveal from "@/components/ui/Reveal";
 import { toast } from "sonner";
@@ -21,6 +21,8 @@ import {
   ChevronRight,
   AlertTriangle,
 } from "lucide-react";
+import type { User as SupabaseUser, UserAttributes } from "@supabase/supabase-js";
+import { getErrorMessage } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/configuracoes/")({
   component: ConfiguracoesPage,
@@ -41,6 +43,11 @@ type Empresa = {
   status: EmpresaStatus;
 };
 
+type EditableEmpresaField = keyof Pick<
+  Empresa,
+  "razao_social" | "cnpj" | "telefone_contato" | "nome_contato" | "endereco_cadastral"
+>;
+
 type ChangeRequest = {
   id: string;
   campo_alterado: string;
@@ -52,16 +59,25 @@ type ChangeRequest = {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const CAMPO_LABELS: Record<string, string> = {
+const CAMPO_LABELS: Record<EditableEmpresaField, string> = {
   razao_social: "Razão Social",
   cnpj: "CNPJ",
   telefone_contato: "Telefone",
   nome_contato: "Nome do Contato",
   endereco_cadastral: "Endereço Cadastral",
 };
+const EDITABLE_FIELDS = Object.entries(CAMPO_LABELS) as Array<
+  [EditableEmpresaField, string]
+>;
+
+function getCampoLabel(campo: string) {
+  return campo in CAMPO_LABELS
+    ? CAMPO_LABELS[campo as EditableEmpresaField]
+    : campo;
+}
 
 function maskPhone(raw: string): string {
-  let v = raw.replace(/\D/g, "").slice(0, 11);
+  const v = raw.replace(/\D/g, "").slice(0, 11);
   if (v.length > 6 && v.length < 11) return `(${v.slice(0,2)}) ${v.slice(2,6)}-${v.slice(6)}`;
   if (v.length === 11) return `(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`;
   if (v.length > 2) return `(${v.slice(0,2)}) ${v.slice(2)}`;
@@ -69,7 +85,7 @@ function maskPhone(raw: string): string {
 }
 
 function maskCnpj(raw: string): string {
-  let v = raw.replace(/\D/g, "").slice(0, 14);
+  const v = raw.replace(/\D/g, "").slice(0, 14);
   if (v.length > 12) return `${v.slice(0,2)}.${v.slice(2,5)}.${v.slice(5,8)}/${v.slice(8,12)}-${v.slice(12)}`;
   if (v.length > 8)  return `${v.slice(0,2)}.${v.slice(2,5)}.${v.slice(5,8)}/${v.slice(8)}`;
   if (v.length > 5)  return `${v.slice(0,2)}.${v.slice(2,5)}.${v.slice(5)}`;
@@ -118,7 +134,7 @@ function InputField({ label, id, required, ...props }: React.InputHTMLAttributes
 
 // ─── Bloco 1A: Dados da Conta ─────────────────────────────────────────────────
 
-function BlocoDadosConta({ user }: { user: any }) {
+function BlocoDadosConta({ user }: { user: SupabaseUser }) {
   const [nome, setNome] = useState(user?.user_metadata?.full_name ?? "");
   const [email, setEmail] = useState(user?.email ?? "");
   const [saving, setSaving] = useState(false);
@@ -127,7 +143,7 @@ function BlocoDadosConta({ user }: { user: any }) {
     e.preventDefault();
     setSaving(true);
     try {
-      const updates: Record<string, any> = {
+      const updates: UserAttributes = {
         data: { full_name: nome },
       };
       if (email !== user.email) {
@@ -140,8 +156,8 @@ function BlocoDadosConta({ user }: { user: any }) {
       } else {
         toast.success("Nome atualizado com sucesso!");
       }
-    } catch (err: any) {
-      toast.error(err.message ?? "Erro ao atualizar dados.");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Erro ao atualizar dados."));
     } finally {
       setSaving(false);
     }
@@ -222,8 +238,8 @@ function BlocoAlterarSenha() {
 
       toast.success("Senha alterada com sucesso!");
       setCurrent(""); setNext(""); setConfirm("");
-    } catch (err: any) {
-      toast.error(err.message ?? "Erro ao alterar senha.");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Erro ao alterar senha."));
     } finally {
       setSaving(false);
     }
@@ -284,7 +300,7 @@ function BlocoPerfilEmpresa({ empresa, refetchEmpresa }: { empresa: Empresa; ref
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [uploadingLogo, setUploadingLogo] = useState(false);
-  const [fieldEditing, setFieldEditing] = useState<string | null>(null);
+  const [fieldEditing, setFieldEditing] = useState<EditableEmpresaField | null>(null);
   const [fieldValue, setFieldValue] = useState("");
   const [submittingRequest, setSubmittingRequest] = useState(false);
 
@@ -332,16 +348,16 @@ function BlocoPerfilEmpresa({ empresa, refetchEmpresa }: { empresa: Empresa; ref
 
       toast.success("Logo atualizada com sucesso!");
       refetchEmpresa();
-    } catch (err: any) {
-      toast.error(err.message ?? "Erro ao enviar logo.");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Erro ao enviar logo."));
     } finally {
       setUploadingLogo(false);
     }
   };
 
   // Iniciar edição de campo
-  const startEdit = (campo: string) => {
-    const current = (empresa as any)[campo] ?? "";
+  const startEdit = (campo: EditableEmpresaField) => {
+    const current = empresa[campo] ?? "";
     setFieldValue(current);
     setFieldEditing(campo);
   };
@@ -354,7 +370,7 @@ function BlocoPerfilEmpresa({ empresa, refetchEmpresa }: { empresa: Empresa; ref
   // Submeter change request
   const submitRequest = async () => {
     if (!fieldEditing || !user) return;
-    const currentVal = (empresa as any)[fieldEditing] ?? "";
+    const currentVal = empresa[fieldEditing] ?? "";
     if (fieldValue === currentVal) {
       toast.error("O novo valor é idêntico ao atual.");
       return;
@@ -381,8 +397,8 @@ function BlocoPerfilEmpresa({ empresa, refetchEmpresa }: { empresa: Empresa; ref
       toast.success(`Solicitação de alteração de "${CAMPO_LABELS[fieldEditing]}" enviada para revisão.`);
       qc.invalidateQueries({ queryKey: ["change-requests", empresa.id] });
       cancelEdit();
-    } catch (err: any) {
-      toast.error(err.message ?? "Erro ao enviar solicitação.");
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, "Erro ao enviar solicitação."));
     } finally {
       setSubmittingRequest(false);
     }
@@ -425,8 +441,8 @@ function BlocoPerfilEmpresa({ empresa, refetchEmpresa }: { empresa: Empresa; ref
           Dados cadastrais — alterações passam por aprovação
         </p>
 
-        {Object.entries(CAMPO_LABELS).map(([campo, label]) => {
-          const currentVal = (empresa as any)[campo] ?? "—";
+        {EDITABLE_FIELDS.map(([campo, label]) => {
+          const currentVal = empresa[campo] ?? "—";
           const isPending = pendingFields.has(campo);
           const isEditing = fieldEditing === campo;
           const pendingReq = (requests ?? []).find((r) => r.campo_alterado === campo && r.status === "pendente");
@@ -509,7 +525,7 @@ function BlocoPerfilEmpresa({ empresa, refetchEmpresa }: { empresa: Empresa; ref
                 {r.status === "pendente" && <Clock className="size-4 shrink-0 text-amber-500" />}
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-xs font-semibold text-ink">
-                    {CAMPO_LABELS[r.campo_alterado] ?? r.campo_alterado}:{" "}
+                    {getCampoLabel(r.campo_alterado)}:{" "}
                     <span className="text-ink-muted">{r.valor_atual ?? "—"}</span>
                     {" → "}
                     <span className="font-bold">{r.valor_proposto}</span>
@@ -556,6 +572,8 @@ function ConfiguracoesPage() {
     { id: "conta" as const, label: "Minha Conta", icon: User },
     { id: "empresa" as const, label: "Empresa", icon: Building2 },
   ];
+
+  if (!user) return null;
 
   return (
     <section className="bg-surface-sunken pb-20 pt-24 min-h-screen">

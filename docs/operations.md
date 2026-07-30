@@ -48,6 +48,32 @@ variáveis e conectividade sejam reconciliadas.
 Publishable key é própria para cliente, mas continua sujeita a rotação e não deve
 ser confundida com `service_role`.
 
+### Conexão Lovable → Supabase
+
+Para um projeto que usa Supabase externo, existem dois vínculos distintos:
+
+1. um owner/admin do workspace Lovable autoriza a organização Supabase;
+2. um editor conecta o projeto Lovable ao projeto Supabase correto.
+
+No ItaSafety, o vínculo deve apontar para o project ref
+`porgyoqngtshxdxuwaft`. A confirmação deve ser feita em **More → Cloud** no
+editor do projeto e no painel Supabase; o simples estado `stack: supabase` não
+identifica qual projeto está conectado.
+
+Depois de conectar ou corrigir as variáveis, é obrigatório gerar e publicar um
+novo build. Variáveis `VITE_*` são incorporadas no bundle durante o build e não
+passam a existir retroativamente em uma publicação anterior.
+
+Nunca usar nestes campos:
+
+- senha PostgreSQL;
+- `service_role`;
+- token pessoal do Google;
+- token de sessão do Supabase CLI.
+
+O frontend usa somente a URL do projeto e a publishable key. Não colar valores
+de credenciais em chat, documentação, issue ou commit.
+
 ### Servidor da aplicação
 
 - `SUPABASE_URL`;
@@ -95,6 +121,42 @@ Estado observado em 28/07/2026:
 - lint: falha;
 - audit offline: sem achados no cache, não equivalente a consulta online atual.
 
+Estado local após saneamento de 29/07/2026:
+
+- `npm run typecheck`: passa;
+- `npm run lint`: passa sem erros ou avisos;
+- `npm run build`: passa e confirma as variáveis Supabase no bundle;
+- as duas Server Functions de autenticação usam `validator()`, sem o aviso
+  depreciado de `inputValidator()`;
+- hooks, contextos e variantes foram separados sem desabilitar
+  `react-refresh/only-export-components`;
+- workflow `.github/workflows/quality.yml`: implementado localmente com
+  `npm ci`, typecheck e lint;
+- replay SQL e validação do workflow remoto: pendentes;
+- `npm run check`: gate local agregado para typecheck, lint e build.
+
+Triagem AUD-12 em 29/07/2026:
+
+- relatório detalhado em `security/dependency-audit-2026-07-29.md`;
+- após consentimento específico, `npm audit --json` online reportou nove
+  registros: cinco altos, três moderados, um baixo e nenhum crítico;
+- com `--omit=dev`, restaram três moderados e um baixo;
+- os cinco registros altos são exclusivos da cadeia de lint do ESLint;
+- `npm audit --offline` retornou zero e foi descartado como evidência atual;
+- os caminhos residuais estão em MCP, build/dev server e ESLint;
+- não foi usado `npm audit fix --force`, override semver ou atualização major;
+- antes de release/deploy, repetir a consulta online e revisar a decisão
+  `decisions/0002-temporary-dependency-risk.md`.
+
+Avisos residuais do build:
+
+- chunk principal do cliente acima de 500 kB minificado;
+- diretivas `"use client"` ignoradas pelo empacotador em dependências;
+- imports não utilizados e opção `platform` originados no toolchain;
+- sobrescritas esperadas de `main` e `assets` na configuração Cloudflare gerada.
+
+Esses avisos não foram ocultados e devem ser triados em etapas próprias.
+
 Uma entrega não deve ocultar essas falhas. Até os gates serem saneados, registre
 se o erro é novo ou preexistente.
 
@@ -109,6 +171,36 @@ se o erro é novo ou preexistente.
 
 O verificador deve falhar se as variáveis públicas obrigatórias estiverem ausentes
 ou se padrões de credenciais inesperadas aparecerem no bundle.
+
+Correção local de 29/07/2026:
+
+- as substituições manuais de `VITE_SUPABASE_URL` e
+  `VITE_SUPABASE_PUBLISHABLE_KEY` foram removidas de `vite.config.ts`; a injeção
+  volta a ser responsabilidade do Vite e de
+  `@lovable.dev/vite-tanstack-config`;
+- `scripts/verify-build-env.mjs` agora encerra com código `1` quando essas
+  variáveis não foram incorporadas;
+- `npm run build` passou localmente e o verificador confirmou
+  `VITE_SUPABASE_*` no bundle local;
+- a publicação no Lovable continua pendente; o bundle remoto existente permanece
+  inválido até que a conexão seja confirmada e um novo build seja publicado.
+
+### Standby do ambiente Lovable
+
+Em 29/07/2026, o proprietário colocou a aplicação em standby operacional porque
+a conexão do projeto Lovable ao Supabase depende de tokens/créditos do Lovable,
+com reset previsto para 01/08/2026.
+
+Até a retomada autorizada:
+
+- não publicar o build local;
+- não tentar conectar ou trocar o backend no Lovable;
+- não prosseguir com os testes autenticados 1c e 1d;
+- não executar as consultas seguintes da auditoria;
+- preservar as correções locais e a documentação já produzida.
+
+O standby não impede typecheck, lint, build local, documentação, testes unitários
+sem rede ou preparação de CI que não consulte nem altere serviços remotos.
 
 ## Deploy da aplicação
 

@@ -6,9 +6,7 @@
  * - Ao autenticar: migra itens do localStorage para o Supabase automaticamente
  */
 import {
-  createContext,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useState,
@@ -16,31 +14,13 @@ import {
   type ReactNode,
 } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
+import {
+  QuoteCartContext,
+  type QuoteCartContextValue,
+  type QuoteItem,
+} from "@/contexts/quote-cart-context";
+import { useAuth } from "@/hooks/use-auth";
 import type { Product } from "@/lib/products";
-
-export type QuoteItem = {
-  sku: string;
-  name: string;
-  image: string;
-  category: string;
-  ca_number?: string;
-  qty: number;
-};
-
-type Ctx = {
-  items: QuoteItem[];
-  count: number;
-  add: (p: Product | QuoteItem, qty?: number) => void;
-  remove: (sku: string) => void;
-  setQty: (sku: string, qty: number) => void;
-  clear: () => void;
-  open: boolean;
-  setOpen: (v: boolean) => void;
-  syncing: boolean;
-};
-
-const QuoteCartContext = createContext<Ctx | null>(null);
 const STORAGE = "itasafety:quote";
 
 // ── helpers ─────────────────────────────────────────────────────────────────
@@ -78,13 +58,13 @@ export function QuoteCartProvider({ children }: { children: ReactNode }) {
   // ── Load cart ──────────────────────────────────────────────────────────────
 
   async function loadFromSupabase(userId: string): Promise<QuoteItem[]> {
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from("carrinho_cotacao")
       .select("sku, nome, image_url, categoria, ca_number, quantidade")
       .eq("user_id", userId);
 
     if (error || !data) return [];
-    return data.map((row: any) => ({
+    return data.map((row) => ({
       sku:       row.sku,
       name:      row.nome,
       image:     row.image_url ?? "",
@@ -97,7 +77,7 @@ export function QuoteCartProvider({ children }: { children: ReactNode }) {
   // ── Upsert single item in Supabase ────────────────────────────────────────
 
   async function upsertSupabase(userId: string, item: QuoteItem) {
-    await (supabase as any).from("carrinho_cotacao").upsert(
+    await supabase.from("carrinho_cotacao").upsert(
       {
         user_id:   userId,
         sku:       item.sku,
@@ -114,7 +94,7 @@ export function QuoteCartProvider({ children }: { children: ReactNode }) {
   // ── Delete single item in Supabase ────────────────────────────────────────
 
   async function deleteSupabase(userId: string, sku: string) {
-    await (supabase as any)
+    await supabase
       .from("carrinho_cotacao")
       .delete()
       .eq("user_id", userId)
@@ -124,7 +104,7 @@ export function QuoteCartProvider({ children }: { children: ReactNode }) {
   // ── Clear all in Supabase ─────────────────────────────────────────────────
 
   async function clearSupabase(userId: string) {
-    await (supabase as any)
+    await supabase
       .from("carrinho_cotacao")
       .delete()
       .eq("user_id", userId);
@@ -169,7 +149,7 @@ export function QuoteCartProvider({ children }: { children: ReactNode }) {
       setItems(merged);
       setSyncing(false);
     });
-  }, [user?.id]);
+  }, [user]);
 
   // ── Persist to localStorage when not authenticated ────────────────────────
 
@@ -247,7 +227,7 @@ export function QuoteCartProvider({ children }: { children: ReactNode }) {
     else clearLocal();
   }, [user]);
 
-  const value = useMemo<Ctx>(
+  const value = useMemo<QuoteCartContextValue>(
     () => ({
       items,
       count: items.reduce((acc, i) => acc + i.qty, 0),
@@ -267,10 +247,4 @@ export function QuoteCartProvider({ children }: { children: ReactNode }) {
       {children}
     </QuoteCartContext.Provider>
   );
-}
-
-export function useQuoteCart() {
-  const ctx = useContext(QuoteCartContext);
-  if (!ctx) throw new Error("useQuoteCart must be used within QuoteCartProvider");
-  return ctx;
 }

@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/use-auth";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -106,7 +106,7 @@ function AdminCotacaoDetailPage() {
   const { data: cotacao, isLoading } = useQuery({
     queryKey: ["admin-cotacao", id],
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from("cotacoes")
         .select(`
           id, numero_cotacao, empresa, cnpj, nome_contato, email_contato,
@@ -131,7 +131,7 @@ function AdminCotacaoDetailPage() {
     if (cotacao.status !== "enviado") return;
     markedRef.current = true;
 
-    (supabase as any)
+    supabase
       .rpc("marcar_em_analise", { _cotacao_id: id })
       .then(() => {
         qc.invalidateQueries({ queryKey: ["admin-cotacao", id] });

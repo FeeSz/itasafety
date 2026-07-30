@@ -13,6 +13,7 @@ import {
   Building2,
 } from "lucide-react";
 import { useState } from "react";
+import { getErrorMessage } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/admin/empresas/solicitacoes")({
   component: AdminSolicitacoesPage,
@@ -91,7 +92,8 @@ function AdminSolicitacoesPage() {
       toast.success("Alteração aprovada e aplicada na empresa!");
       qc.invalidateQueries({ queryKey: ["admin-change-requests"] });
     },
-    onError: (err: any) => toast.error(err.message ?? "Erro ao aprovar solicitação."),
+    onError: (err: unknown) =>
+      toast.error(getErrorMessage(err, "Erro ao aprovar solicitação.")),
   });
 
   const rejectMutation = useMutation({
@@ -107,7 +109,8 @@ function AdminSolicitacoesPage() {
       setConfirmReject(null);
       qc.invalidateQueries({ queryKey: ["admin-change-requests"] });
     },
-    onError: (err: any) => toast.error(err.message ?? "Erro ao recusar solicitação."),
+    onError: (err: unknown) =>
+      toast.error(getErrorMessage(err, "Erro ao recusar solicitação.")),
   });
 
   const filterButtons: { id: RequestStatus | "todas"; label: string }[] = [

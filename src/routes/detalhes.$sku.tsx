@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/use-auth";
 import {
   ChevronRight,
   ShoppingCart,
@@ -16,7 +16,7 @@ import {
   Plus,
 } from "lucide-react";
 import { FEATURED_PRODUCTS, type Product } from "@/lib/products";
-import { useQuoteCart } from "@/components/quote/QuoteCartContext";
+import { useQuoteCart } from "@/hooks/use-quote-cart";
 import { toast } from "sonner";
 import { pageMeta, SITE_URL, abs } from "@/lib/seo";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";

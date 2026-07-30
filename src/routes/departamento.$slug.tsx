@@ -11,8 +11,8 @@ import {
 import { toast } from "sonner";
 import { CATEGORIES } from "@/lib/categories";
 import { FEATURED_PRODUCTS, type Product } from "@/lib/products";
-import { useQuoteCart } from "@/components/quote/QuoteCartContext";
-import { useAuth } from "@/contexts/AuthContext";
+import { useQuoteCart } from "@/hooks/use-quote-cart";
+import { useAuth } from "@/hooks/use-auth";
 import Reveal from "@/components/ui/Reveal";
 import { pageMeta } from "@/lib/seo";
 

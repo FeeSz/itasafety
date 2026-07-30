@@ -3,8 +3,8 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { Check, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 import { FEATURED_PRODUCTS, type Product } from "@/lib/products";
-import { useQuoteCart } from "@/components/quote/QuoteCartContext";
-import { useAuth } from "@/contexts/AuthContext";
+import { useQuoteCart } from "@/hooks/use-quote-cart";
+import { useAuth } from "@/hooks/use-auth";
 
 type Tab = "todos" | "mais-vendido" | "novo" | "certificado";
 

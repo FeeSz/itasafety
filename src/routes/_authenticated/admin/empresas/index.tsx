@@ -6,6 +6,7 @@ import Reveal from "@/components/ui/Reveal";
 import { toast } from "sonner";
 import { Building2, CheckCircle2, Loader2, XCircle, Search, ClipboardList } from "lucide-react";
 import { useState } from "react";
+import { getErrorMessage } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/admin/empresas/")({
   component: AdminEmpresasPage,
@@ -62,8 +63,8 @@ function AdminEmpresasPage() {
       toast.success("Status da empresa atualizado.");
       qc.invalidateQueries({ queryKey: ["admin-empresas"] });
     },
-    onError: (err: any) => {
-      toast.error(err.message || "Erro ao atualizar empresa");
+    onError: (err: unknown) => {
+      toast.error(getErrorMessage(err, "Erro ao atualizar empresa"));
     }
   });
 

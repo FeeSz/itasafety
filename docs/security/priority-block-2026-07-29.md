@@ -200,6 +200,41 @@ Conclusão restrita à consulta:
 - a policy histórica `Admins manage roles select` não apareceu no catálogo;
 - o grafo recursivo identificado na auditoria não está presente nessa tabela.
 
+### 29/07/2026 — bloqueio do teste funcional autenticado no Lovable
+
+Erro informado ao tentar iniciar sessão Google pela aplicação publicada:
+
+```text
+Missing Supabase environment variable(s): VITE_SUPABASE_URL,
+VITE_SUPABASE_PUBLISHABLE_KEY. Connect Supabase in Lovable Cloud.
+```
+
+Escopo da conclusão:
+
+- a falha ocorre antes do OAuth Google e impede o teste funcional 1c;
+- não é evidência de erro na conta Google, na senha PostgreSQL ou em
+  `public.has_role`;
+- a inspeção somente leitura do Lovable localizou o workspace `Itasafety`, o
+  projeto publicado `ItaSafety` e um backend habilitado com stack `supabase`;
+- a interface consultada não informou o project ref, portanto não confirma que
+  o vínculo aponta para `porgyoqngtshxdxuwaft`;
+- foram identificadas e removidas localmente de `vite.config.ts` substituições
+  manuais que podiam incorporar strings vazias para as duas variáveis durante o
+  build remoto;
+- `scripts/verify-build-env.mjs` foi alterado localmente para encerrar com código
+  `1` quando essas variáveis faltam, bloqueando novas publicações quebradas.
+
+Nenhuma chave, senha, configuração remota, migration ou policy foi alterada
+durante esse diagnóstico e contenção local. A correção ainda não está publicada.
+
+Validação local:
+
+```text
+npm run build
+exit code: 0
+[verify-build-env] OK — VITE_SUPABASE_* inlined into .output/public.
+```
+
 ## Evidências pendentes
 
 ```text
@@ -210,8 +245,8 @@ Conclusão restrita à consulta:
 [ ] saúde do Vercel reconciliada
 [ ] URL canônica e plano de cutover definidos
 [~] catálogo em coleta sequencial — consultas 1a e 1b registradas
-[ ] teste usuário comum
-[ ] teste admin
+[ ] teste usuário comum — bloqueado pela configuração do bundle Lovable
+[ ] teste admin — bloqueado pela configuração do bundle Lovable
 [ ] teste anon
 [ ] teste A/B
 [ ] teste concorrência
@@ -223,7 +258,87 @@ Conclusão restrita à consulta:
 ## Bloqueios atuais
 
 1. falta confirmar invalidação da senha anterior e consumidores após a rotação;
-2. testes autenticados exigem sessões/contas de teste reais;
-3. consulta de deployment Cloudflare exige token disponível no ambiente;
-4. audit npm online envia metadados de dependências ao registro externo e requer
+2. o bundle publicado no Lovable não contém as variáveis públicas do Supabase;
+3. o project ref da conexão Lovable → Supabase ainda precisa ser confirmado
+   como `porgyoqngtshxdxuwaft`;
+4. testes autenticados exigem sessões/contas de teste reais após a reconciliação;
+5. consulta de deployment Cloudflare exige token disponível no ambiente;
+6. audit npm online envia metadados de dependências ao registro externo e requer
    autorização consciente.
+
+## Estado operacional
+
+`STANDBY` desde 29/07/2026, por decisão do proprietário.
+
+Motivo: a conexão Lovable → Supabase depende de tokens/créditos do Lovable, com
+reset previsto para 01/08/2026.
+
+Escopo do standby: conexão/deploy Lovable, testes autenticados e continuação
+sequencial das consultas de produção. Manutenção local independente permanece
+autorizada.
+
+Critério de retomada:
+
+1. proprietário confirmar disponibilidade dos tokens;
+2. conectar o Lovable ao Supabase `porgyoqngtshxdxuwaft`;
+3. publicar o build corrigido;
+4. validar o login Google;
+5. retomar pela consulta funcional 1c, sem saltar etapas.
+
+### Trabalho local independente durante o standby
+
+Em 29/07/2026:
+
+- o contrato de busca de `/auth` foi corrigido para parâmetros opcionais;
+- casts `any` foram removidos dos fluxos auditados de autenticação, carrinho,
+  cotações, empresas e parceiros;
+- tratamento de erros passou a receber `unknown` e extrair mensagem/status de
+  forma segura;
+- `npm run typecheck` passou;
+- `npm run lint` passou sem erros;
+- workflow local de CI foi adicionado para typecheck e lint;
+- nenhuma ação remota, query, migration, commit, push ou deploy foi executada.
+
+### 29/07/2026 — etapa AUD-12
+
+A árvore atual foi classificada por runtime e tooling:
+
+- `@hono/node-server@1.19.17` é transitivo do MCP, está no intervalo afetado,
+  mas não aparece no bundle Cloudflare local;
+- `esbuild@0.27.7` está presente em Vite e MCP, sem uso direto do servidor
+  próprio do esbuild no código;
+- `brace-expansion@1.1.16` pertence ao caminho de lint do ESLint;
+- as correções automáticas disponíveis atravessam majors ou contratos semver;
+- `npm audit fix --force` e overrides foram rejeitados nesta etapa;
+- o audit offline retornou zero, resultado registrado como não conclusivo;
+- depois de consentimento específico, o audit online completo confirmou cinco
+  registros altos, três moderados, um baixo e nenhum crítico;
+- com `--omit=dev`, restaram três moderados e um baixo; os cinco registros altos
+  pertencem exclusivamente à cadeia ESLint/minimatch/brace-expansion.
+
+Evidência detalhada:
+`docs/security/dependency-audit-2026-07-29.md`.
+
+Nenhum pacote, lockfile, serviço remoto ou banco foi alterado nesta etapa.
+
+### 29/07/2026 — etapa AUD-13, depreciações e Fast Refresh
+
+- `inputValidator()` foi substituído por `validator()` nas duas Server Functions
+  de autenticação;
+- contextos e hooks de autenticação e carrinho foram separados;
+- variantes compartilhadas de Button e Toggle foram movidas para módulos sem
+  componentes;
+- exports não-componentes sem consumidores foram removidos dos módulos de Badge,
+  Form, Navigation Menu e Sidebar;
+- a regra `react-refresh/only-export-components` não foi desabilitada, reduzida
+  ou excepcionada;
+- `npm run typecheck` passou;
+- `npm run lint` passou com zero erros e zero avisos;
+- `npm run build` passou, sem o aviso depreciado de `inputValidator()`;
+- o verificador confirmou `VITE_SUPABASE_*` no bundle local.
+
+Avisos residuais do build pertencem ao tamanho do chunk e ao toolchain/dependências
+e permanecem visíveis para triagem posterior.
+
+Nenhuma query, migration, chamada Supabase, publicação, commit, push ou deploy
+foi executado nesta etapa.

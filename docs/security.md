@@ -80,7 +80,7 @@ Código complementar:
 - escape HTML em notificações;
 - redução do risco de envenenamento do rate limit;
 - filtro de arquivos sensíveis no build;
-- verificação pós-build.
+- verificação pós-build fail-closed para variáveis públicas do Supabase.
 
 ## Segredos
 
@@ -113,8 +113,8 @@ rotação. Não reutilizá-la para novas consultas.
 | AUD-09 | Pendente                               | Submissão e outbox transacionais.                                |
 | AUD-10 | Parcial                                | Limites MIME/tamanho e validação de conteúdo.                    |
 | AUD-11 | Parcial                                | Constraints restantes e backfill.                                |
-| AUD-12 | Parcial                                | Audit online autorizado e triagem por runtime.                   |
-| AUD-13 | Pendente                               | Typecheck/lint/replay em CI.                                     |
+| AUD-12 | Triado online, risco residual aceito   | Remover exceção por upgrades major isolados.                     |
+| AUD-13 | Gates locais limpos                    | Validar CI remoto e adicionar replay SQL.                        |
 
 ## Testes funcionais mínimos
 

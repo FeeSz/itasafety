@@ -21,8 +21,8 @@ import Logo from "./Logo";
 import MegaMenu from "./MegaMenu";
 import SearchBox from "./SearchBox";
 import { CATEGORIES } from "@/lib/categories";
-import { useQuoteCart } from "@/components/quote/QuoteCartContext";
-import { useAuth } from "@/contexts/AuthContext";
+import { useQuoteCart } from "@/hooks/use-quote-cart";
+import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 

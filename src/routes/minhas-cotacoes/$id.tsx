@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/use-auth";
 import { useEffect } from "react";
 import {
   Loader2,
@@ -107,9 +107,7 @@ function MinhasCotacaoDetalhe() {
 
   useEffect(() => {
     if (!loading && !user) {
-      // Same pattern used throughout the project (departamento.$slug, detalhes.$sku, etc.)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      navigate({ to: "/auth" } as any);
+      navigate({ to: "/auth" });
     }
   }, [user, loading, navigate]);
 
@@ -117,7 +115,7 @@ function MinhasCotacaoDetalhe() {
     queryKey: ["minha-cotacao", id, user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from("cotacoes")
         .select(`
           id, numero_cotacao, empresa, cnpj, nome_contato, email_contato,

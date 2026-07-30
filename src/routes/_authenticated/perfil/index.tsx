@@ -2,11 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/use-auth";
 import Container from "@/components/ui/Container";
 import Reveal from "@/components/ui/Reveal";
 import { toast } from "sonner";
 import { Building2, CheckCircle2, Clock, Loader2, Save, XCircle } from "lucide-react";
+import { getErrorMessage } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/perfil/")({
   component: PerfilPage,
@@ -125,8 +126,8 @@ function PerfilPage() {
       toast.success("Dados enviados com sucesso! Aguarde a aprovação.");
       qc.invalidateQueries({ queryKey: ["empresa", user?.id] });
     },
-    onError: (err: any) => {
-      toast.error(err.message || "Erro ao salvar empresa");
+    onError: (err: unknown) => {
+      toast.error(getErrorMessage(err, "Erro ao salvar empresa"));
     }
   });
 

@@ -33,7 +33,7 @@ function AdminCotacoesListPage() {
   const { data: cotacoes, isLoading } = useQuery({
     queryKey: ["admin-cotacoes"],
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from("cotacoes")
         .select(`
           id, numero_cotacao, empresa, nome_contato, email_contato,

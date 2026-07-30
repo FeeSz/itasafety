@@ -59,12 +59,12 @@ for (const f of files) {
 
 const missing = REQUIRED_MARKERS.filter((m) => !found.has(m));
 if (missing.length > 0) {
-  console.warn(
-    `\n[verify-build-env] WARNING — missing env in ${DIST} bundle:\n  - ${missing.join(
+  console.error(
+    `\n[verify-build-env] ERROR — missing env in ${DIST} bundle:\n  - ${missing.join(
       "\n  - ",
-    )}\n\nPublishing will proceed, and the site will display a graceful "Configuration Missing" UI to administrators.\n`,
+    )}\n\nBuild blocked: configure the public Supabase variables and rebuild before publishing.\n`,
   );
-  process.exit(0);
+  process.exit(1);
 }
 
 console.log(`[verify-build-env] OK — VITE_SUPABASE_* inlined into ${DIST}.`);
