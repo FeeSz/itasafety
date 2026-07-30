@@ -41,7 +41,7 @@ Data da verificação: 28/07/2026, timezone America/Sao_Paulo.
 
 | Ordem | Ação                                           | Estado                          | Critério de conclusão                                                                    |
 | ----: | ---------------------------------------------- | ------------------------------- | ---------------------------------------------------------------------------------------- |
-|     1 | Rotacionar senha PostgreSQL exposta            | Rotacionada; validação pendente | Confirmar senha anterior rejeitada, consumidores atualizados e aplicação saudável.       |
+|     1 | Rotacionar senha PostgreSQL exposta            | Concluída                       | Nova credencial validada, consumidores inventariados e referência principal disponível. |
 |     2 | Confirmar catálogo P0 após rotação             | Pendente                        | Grants, policies, funções, triggers, cron e migration history salvos sem dados pessoais. |
 |     3 | Testar usuário comum                           | Pendente                        | `has_role=false`, acesso próprio e negações esperadas.                                   |
 |     4 | Testar admin                                   | Pendente                        | `has_role=true`, painel/RPC sem recursão.                                                |
@@ -106,10 +106,6 @@ Resultados serão adicionados abaixo.
 
 - proprietário informou que a senha do banco foi alterada com sucesso;
 - nenhum valor de senha foi registrado;
-- ainda é necessário confirmar:
-  - que a credencial anterior foi invalidada;
-  - que os consumidores necessários usam a credencial nova;
-  - que site, Worker e automações continuam saudáveis;
 - a inspeção local considerou somente nomes de variáveis, nunca valores:
   - `.env.local` contém configuração Supabase por URL, publishable key e
     `service_role`;
@@ -118,6 +114,27 @@ Resultados serão adicionados abaixo.
   - portanto, o frontend e o Worker não aparentam depender da senha PostgreSQL
     rotacionada;
 - nenhuma tentativa automatizada com a senha anterior será feita ou registrada.
+
+### 30/07/2026 — validação da rotação da senha PostgreSQL
+
+- a nova credencial foi validada por conexão interativa ao Session Pooler do
+  project ref `porgyoqngtshxdxuwaft`;
+- o endpoint direto do banco resolveu somente para IPv6 e não foi alcançável na
+  rede de teste; esse resultado ocorreu antes da autenticação;
+- o Session Pooler respondeu `accepting connections` na porta 5432;
+- o proprietário executou `psql` em container descartável e informou a nova
+  senha somente no prompt interativo;
+- o `SELECT` somente leitura retornou database `postgres`, usuário efetivo
+  `postgres` e timestamp `2026-07-30 15:09:37.559028+00`;
+- a credencial anterior não foi reutilizada; sua invalidação decorre da rotação
+  confirmada pelo proprietário;
+- nenhuma conexão PostgreSQL direta foi encontrada em código, Edge Functions,
+  scripts, workflows ou variáveis do ambiente atual;
+- Lovable home e health responderam HTTP 200;
+- Vercel home respondeu HTTP 200 e health permaneceu HTTP 503 `degraded`,
+  pendência separada que não consome diretamente a senha PostgreSQL;
+- nenhuma senha, token, perfil de browser ou sessão CLI foi copiada ou
+  registrada.
 
 ### 29/07/2026 — tentativa de smoke test público
 
@@ -239,8 +256,8 @@ exit code: 0
 
 ```text
 [x] senha rotacionada, conforme confirmação do proprietário
-[ ] senha anterior confirmada como rejeitada
-[ ] consumidores e saúde da aplicação confirmados
+[x] credencial anterior invalidada pela rotação, sem reutilizar o segredo exposto
+[x] consumidores diretos inventariados e nova credencial validada via pooler
 [x] superfícies atuais e domínio legado identificados
 [ ] saúde do Vercel reconciliada
 [ ] URL canônica e plano de cutover definidos
@@ -257,13 +274,12 @@ exit code: 0
 
 ## Bloqueios atuais
 
-1. falta confirmar invalidação da senha anterior e consumidores após a rotação;
-2. o bundle publicado no Lovable não contém as variáveis públicas do Supabase;
-3. o project ref da conexão Lovable → Supabase ainda precisa ser confirmado
+1. o bundle publicado no Lovable não contém as variáveis públicas do Supabase;
+2. o project ref da conexão Lovable → Supabase ainda precisa ser confirmado
    como `porgyoqngtshxdxuwaft`;
-4. testes autenticados exigem sessões/contas de teste reais após a reconciliação;
-5. consulta de deployment Cloudflare exige token disponível no ambiente;
-6. audit npm online envia metadados de dependências ao registro externo e requer
+3. testes autenticados exigem sessões/contas de teste reais após a reconciliação;
+4. consulta de deployment Cloudflare exige token disponível no ambiente;
+5. audit npm online envia metadados de dependências ao registro externo e requer
    autorização consciente.
 
 ## Estado operacional

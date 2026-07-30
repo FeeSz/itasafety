@@ -322,6 +322,24 @@ Quando uma senha de banco for exposta:
 A rotação pode causar indisponibilidade se consumidores não forem inventariados.
 Por isso, exige coordenação do proprietário do projeto.
 
+Evidência de 30/07/2026:
+
+- o código versionado, Edge Functions, scripts, workflows e ambiente atual não
+  possuem `DATABASE_URL`, `PGPASSWORD`, `POSTGRES_URL`, connection string
+  PostgreSQL ou outro consumidor direto da senha;
+- o endpoint direto do banco possui somente endereço IPv6 e a rede de teste não
+  conseguiu alcançar a porta 5432;
+- o Session Pooler respondeu como disponível na porta 5432;
+- o proprietário executou `psql` em container descartável, informou a nova senha
+  apenas no prompt interativo e executou um `SELECT` somente leitura;
+- a conexão retornou database `postgres`, usuário efetivo `postgres` e timestamp
+  `2026-07-30 15:09:37.559028+00`;
+- nenhuma senha foi registrada em comando, screenshot, documentação ou arquivo;
+- a home e o health check do Lovable retornaram HTTP 200;
+- a home do Vercel retornou HTTP 200 e o health check continuou em HTTP 503
+  `degraded`, estado independente da senha PostgreSQL e ainda pendente de
+  reconciliação.
+
 ## Backups e rollback
 
 Antes de migration de risco:

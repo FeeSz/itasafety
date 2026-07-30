@@ -95,8 +95,10 @@ Segredos nunca devem aparecer em:
 - histórico de comandos compartilhado.
 
 Uma senha do usuário PostgreSQL foi compartilhada em conversa durante a
-investigação. Ela deve ser considerada exposta até que exista evidência de
-rotação. Não reutilizá-la para novas consultas.
+investigação. O proprietário a rotacionou e, em 30/07/2026, a nova credencial
+foi validada por conexão interativa ao Session Pooler do projeto
+`porgyoqngtshxdxuwaft`. A credencial anterior não foi reutilizada no teste e
+permanece proibida para novas consultas.
 
 ## Estado dos achados
 
