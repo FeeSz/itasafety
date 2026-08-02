@@ -104,6 +104,49 @@ function safePublicBuildPlugin(): Plugin {
 
 const isGithubPagesBuild =
   process.env.GITHUB_PAGES === "true" || process.argv.includes("github-pages");
+
+// Guarantee the public Supabase variables are inlined into the client bundle even
+// when the build runs in an environment that only exposes them via .env or the
+// non-prefixed server names. Missing values here produce a blank production site.
+function readEnvFileVars(): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const file of [".env.local", ".env"]) {
+    const full = path.resolve(process.cwd(), file);
+    if (!fs.existsSync(full)) continue;
+    for (const line of fs.readFileSync(full, "utf8").split(/\r?\n/)) {
+      const match = /^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/.exec(line);
+      if (!match) continue;
+      const [, key, rawValue] = match;
+      if (out[key]) continue;
+      out[key] = rawValue.replace(/^['"]|['"]$/g, "");
+    }
+  }
+  return out;
+}
+
+const envFileVars = readEnvFileVars();
+function resolvePublicEnv(name: string, fallback: string): string | undefined {
+  return (
+    process.env[name] ||
+    envFileVars[name] ||
+    process.env[fallback] ||
+    envFileVars[fallback] ||
+    undefined
+  );
+}
+
+const publicSupabaseDefines: Record<string, string> = {};
+for (const [viteName, serverName] of [
+  ["VITE_SUPABASE_URL", "SUPABASE_URL"],
+  ["VITE_SUPABASE_PUBLISHABLE_KEY", "SUPABASE_PUBLISHABLE_KEY"],
+  ["VITE_SUPABASE_PROJECT_ID", "SUPABASE_PROJECT_ID"],
+] as const) {
+  const value = resolvePublicEnv(viteName, serverName);
+  if (value) {
+    publicSupabaseDefines[`import.meta.env.${viteName}`] = JSON.stringify(value);
+  }
+}
+
 const githubPagesViteConfig = isGithubPagesBuild
   ? {
       base: GITHUB_PAGES_BASE,
@@ -111,11 +154,12 @@ const githubPagesViteConfig = isGithubPagesBuild
         outDir: "dist/github-pages",
       },
       define: {
+        ...publicSupabaseDefines,
         "import.meta.env.VITE_SITE_URL": JSON.stringify("https://feesz.github.io/itasafety"),
         "import.meta.env.SITE_URL": JSON.stringify("https://feesz.github.io/itasafety"),
       },
     }
-  : {};
+  : { define: publicSupabaseDefines };
 
 // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
 // @cloudflare/vite-plugin builds from this — wrangler.jsonc main alone is insufficient.
@@ -123,6 +167,7 @@ export default defineConfig({
   nitro: isGithubPagesBuild ? false : undefined,
   plugins: [safePublicBuildPlugin()],
   vite: githubPagesViteConfig,
+
   tanstackStart: {
     router: {
       basepath: isGithubPagesBuild ? GITHUB_PAGES_BASE : "/",
