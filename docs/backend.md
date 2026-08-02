@@ -234,3 +234,30 @@ migration aplicada.
 - replay limpo de toda a trilha em banco efêmero;
 - teste funcional autenticado de RLS;
 - observabilidade e alertas de volume.
+
+## Restauração do esquema de negócio — 02/08/2026
+
+Estado: `aplicado` no projeto Supabase ativo do ambiente Lovable Cloud.
+
+O banco ativo continha apenas `app_settings`, `auth_attempts`, `brands`, `categories`,
+`products` e `user_roles`. As tabelas de negócio referenciadas pelo código estavam
+ausentes, o que quebrava o typecheck e as telas de cotação, empresas e parceiros.
+
+Objetos recriados em uma única migration:
+
+- tabelas: `partners`, `empresas`, `empresa_change_requests`, `carrinho_cotacao`,
+  `cotacoes`, `cotacao_itens`, `cotacao_historico_status`, `cotacao_notificacoes`;
+- enums: `empresa_status`, `change_request_status`, `cotacao_status`,
+  `notificacao_status`, `notificacao_tipo`;
+- triggers: `tg_set_updated_at` nas tabelas com `updated_at`,
+  `tg_cotacoes_resolver_empresa`, `log_cotacao_status_change`;
+- RPCs: `marcar_em_analise`, `responder_cotacao` (assinatura com frete, validade e
+  endereço de entrega), `atualizar_logo_empresa`, `aprovar_change_request`.
+
+RLS habilitada em todas as tabelas, com grants explícitos: leitura anônima apenas em
+`partners`; demais tabelas restritas a `authenticated` (escopo `auth.uid()`) e
+`service_role`. Em `cotacoes`, `authenticated` recebe `UPDATE` apenas na coluna
+`notificacao_enviada_em`.
+
+Pendências: `não confirmado` o bucket de storage `empresa_logos` (não recriado nesta
+migration) e a validação funcional ponta a ponta das telas de cotação.

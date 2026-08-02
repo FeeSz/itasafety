@@ -44,7 +44,7 @@ async function getSafeSupabaseAdmin() {
 }
 
 export const checkAuthRateLimit = createServerFn({ method: "POST" })
-  .validator((d: unknown) => checkSchema.parse(d))
+  .inputValidator((d: unknown) => checkSchema.parse(d))
   .handler(async ({ data }) => {
     try {
       const supabaseAdmin = await getSafeSupabaseAdmin();
@@ -91,7 +91,7 @@ export const checkAuthRateLimit = createServerFn({ method: "POST" })
   });
 
 export const recordAuthAttempt = createServerFn({ method: "POST" })
-  .validator((d: unknown) => recordSchema.parse(d))
+  .inputValidator((d: unknown) => recordSchema.parse(d))
   .handler(async ({ data }) => {
     try {
       const supabaseAdmin = await getSafeSupabaseAdmin();
