@@ -1,9 +1,11 @@
 # Documentação da ItaSafety
 
 Este diretório é a fonte de contexto técnico e funcional do projeto. O código
-continua sendo a fonte de verdade do comportamento implementado; para o banco de
-produção, a fonte final é o catálogo remoto do projeto Supabase
-`porgyoqngtshxdxuwaft`.
+continua sendo a fonte de verdade do comportamento implementado. O project ref
+canônico de produção é `porgyoqngtshxdxuwaft`, mas o runtime atual **não** está
+conectado a ele — ver
+[Migração de backend](decisions/0003-migracao-backend-supabase-canonico.md).
+
 
 ## Ordem recomendada de leitura
 

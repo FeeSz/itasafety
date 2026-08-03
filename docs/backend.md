@@ -261,3 +261,21 @@ RLS habilitada em todas as tabelas, com grants explícitos: leitura anônima ape
 
 Pendências: `não confirmado` o bucket de storage `empresa_logos` (não recriado nesta
 migration) e a validação funcional ponta a ponta das telas de cotação.
+
+## Divergência de vínculo — 03/08/2026
+
+Verificação somente leitura: o runtime e o build consomem exclusivamente as
+variáveis `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`,
+`SUPABASE_SERVICE_ROLE_KEY`, `VITE_SUPABASE_URL`,
+`VITE_SUPABASE_PUBLISHABLE_KEY` e `VITE_SUPABASE_PROJECT_ID`, hoje apontando para
+o backend Supabase gerenciado pelo Lovable Cloud — **não** para
+`porgyoqngtshxdxuwaft`. O issuer do MCP (`src/lib/mcp/index.ts`) é derivado de
+`VITE_SUPABASE_PROJECT_ID` e acompanha essa mesma configuração.
+
+Decisão registrada: `porgyoqngtshxdxuwaft` é a fonte de verdade dos dados de
+negócio; não haverá cópia de dados a partir do Cloud, e usuários e roles serão
+migrados preservando IDs. Sequência, responsabilidades, riscos, rollback e
+validações estão em `decisions/0003-migracao-backend-supabase-canonico.md`.
+
+Estado: migrations e ações remotas permanecem congeladas. A paridade de schema,
+RLS, grants, RPCs e do bucket `empresa_logos` no destino é `não confirmado`.

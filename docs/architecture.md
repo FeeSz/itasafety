@@ -119,7 +119,12 @@ projeto novo e só deve ser redirecionado ou retirado após o cutover documentad
 
 - migrations canônicas: `supabase/migrations/`;
 - Edge Functions: `supabase/functions/`;
-- project ref: `porgyoqngtshxdxuwaft`.
+- project ref canônico pretendido: `porgyoqngtshxdxuwaft`;
+- project ref efetivamente conectado hoje: backend gerenciado do Lovable Cloud
+  (ref distinto, resolvido pelas variáveis de ambiente da plataforma);
+- a divergência e o plano de troca estão em
+  `decisions/0003-migracao-backend-supabase-canonico.md`.
+
 
 Aplicar migration e implantar Edge Function são operações independentes.
 
