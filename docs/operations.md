@@ -9,7 +9,7 @@
 | Desenvolvimento    | `http://localhost:8080/`                    |
 | Site legado        | `https://itasafety.com.br/`                 |
 | Aplicação          | Cloudflare Worker `itasafety`               |
-| Banco/Auth/Storage | Supabase project ref `porgyoqngtshxdxuwaft` |
+| Banco/Auth/Storage | Supabase gerenciado pelo Lovable Cloud (ref canônico pretendido: `porgyoqngtshxdxuwaft`) |
 | Edge Function      | `enviar-notificacao-cotacao`                |
 | E-mail             | EmailJS                                     |
 | Build alternativo  | GitHub Pages em `/itasafety/`               |
