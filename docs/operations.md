@@ -55,7 +55,7 @@ Para um projeto que usa Supabase externo, existem dois vínculos distintos:
 1. um owner/admin do workspace Lovable autoriza a organização Supabase;
 2. um editor conecta o projeto Lovable ao projeto Supabase correto.
 
-No ItaSafety, o vínculo deve apontar para o project ref
+No ItaSafety, o vínculo deve apontar para o project ref canônico
 `porgyoqngtshxdxuwaft`. A confirmação deve ser feita em **More → Cloud** no
 editor do projeto e no painel Supabase; o simples estado `stack: supabase` não
 identifica qual projeto está conectado.
