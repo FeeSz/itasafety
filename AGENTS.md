@@ -32,8 +32,12 @@ Use `docs/feature-documentation-standard.md` como checklist.
 
 ## Banco e segurança
 
-- O projeto Supabase de produção é identificado pelo project ref
-  `porgyoqngtshxdxuwaft`.
+- O project ref canônico pretendido de produção é `porgyoqngtshxdxuwaft`. Em
+  03/08/2026 o runtime ainda estava conectado ao Supabase gerenciado pelo Lovable
+  Cloud; a divergência e o plano de troca estão em
+  `docs/decisions/0003-migracao-backend-supabase-canonico.md`. Confirme o ref
+  efetivo antes de qualquer ação remota.
+
 - Não exponha senhas, tokens, chaves privadas, JWTs ou dados pessoais em código,
   logs, documentação, commits ou respostas.
 - Nunca edite uma migration já aplicada para representar uma correção futura.
