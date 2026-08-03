@@ -1,100 +1,65 @@
-# Redesign Enterprise ItaSafety
+# Migração do backend para o projeto Supabase `porgyoqngtshxdxuwaft`
 
-## 1. Análise das referências
+Análise somente leitura. Nenhum arquivo do projeto, banco, migration ou publicação foi alterado.
 
-**ItaSafety original (itasafety.com.br)** — fonte de identidade
+## 1) Backend efetivamente conectado hoje
 
-- Paleta: branco dominante, cinza claro industrial, azul institucional (~#1B3A6B), vermelho estratégico (~#C8102E) em CTAs e detalhes
-- Tom: técnico, sério, B2B industrial, foco em EPI/segurança do trabalho
-- Pontos fortes: cores corporativas reconhecíveis, segmentação clara por categoria
-- Pontos fracos: layout datado (estilo CMS 2014), tipografia genérica, hero fraco, hierarquia visual pobre, sem microinterações, mobile limitado, cards inconsistentes
+- O app está conectado ao **backend gerenciado do Lovable Cloud**, cujo project ref começa com `wdudf…` (valor lido de `.env`, não exibido por completo).
+- `porgyoqngtshxdxuwaft` aparece **apenas em documentação e em `supabase/config.toml`**: `AGENTS.md`, `README.md`, `docs/*`, scripts históricos em `supabase/`. Nenhum código de runtime aponta para ele.
+- Runtime e build leem exclusivamente:
+  - cliente browser: `VITE_SUPABASE_URL` / `VITE_SUPABASE_PUBLISHABLE_KEY` (`src/integrations/supabase/client.ts`);
+  - servidor: `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (`client.server.ts`, `auth-middleware.ts`, `api/public/health.ts`);
+  - build: `vite.config.ts` inlina `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_SUPABASE_PROJECT_ID`, e `scripts/verify-build-env.mjs` bloqueia publish se não estiverem no bundle.
+- Auth/OAuth: login e-mail/senha mais Google/Apple através do gate gerenciado, mais rota de consentimento `src/routes/[.]lovable.oauth.consent.tsx`.
+- Issuer do MCP: `src/lib/mcp/index.ts` deriva `https://<VITE_SUPABASE_PROJECT_ID>.supabase.co/auth/v1`. Ou seja, o issuer segue automaticamente a variável — hoje aponta para o projeto do Cloud, não para `porgyoqngtshxdxuwaft`.
+- Consequência: **todos os dados atuais de produção (empresas, cotações, produtos, usuários, roles) vivem no projeto do Cloud**, não no ref canônico da documentação.
 
-**Ultra EPI (ultraepi.com.br)** — fonte de estrutura/UX
+## 2) Passos necessários para apontar runtime e build a `porgyoqngtshxdxuwaft`
 
-- Hero forte com produto em destaque + claim curto + CTA primário
-- Grid de categorias com ícones/imagens grandes
-- Faixa de logos de clientes/parceiros (prova social)
-- Blocos de diferenciais com ícones lineares
-- Seção institucional curta com CTA secundário
-- CTA comercial full-bleed antes do footer
-- Footer denso e organizado em colunas
-- Espaçamento generoso, tipografia display moderna, micro-hover sutis
+1. **Decisão de vínculo.** O Lovable Cloud não pode ser desligado neste projeto. Apontar para um projeto Supabase próprio exige usar a conexão de Supabase externo (BYO) na configuração do projeto, autorizada pelo proprietário. Sem isso, as variáveis gerenciadas voltam a ser reescritas em cada build.
+2. **Rebind das variáveis** (feito pela plataforma ao conectar, não por edição manual de `.env`): `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_SUPABASE_PROJECT_ID` passam a ser do ref canônico.
+3. **Paridade de schema no destino.** Confirmar no projeto destino: tabelas (`empresas`, `cotacoes`, `cotacao_itens`, `cotacao_historico_status`, `cotacao_notificacoes`, `carrinho_cotacao`, `empresa_change_requests`, `partners`, `products`, `categories`, `brands`, `app_settings`, `auth_attempts`, `user_roles`), enums, triggers, RPCs (`has_role`, `marcar_em_analise`, `responder_cotacao`, `aprovar_change_request`, `atualizar_logo_empresa`), RLS + grants, e bucket `empresa_logos`. Qualquer diferença exige migration nova — proposta, não aplicada, enquanto o congelamento vigorar.
+4. **Migração de dados**, se os dados atuais precisarem seguir: export/import por tabela respeitando ordem de FK, mais decisão sobre usuários de `auth.users` (IDs de usuário não migram sozinhos; roles e `empresas.user_id` dependem deles).
+5. **Auth/OAuth no destino:** habilitar provedores Google/Apple, definir Site URL e allow-list de redirect (`https://itasafety.lovable.app`, preview, `itasafety.com.br`, `/.lovable/oauth/consent`, `/auth/callback`), reativar o servidor OAuth e conferir emissão de chaves assimétricas (JWKS) para o MCP.
+6. **MCP:** com `VITE_SUPABASE_PROJECT_ID` novo, o issuer muda automaticamente; validar `/.well-known/oauth-protected-resource` e `/mcp` após o rebind e regenerar o manifest.
+7. **Documentação e limpeza:** atualizar `docs/backend.md`, `docs/architecture.md`, `docs/operations.md`, `docs/security.md` e `AGENTS.md` para descrever o backend real, e revisar `supabase/config.toml`.
+8. **Rebuild + publish** com `verify-build-env` verde, após validação.
 
-## 2. Estratégia de mix
+## 3) O que o agente pode fazer vs. o que exige o proprietário
 
-| Elemento            | Origem    | Como aplico                                                                                              |
-| ------------------- | --------- | -------------------------------------------------------------------------------------------------------- |
-| Paleta              | ItaSafety | Mantenho branco/cinza/azul institucional/vermelho como tokens semânticos                                 |
-| Tipografia          | Nova      | Display industrial (Space Grotesk) + body neutro (Inter) — moderno sem ser genérico                      |
-| Estrutura de seções | Ultra EPI | Hero → Categorias → Diferenciais → Produtos destaque → Certificações → Clientes → CTA → Contato → Footer |
-| Identidade gráfica  | ItaSafety | Logo, eyebrow vermelha, detalhes em vermelho, autoridade técnica                                         |
-| Microinterações     | Nova      | Hover sutil em cards, transições 200-300ms, reveal on scroll moderado                                    |
-| Densidade           | Híbrido   | Ar do Ultra EPI + densidade técnica de catálogo B2B                                                      |
+Agente (após liberação, dentro do escopo autorizado):
+- inventário e diff de schema entre origem e destino (leitura);
+- redação de migrations de paridade, sem aplicar;
+- scripts de export/import de dados e checklist de validação;
+- ajuste de documentação e de `supabase/config.toml`;
+- verificação pós-troca de rotas, health, MCP e login.
 
-**O que preservo da Ita atual já no projeto:** paleta semântica, rotas (`/`, `/categorias`, `/sobre`, `/contato`, legais), componentes (Container, Eyebrow, CtaButton, PageHero, Header, Footer, QuoteForm), schema do banco `products`.
+Proprietário no painel/configurações:
+- autorizar a conexão do Supabase externo `porgyoqngtshxdxuwaft` ao projeto (única forma de trocar o vínculo);
+- fornecer credenciais **apenas** pelos campos seguros da plataforma, nunca no chat;
+- habilitar Google/Apple, Site URL e redirects no projeto destino;
+- criar/ajustar bucket de storage e políticas onde o painel for necessário;
+- autorizar o descongelamento de migrations e o publish.
 
-**O que modernizo:**
+## 4) Pré-requisitos, riscos, rollback e validações
 
-- Hero da home: redesign com claim industrial + KPI strip + CTA duplo + visual de fundo
-- Grid de categorias: cards full-image com overlay e hover reveal
-- Nova seção "Diferenciais" (6 pilares com ícones)
-- Nova seção "Certificações & Normas" (ISO, NRs, INMETRO/CA)
-- Faixa de clientes/parceiros (grayscale → color no hover)
-- CTA comercial full-bleed pré-footer
-- Página /sobre reformulada com timeline + valores
-- Tokens em `styles.css`: refino de azul institucional, vermelho, neutros industriais; sombras suaves; raio 4–8px (não pill)
+Pré-requisitos: acesso de owner ao ref canônico; backup recente de ambos os projetos; definição sobre migrar ou não usuários e dados; janela de manutenção; descongelamento explícito antes de qualquer escrita remota.
 
-## 3. Plano de execução
+Riscos:
+- **perda de sessões e de vínculo de usuário** — IDs de `auth.users` diferentes quebram `user_roles`, `empresas.user_id`, `cotacoes`;
+- **divergência de schema/RLS** causando telas em branco ou erro de permissão;
+- **OAuth/MCP fora do ar** se Site URL, redirects ou JWKS não estiverem prontos;
+- **build bloqueado** por `verify-build-env` se as variáveis não forem inlinadas;
+- **reversão do rebind** se o Cloud continuar gerenciando as variáveis;
+- **dados órfãos** se export/import for parcial;
+- **logo/anexos indisponíveis** sem o bucket `empresa_logos` no destino.
 
-### Fase A — Design system (styles.css)
+Rollback: reconectar o backend do Cloud (dados originais preservados, pois a migração é cópia, não movimentação), reverter variáveis, republicar a build anterior conhecida como boa, e desfazer somente alterações de documentação. Nenhuma migration deve ser editada; correções sempre por versão nova.
 
-- Reafinar tokens oklch: `--brand-blue`, `--brand-red`, `--surface`, `--surface-sunken`, `--ink`, `--ink-muted`, `--border-industrial`
-- Sombras suaves (`--shadow-card`, `--shadow-lift`) e gradientes contidos
-- Tipografia: importar Space Grotesk + Inter; classes `font-display` e `font-body`
-- Raios moderados (não rounded-full em cards)
+Validações após a troca: `/api/public/health` 200; login e-mail/senha, Google e Apple; `/admin/status`; leitura pública de `partners`/`products`; fluxo de cotação ponta a ponta; teste de RLS para `anon`, usuário A vs. B, admin; `/.well-known/oauth-protected-resource` e `/mcp` com issuer do ref canônico; `verify-build-env` verde no build.
 
-### Fase B — Componentes novos
+## Questões abertas
 
-- `src/components/sections/HeroIndustrial.tsx` — hero da home
-- `src/components/sections/Differentials.tsx` — 6 pilares
-- `src/components/sections/Certifications.tsx` — ISO/NR/CA com badges
-- `src/components/sections/PartnersStrip.tsx` — logos clientes
-- `src/components/sections/CommercialCTA.tsx` — faixa pré-footer
-- Refino: `CategoryGrid` (cards image-first), `FeaturedProducts` (carrossel/grid premium)
-
-### Fase C — Páginas
-
-- `src/routes/index.tsx`: nova composição de seções
-- `src/routes/sobre.tsx`: hero + missão/visão/valores + timeline + CTA
-- `src/routes/categorias.tsx`: refino para grid premium
-- `src/routes/contato.tsx`: já estrutural; pequenos ajustes visuais
-
-### Fase D — QA
-
-- Verificar tipagem (sem `any`), build limpo
-- Responsividade 360 / 768 / 1024 / 1440
-- Hierarquia de headings (1 H1 por página)
-- Contraste WCAG AA nos tokens
-- Lazy-load de imagens, alt em todas
-
-## 4. Detalhes técnicos
-
-- Stack atual mantida: TanStack Start + Tailwind v4 + shadcn + Lovable Cloud
-- Imagens: reaproveitar `src/assets/*` existentes; gerar 2–3 novas para hero/CTA se necessário
-- Sem libs novas pesadas; microinterações via CSS/Tailwind transitions; reveal on scroll com IntersectionObserver leve ou `framer-motion` (já comum no projeto se instalado — checar antes)
-- Sem mudanças no schema do banco nesta rodada (Bloco 2 já entregue; este é puramente visual/estrutural)
-- Não tocar em `client.ts`, `types.ts`, `routeTree.gen.ts`
-
-## 5. O que NÃO faço nesta rodada
-
-- Carrinho de cotação (Bloco 3.D) — fica para próxima rodada
-- Página de produto individual (Bloco 3.E) — próxima rodada
-- Painel admin de produtos — próxima rodada
-- Migração de dados reais (aguarda CSV do cliente)
-
-## 6. Critério de aceite
-
-- Visual claramente "ItaSafety 2026" — reconhecível mas moderno
-- Nenhuma seção parece template genérico ou cópia da Ultra EPI
-- Mobile, tablet e desktop impecáveis
-- Lighthouse mantém ≥ 90 em performance/SEO/a11y
+1. Os dados atuais do Cloud devem ser migrados para `porgyoqngtshxdxuwaft`, ou o destino já é a fonte de verdade?
+2. Usuários e roles devem ser migrados, ou os clientes farão novo cadastro?
+3. Deseja que eu prepare já os scripts de diff/export (sem executar escrita remota)?
