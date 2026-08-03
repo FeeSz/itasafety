@@ -60,6 +60,10 @@ No ItaSafety, o vínculo deve apontar para o project ref canônico
 editor do projeto e no painel Supabase; o simples estado `stack: supabase` não
 identifica qual projeto está conectado.
 
+Em 03/08/2026 a verificação mostrou que o vínculo efetivo ainda é o Supabase
+gerenciado pelo Lovable Cloud. Ver
+`decisions/0003-migracao-backend-supabase-canonico.md`.
+
 Depois de conectar ou corrigir as variáveis, é obrigatório gerar e publicar um
 novo build. Variáveis `VITE_*` são incorporadas no bundle durante o build e não
 passam a existir retroativamente em uma publicação anterior.

@@ -34,7 +34,8 @@ Cloudflare Worker / TanStack Start
   └─ endpoint público de saúde e MCP
           │
           ▼
-Supabase — porgyoqngtshxdxuwaft
+Supabase (ref canônico pretendido: porgyoqngtshxdxuwaft;
+         vínculo efetivo em 03/08/2026: Supabase do Lovable Cloud)
   ├─ Auth
   ├─ PostgreSQL + RLS + grants + RPCs
   ├─ Storage
