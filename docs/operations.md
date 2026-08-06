@@ -230,8 +230,12 @@ Reconciliação local de 06/08/2026, após o vínculo externo:
 - a reconciliação foi commitada como `4982ca704f4f0ccddad33ca050266480240eb992`
   e enviada para `origin/reconcile/lovable-supabase-20260806`;
 - o push isolado não disparou workflows: `quality.yml` executa em push apenas na
-  `main`, além de `pull_request` e `workflow_dispatch`. CI remoto permanece
-  `não executado`, aguardando uma dessas ações separadas;
+  `main`, além de `pull_request` e `workflow_dispatch`;
+- o pull request [#1](https://github.com/FeeSz/itasafety/pull/1) foi aberto da
+  branch de reconciliação para `main`, sem merge ou publicação;
+- o workflow Quality `31118936956`, acionado pelo evento `pull_request` para o
+  commit `bca061996dc27dcdb1514d769f0cdafa06a42069`, concluiu o job
+  `static-analysis` com sucesso;
 - `npm ci` reportou 15 vulnerabilidades (1 baixa, 10 moderadas e 4 altas), que
   permanecem fora deste bloco de reconciliação e não foram mascaradas com
   `npm audit fix --force`.

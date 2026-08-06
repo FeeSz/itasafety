@@ -57,8 +57,12 @@ Execução observada em 06/08/2026:
 - o commit de reconciliação `4982ca704f4f0ccddad33ca050266480240eb992`
   foi enviado para `origin/reconcile/lovable-supabase-20260806`;
 - nenhum workflow remoto foi iniciado pelo push porque `quality.yml` restringe
-  o evento `push` à `main`; validação remota depende de `pull_request` ou
-  `workflow_dispatch`;
+  o evento `push` à `main`;
+- o pull request [#1](https://github.com/FeeSz/itasafety/pull/1) foi aberto para
+  `main`, sem merge ou publicação, e acionou o workflow Quality;
+- o run `31118936956`, para o commit
+  `bca061996dc27dcdb1514d769f0cdafa06a42069`, concluiu o job
+  `static-analysis` com sucesso;
 - a senha exposta durante a operação foi rotacionada pelo proprietário;
 - runtime publicado, OAuth, issuer do MCP, RLS e fluxos autenticados permanecem
   não confirmados.
