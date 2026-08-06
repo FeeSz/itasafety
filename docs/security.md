@@ -100,6 +100,17 @@ foi validada por conexão interativa ao Session Pooler do projeto
 `porgyoqngtshxdxuwaft`. A credencial anterior não foi reutilizada no teste e
 permanece proibida para novas consultas.
 
+Durante a conexão Lovable de 06/08/2026, outra senha PostgreSQL foi colada no
+chat da plataforma. O proprietário confirmou sua rotação no dashboard Supabase
+no mesmo dia. A credencial exposta não foi reutilizada nem testada nesta
+reconciliação.
+
+O cliente gerado automaticamente pelo Lovable também incorporou a configuração
+pública diretamente no fonte e removeu a falha fechada para ausência de
+`VITE_SUPABASE_*`. A versão reconciliada rejeita essa alteração: URL e
+publishable key continuam fornecidas pelo ambiente, e o build falha se o ref
+canônico não estiver presente ou se outro ref Supabase for incorporado.
+
 ## Estado dos achados
 
 | ID     | Estado em 29/07/2026                   | Próxima evidência                                                |

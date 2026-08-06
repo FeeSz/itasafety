@@ -318,6 +318,7 @@ export type Database = {
           motivo_devolucao: string | null
           nome_contato: string
           notificacao_enviada_em: string | null
+          notificacao_processando_em: string | null
           numero_cotacao: number
           observacoes: string | null
           prazo_entrega: string | null
@@ -345,6 +346,7 @@ export type Database = {
           motivo_devolucao?: string | null
           nome_contato: string
           notificacao_enviada_em?: string | null
+          notificacao_processando_em?: string | null
           numero_cotacao?: number
           observacoes?: string | null
           prazo_entrega?: string | null
@@ -372,6 +374,7 @@ export type Database = {
           motivo_devolucao?: string | null
           nome_contato?: string
           notificacao_enviada_em?: string | null
+          notificacao_processando_em?: string | null
           numero_cotacao?: number
           observacoes?: string | null
           prazo_entrega?: string | null
@@ -605,6 +608,14 @@ export type Database = {
       }
       atualizar_logo_empresa: {
         Args: { p_logo_url: string }
+        Returns: undefined
+      }
+      claim_nova_cotacao_notification: {
+        Args: { p_cotacao_id: string; p_user_id: string }
+        Returns: boolean
+      }
+      finalizar_nova_cotacao_notification: {
+        Args: { p_cotacao_id: string; p_sucesso: boolean; p_user_id: string }
         Returns: undefined
       }
       has_role: {

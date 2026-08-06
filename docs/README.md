@@ -2,8 +2,9 @@
 
 Este diretório é a fonte de contexto técnico e funcional do projeto. O código
 continua sendo a fonte de verdade do comportamento implementado. O project ref
-canônico de produção é `porgyoqngtshxdxuwaft`, mas o runtime atual **não** está
-conectado a ele — ver
+canônico de produção é `porgyoqngtshxdxuwaft`. Em 06/08/2026, o vínculo externo
+foi selecionado no Lovable e o catálogo canônico foi reconhecido, mas o runtime
+publicado ainda não foi validado após a troca — ver
 [Migração de backend](decisions/0003-migracao-backend-supabase-canonico.md).
 
 

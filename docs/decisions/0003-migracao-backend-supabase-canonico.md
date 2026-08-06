@@ -1,15 +1,16 @@
 # 0003 — Migração do backend para o Supabase canônico `porgyoqngtshxdxuwaft`
 
-Data: 03/08/2026
-Status: `decidido, não executado` (ações remotas congeladas)
+Data: 03/08/2026; atualizada em 06/08/2026
+Status: `em execução` (vínculo selecionado; publish e validação funcional congelados)
 
 ## Contexto
 
 A documentação do projeto sempre descreveu `porgyoqngtshxdxuwaft` como o projeto
-Supabase de produção. A verificação de 03/08/2026 mostrou que o runtime **não**
-está conectado a esse ref.
+Supabase de produção. A verificação de 03/08/2026 mostrou que o runtime não
+estava conectado a esse ref. Em 06/08/2026, o proprietário selecionou o projeto
+externo no Lovable, e a plataforma reconheceu o catálogo canônico.
 
-Estado efetivo verificado:
+Estado anterior, verificado em 03/08/2026:
 
 - o app usa o backend Supabase gerenciado pelo Lovable Cloud, com project ref
   distinto, resolvido pelas variáveis de ambiente da plataforma;
@@ -22,9 +23,9 @@ Estado efetivo verificado:
   - servidor: `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`,
     `SUPABASE_SERVICE_ROLE_KEY` (`client.server.ts`, `auth-middleware.ts`,
     `routes/api/public/health.ts`);
-  - build: `vite.config.ts` inlina as três variáveis públicas e
-    `scripts/verify-build-env.mjs` bloqueia publish se elas não estiverem no
-    bundle;
+  - build: Vite e `@lovable.dev/vite-tanstack-config` resolvem as variáveis
+    públicas, e `scripts/verify-build-env.mjs` bloqueia publish quando elas não
+    aparecem no bundle;
 - Auth/OAuth: e-mail/senha mais Google e Apple pelo gate gerenciado, com rota de
   consentimento `src/routes/[.]lovable.oauth.consent.tsx`;
 - MCP: `src/lib/mcp/index.ts` deriva o issuer de `VITE_SUPABASE_PROJECT_ID`
@@ -39,6 +40,23 @@ Usuários e roles serão migrados preservando os IDs de `auth.users`, por export
 conduzido pelo proprietário.
 
 Nenhuma migration, escrita remota ou publish foi executada nesta decisão.
+
+Execução observada em 06/08/2026:
+
+- o Lovable selecionou o project ref `porgyoqngtshxdxuwaft` e leu as tabelas
+  esperadas do destino;
+- o commit automático ficou apenas no histórico interno do Lovable e não foi
+  sincronizado ao GitHub;
+- esse commit incorporou configuração pública no cliente e alterou dependências
+  sem atualizar o lockfile;
+- a reconciliação local rejeita a configuração incorporada, preserva fail-closed,
+  restaura os tipos confirmados e realinha o manifesto ao lockfile;
+- `npm ci`, typecheck, lint e o build com valores públicos fictícios no ref
+  canônico passaram; ausência de variáveis e ref incorreto foram bloqueados nos
+  testes negativos;
+- a senha exposta durante a operação foi rotacionada pelo proprietário;
+- runtime publicado, OAuth, issuer do MCP, RLS e fluxos autenticados permanecem
+  não confirmados.
 
 ## Sequência de execução acordada
 
@@ -108,6 +126,7 @@ de banco sempre por migration nova.
 
 ## Pendências
 
-`não confirmado`: paridade de schema, enums, RPCs, RLS, grants e bucket
-`empresa_logos` no projeto `porgyoqngtshxdxuwaft`. A confirmação exige leitura do
-catálogo remoto após a conexão ser autorizada.
+`parcialmente confirmado`: tabelas, coluna de claim e RPCs de notificação foram
+reconhecidos no catálogo do projeto `porgyoqngtshxdxuwaft`. Permanecem não
+confirmados RLS, grants, triggers, cron, bucket `empresa_logos`, usuários/roles,
+OAuth, issuer do MCP e comportamento funcional autenticado.

@@ -9,6 +9,8 @@ import { join } from "node:path";
 const DIST_CANDIDATES = [".output/public", "dist/client"];
 const DIST = DIST_CANDIDATES.find(existsSync);
 const REQUIRED_MARKERS = ["VITE_SUPABASE_URL", "VITE_SUPABASE_PUBLISHABLE_KEY"];
+const EXPECTED_PROJECT_REF = "porgyoqngtshxdxuwaft";
+const EXPECTED_SUPABASE_URL = `https://${EXPECTED_PROJECT_REF}.supabase.co`;
 
 function walk(dir) {
   const out = [];
@@ -33,16 +35,20 @@ try {
 }
 
 const found = new Set();
-const supabaseUrlRegex = /https:\/\/[a-z0-9]+\.supabase\.co/i;
+const observedProjectRefs = new Set();
+const supabaseUrlRegex = /https:\/\/([a-z0-9]+)\.supabase\.co/gi;
 
 for (const f of files) {
   const content = readFileSync(f, "utf8");
+  for (const match of content.matchAll(supabaseUrlRegex)) {
+    observedProjectRefs.add(match[1]);
+  }
   for (const marker of REQUIRED_MARKERS) {
     if (found.has(marker)) continue;
     // Vite replaces import.meta.env.VITE_* with the literal string value.
     // We check for the presence of a supabase.co URL (VITE_SUPABASE_URL)
     // and a JWT-shaped literal (VITE_SUPABASE_PUBLISHABLE_KEY).
-    if (marker === "VITE_SUPABASE_URL" && supabaseUrlRegex.test(content)) {
+    if (marker === "VITE_SUPABASE_URL" && content.includes(EXPECTED_SUPABASE_URL)) {
       found.add(marker);
     }
     if (
@@ -55,6 +61,18 @@ for (const f of files) {
       found.add(marker);
     }
   }
+}
+
+const unexpectedProjectRefs = [...observedProjectRefs].filter(
+  (projectRef) => projectRef !== EXPECTED_PROJECT_REF,
+);
+if (unexpectedProjectRefs.length > 0) {
+  console.error(
+    `\n[verify-build-env] ERROR — unexpected Supabase project ref(s) in ${DIST}:\n  - ${unexpectedProjectRefs.join(
+      "\n  - ",
+    )}\n\nBuild blocked: expected only ${EXPECTED_PROJECT_REF}.\n`,
+  );
+  process.exit(1);
 }
 
 const missing = REQUIRED_MARKERS.filter((m) => !found.has(m));

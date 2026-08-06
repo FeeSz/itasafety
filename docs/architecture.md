@@ -119,10 +119,12 @@ projeto novo e só deve ser redirecionado ou retirado após o cutover documentad
 
 - migrations canônicas: `supabase/migrations/`;
 - Edge Functions: `supabase/functions/`;
-- project ref canônico pretendido: `porgyoqngtshxdxuwaft`;
-- project ref efetivamente conectado hoje: backend gerenciado do Lovable Cloud
-  (ref distinto, resolvido pelas variáveis de ambiente da plataforma);
-- a divergência e o plano de troca estão em
+- project ref canônico: `porgyoqngtshxdxuwaft`;
+- vínculo selecionado no Lovable em 06/08/2026: projeto Supabase externo com o
+  ref canônico; o catálogo esperado foi reconhecido;
+- runtime publicado, OAuth, issuer do MCP e comportamento autenticado após a
+  troca: `não confirmados`;
+- a reconciliação e o plano de validação estão em
   `decisions/0003-migracao-backend-supabase-canonico.md`.
 
 

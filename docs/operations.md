@@ -9,7 +9,7 @@
 | Desenvolvimento    | `http://localhost:8080/`                    |
 | Site legado        | `https://itasafety.com.br/`                 |
 | Aplicação          | Cloudflare Worker `itasafety`               |
-| Banco/Auth/Storage | Supabase gerenciado pelo Lovable Cloud (ref canônico pretendido: `porgyoqngtshxdxuwaft`) |
+| Banco/Auth/Storage | Supabase externo selecionado: `porgyoqngtshxdxuwaft`; runtime publicado ainda não validado |
 | Edge Function      | `enviar-notificacao-cotacao`                |
 | E-mail             | EmailJS                                     |
 | Build alternativo  | GitHub Pages em `/itasafety/`               |
@@ -60,8 +60,10 @@ No ItaSafety, o vínculo deve apontar para o project ref canônico
 editor do projeto e no painel Supabase; o simples estado `stack: supabase` não
 identifica qual projeto está conectado.
 
-Em 03/08/2026 a verificação mostrou que o vínculo efetivo ainda é o Supabase
-gerenciado pelo Lovable Cloud. Ver
+Em 06/08/2026, o proprietário selecionou o projeto externo `ItaSafety`. O
+Lovable reconheceu o catálogo esperado e gerou configuração para o ref
+`porgyoqngtshxdxuwaft`. A seleção está confirmada; o runtime publicado e os
+fluxos autenticados posteriores à troca ainda não estão validados. Ver
 `decisions/0003-migracao-backend-supabase-canonico.md`.
 
 Depois de conectar ou corrigir as variáveis, é obrigatório gerar e publicar um
@@ -190,7 +192,8 @@ se o erro é novo ou preexistente.
 4. roda `verify-build-env.mjs`.
 
 O verificador deve falhar se as variáveis públicas obrigatórias estiverem ausentes
-ou se padrões de credenciais inesperadas aparecerem no bundle.
+ou se o bundle contiver um project ref Supabase diferente de
+`porgyoqngtshxdxuwaft`.
 
 Correção local de 29/07/2026:
 
@@ -205,16 +208,39 @@ Correção local de 29/07/2026:
 - a publicação no Lovable continua pendente; o bundle remoto existente permanece
   inválido até que a conexão seja confirmada e um novo build seja publicado.
 
-### Standby do ambiente Lovable
+Reconciliação local de 06/08/2026, após o vínculo externo:
+
+- o commit automático interno do Lovable incorporou a configuração pública em
+  `src/integrations/supabase/client.ts`, removeu a resolução fail-closed por
+  ambiente e alterou dependências sem sincronizar o lockfile;
+- o commit interno não foi sincronizado ao GitHub. A reconciliação parte de
+  `origin/main` e preserva a branch local de UI/UX em worktree separada;
+- o cliente e o servidor continuam lazy, orientados por ambiente e fail-closed;
+- a injeção manual duplicada foi removida de `vite.config.ts`;
+- `package.json` voltou às versões presentes em `package-lock.json`, sem upgrade
+  colateral;
+- os tipos confirmados pelo catálogo canônico foram preservados;
+- `verify-build-env.mjs` agora exige o ref canônico e rejeita qualquer outro ref
+  Supabase encontrado no bundle;
+- `npm ci`, typecheck e lint passaram;
+- o build sem variáveis falhou como esperado, um ref incorreto foi rejeitado e o
+  build com valores públicos fictícios no ref canônico passou;
+- nenhum segredo real, commit, push, publish, migration ou teste autenticado foi
+  usado ou executado;
+- `npm ci` reportou 15 vulnerabilidades (1 baixa, 10 moderadas e 4 altas), que
+  permanecem fora deste bloco de reconciliação e não foram mascaradas com
+  `npm audit fix --force`.
+
+### Gate atual do ambiente Lovable
 
 Em 29/07/2026, o proprietário colocou a aplicação em standby operacional porque
 a conexão do projeto Lovable ao Supabase depende de tokens/créditos do Lovable,
 com reset previsto para 01/08/2026.
 
-Até a retomada autorizada:
+Após a seleção do vínculo em 06/08/2026:
 
 - não publicar o build local;
-- não tentar conectar ou trocar o backend no Lovable;
+- revisar e validar a reconciliação local antes de sincronizar código;
 - não prosseguir com os testes autenticados 1c e 1d;
 - não executar as consultas seguintes da auditoria;
 - preservar as correções locais e a documentação já produzida.
