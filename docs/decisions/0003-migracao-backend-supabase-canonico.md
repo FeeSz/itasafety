@@ -54,6 +54,11 @@ Execução observada em 06/08/2026:
 - `npm ci`, typecheck, lint e o build com valores públicos fictícios no ref
   canônico passaram; ausência de variáveis e ref incorreto foram bloqueados nos
   testes negativos;
+- o commit de reconciliação `4982ca704f4f0ccddad33ca050266480240eb992`
+  foi enviado para `origin/reconcile/lovable-supabase-20260806`;
+- nenhum workflow remoto foi iniciado pelo push porque `quality.yml` restringe
+  o evento `push` à `main`; validação remota depende de `pull_request` ou
+  `workflow_dispatch`;
 - a senha exposta durante a operação foi rotacionada pelo proprietário;
 - runtime publicado, OAuth, issuer do MCP, RLS e fluxos autenticados permanecem
   não confirmados.

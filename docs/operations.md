@@ -225,8 +225,13 @@ Reconciliação local de 06/08/2026, após o vínculo externo:
 - `npm ci`, typecheck e lint passaram;
 - o build sem variáveis falhou como esperado, um ref incorreto foi rejeitado e o
   build com valores públicos fictícios no ref canônico passou;
-- nenhum segredo real, commit, push, publish, migration ou teste autenticado foi
-  usado ou executado;
+- nenhum segredo real, publish, migration ou teste autenticado foi usado ou
+  executado;
+- a reconciliação foi commitada como `4982ca704f4f0ccddad33ca050266480240eb992`
+  e enviada para `origin/reconcile/lovable-supabase-20260806`;
+- o push isolado não disparou workflows: `quality.yml` executa em push apenas na
+  `main`, além de `pull_request` e `workflow_dispatch`. CI remoto permanece
+  `não executado`, aguardando uma dessas ações separadas;
 - `npm ci` reportou 15 vulnerabilidades (1 baixa, 10 moderadas e 4 altas), que
   permanecem fora deste bloco de reconciliação e não foram mascaradas com
   `npm audit fix --force`.
