@@ -1,6 +1,6 @@
 # 0003 — Migração do backend para o Supabase canônico `porgyoqngtshxdxuwaft`
 
-Data: 03/08/2026; atualizada em 06/08/2026
+Data: 03/08/2026; atualizada em 07/08/2026
 Status: `em execução` (vínculo selecionado; publish e validação funcional congelados)
 
 ## Contexto
@@ -63,6 +63,11 @@ Execução observada em 06/08/2026:
 - o run `31118936956`, para o commit
   `bca061996dc27dcdb1514d769f0cdafa06a42069`, concluiu o job
   `static-analysis` com sucesso;
+- o run seguinte, `31119315666`, para o commit documental
+  `1fc1a6c323f0a578e87116a7e7b6b861bb1918d4`, foi cancelado sem executar etapas
+  durante a indisponibilidade do GitHub Actions de 06/08/2026;
+- em 07/08/2026, com o incidente resolvido, o gate passou a exigir um novo
+  Quality verde no SHA final antes de qualquer merge;
 - a senha exposta durante a operação foi rotacionada pelo proprietário;
 - runtime publicado, OAuth, issuer do MCP, RLS e fluxos autenticados permanecem
   não confirmados.

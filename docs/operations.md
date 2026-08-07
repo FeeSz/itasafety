@@ -205,8 +205,9 @@ Correção local de 29/07/2026:
   variáveis não foram incorporadas;
 - `npm run build` passou localmente e o verificador confirmou
   `VITE_SUPABASE_*` no bundle local;
-- a publicação no Lovable continua pendente; o bundle remoto existente permanece
-  inválido até que a conexão seja confirmada e um novo build seja publicado.
+- a conexão foi selecionada em 06/08/2026, mas a publicação no Lovable continua
+  pendente; o bundle remoto existente não comprova a incorporação do ref canônico
+  até que um novo build seja publicado e inspecionado.
 
 Reconciliação local de 06/08/2026, após o vínculo externo:
 
@@ -236,6 +237,12 @@ Reconciliação local de 06/08/2026, após o vínculo externo:
 - o workflow Quality `31118936956`, acionado pelo evento `pull_request` para o
   commit `bca061996dc27dcdb1514d769f0cdafa06a42069`, concluiu o job
   `static-analysis` com sucesso;
+- o commit documental `1fc1a6c323f0a578e87116a7e7b6b861bb1918d4`
+  atualizou o PR e acionou o run `31119315666`; durante a indisponibilidade do
+  GitHub Actions de 06/08/2026, o job foi cancelado sem executar etapas e o run
+  terminou como falha de infraestrutura, não como falha observada do código;
+- o incidente foi resolvido pelo GitHub em 07/08/2026. O PR continua sem merge e
+  exige um novo Quality verde para o SHA documental final;
 - `npm ci` reportou 15 vulnerabilidades (1 baixa, 10 moderadas e 4 altas), que
   permanecem fora deste bloco de reconciliação e não foram mascaradas com
   `npm audit fix --force`.
@@ -248,11 +255,24 @@ com reset previsto para 01/08/2026.
 
 Após a seleção do vínculo em 06/08/2026:
 
-- não publicar o build local;
-- revisar e validar a reconciliação local antes de sincronizar código;
+- não realizar merge até a documentação do PR estar atualizada e o Quality do
+  SHA final estar verde;
+- não publicar o build antes do merge e da validação das configurações do
+  destino;
 - não prosseguir com os testes autenticados 1c e 1d;
 - não executar as consultas seguintes da auditoria;
 - preservar as correções locais e a documentação já produzida.
+
+Smoke check público de 07/08/2026:
+
+- Lovable: home HTTP 200 e `/api/public/health` HTTP 200 com `{"status":"ok"}`;
+- Vercel: home HTTP 200 e `/api/public/health` HTTP 503;
+- localhost: um processo já em execução respondeu HTTP 200 na porta 8080; o SHA
+  servido não foi identificado neste smoke check;
+- a inspeção dos assets públicos de Lovable e Vercel não encontrou o ref
+  canônico como literal. Esse resultado não identifica outro ref nem valida a
+  configuração do browser; o bundle corrigido continua classificado como
+  `não implantado` e `não validado`.
 
 O standby não impede typecheck, lint, build local, documentação, testes unitários
 sem rede ou preparação de CI que não consulte nem altere serviços remotos.
