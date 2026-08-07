@@ -50,7 +50,7 @@ Data da verificação: 28/07/2026, timezone America/Sao_Paulo.
 |     7 | Reconciliar cron de retenção                   | Pendente                        | Job remoto correto ou migration nova aplicada.                                           |
 |     8 | Versionar migrations e código aplicados        | Em andamento — PR aberto        | Reconciliação no PR #1; merge depende de documentação atualizada e Quality verde.         |
 |     9 | Confirmar deploy Cloudflare do rate limit      | Bloqueado — credencial          | Deployment identificado e smoke test executado.                                          |
-|    10 | Fechar gates                                   | Em andamento                    | Gates locais e um run remoto passaram; o SHA final ainda exige Quality verde.             |
+|    10 | Fechar gates                                   | Controle contínuo por SHA       | O check Quality deve permanecer verde no HEAD atual do PR e depois em `main`.              |
 
 ## Ação 1 — rotação da senha
 
@@ -274,8 +274,8 @@ exit code: 0
 
 ## Bloqueios atuais
 
-1. o PR #1 precisa conter a documentação atualizada e obter Quality verde no
-   SHA final antes de qualquer merge;
+1. o PR #1 precisa manter a documentação atualizada e o Quality verde no HEAD
+   atual antes de qualquer merge;
 2. o vínculo Lovable → Supabase foi selecionado para `porgyoqngtshxdxuwaft`, mas
    o build corrigido ainda não foi publicado nem validado no bundle remoto;
 3. testes autenticados exigem sessões/contas de teste reais após a publicação;
@@ -296,8 +296,8 @@ seus gates próprios.
 
 Sequência de retomada:
 
-1. atualizar a documentação no PR #1;
-2. obter Quality verde para o SHA final;
+1. manter a documentação atualizada no PR #1;
+2. confirmar Quality verde para o HEAD atual;
 3. revisar e autorizar separadamente o merge;
 4. validar o Quality de `main` após o merge;
 5. confirmar Auth/OAuth, contas/roles, MCP e Storage no destino;
@@ -404,8 +404,10 @@ foi executado nesta etapa.
 - o run `31119315666`, acionado pelo commit documental
   `1fc1a6c323f0a578e87116a7e7b6b861bb1918d4`, foi cancelado sem executar etapas
   durante o incidente do GitHub Actions de 06/08/2026;
-- o GitHub declarou o incidente resolvido em 07/08/2026; o próximo commit do PR
-  deve obter Quality verde antes de qualquer merge;
+- o GitHub declarou o incidente resolvido em 07/08/2026 e o run `31185659802`
+  passou no commit documental `e3893458e996554b2617c4449895685e109dea11`;
+- cada novo commit substitui essa evidência como HEAD do PR e deve obter seu
+  próprio Quality verde antes de qualquer merge;
 - smoke checks de 07/08 retornaram Lovable home/health HTTP 200, Vercel home HTTP
   200 e health HTTP 503. O bundle corrigido ainda não foi publicado nem validado;
 - nenhuma migration, escrita no banco, teste autenticado, merge ou deploy foi

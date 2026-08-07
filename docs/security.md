@@ -166,7 +166,7 @@ O trabalho prioritário iniciado em 29/07/2026 está em
 `security/priority-block-2026-07-29.md`.
 
 Em 07/08/2026, a reconciliação de código está no PR #1. O vínculo externo foi
-selecionado, mas merge, publicação e testes autenticados continuam congelados
-até documentação atualizada e Quality verde no SHA final. A auditoria de banco
-permanece na consulta funcional 1c; os passos posteriores não estão autorizados
-antes dela.
+selecionado e o Quality deve permanecer verde no HEAD atual, mas merge,
+publicação e testes autenticados continuam sujeitos a gates e autorizações
+separados. A auditoria de banco permanece na consulta funcional 1c; os passos
+posteriores não estão autorizados antes dela.

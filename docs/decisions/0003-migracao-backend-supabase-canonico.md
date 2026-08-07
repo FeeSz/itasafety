@@ -66,8 +66,10 @@ Execução observada em 06/08/2026:
 - o run seguinte, `31119315666`, para o commit documental
   `1fc1a6c323f0a578e87116a7e7b6b861bb1918d4`, foi cancelado sem executar etapas
   durante a indisponibilidade do GitHub Actions de 06/08/2026;
-- em 07/08/2026, com o incidente resolvido, o gate passou a exigir um novo
-  Quality verde no SHA final antes de qualquer merge;
+- em 07/08/2026, com o incidente resolvido, o run `31185659802` passou no commit
+  documental `e3893458e996554b2617c4449895685e109dea11`;
+- o gate de merge usa sempre o Quality do HEAD atual do PR; qualquer commit novo
+  precisa obter seu próprio resultado verde;
 - a senha exposta durante a operação foi rotacionada pelo proprietário;
 - runtime publicado, OAuth, issuer do MCP, RLS e fluxos autenticados permanecem
   não confirmados.

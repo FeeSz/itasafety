@@ -241,8 +241,12 @@ Reconciliação local de 06/08/2026, após o vínculo externo:
   atualizou o PR e acionou o run `31119315666`; durante a indisponibilidade do
   GitHub Actions de 06/08/2026, o job foi cancelado sem executar etapas e o run
   terminou como falha de infraestrutura, não como falha observada do código;
-- o incidente foi resolvido pelo GitHub em 07/08/2026. O PR continua sem merge e
-  exige um novo Quality verde para o SHA documental final;
+- o incidente foi resolvido pelo GitHub em 07/08/2026, e o run `31185659802`
+  concluiu `static-analysis` com sucesso no commit documental
+  `e3893458e996554b2617c4449895685e109dea11`;
+- o PR continua sem merge. O check autoritativo é sempre o Quality do HEAD atual;
+  cada novo commit invalida a suficiência de runs anteriores até obter seu
+  próprio resultado verde;
 - `npm ci` reportou 15 vulnerabilidades (1 baixa, 10 moderadas e 4 altas), que
   permanecem fora deste bloco de reconciliação e não foram mascaradas com
   `npm audit fix --force`.
