@@ -70,6 +70,15 @@ Execução observada em 06/08/2026:
   documental `e3893458e996554b2617c4449895685e109dea11`;
 - o gate de merge usa sempre o Quality do HEAD atual do PR; qualquer commit novo
   precisa obter seu próprio resultado verde;
+- o diagnóstico posterior dos provedores identificou dois problemas locais:
+  Cloudflare autodetectou o `bun.lock` divergente e Vercel gerou o cliente em
+  `.vercel/output/static`, fora dos caminhos consultados pelo verificador antigo;
+- a decisão é manter npm `11.18.0` e `package-lock.json` como contrato único,
+  remover `bun.lock` sem upgrade e vincular a inspeção ao output real de cada
+  plataforma, sem fallback para artefatos de outro preset;
+- a validação local confirmou `npm ci`, typecheck, lint e os builds
+  padrão/Cloudflare e Vercel; os cenários sem variáveis e com ref incorreto foram
+  bloqueados com código `1`;
 - a senha exposta durante a operação foi rotacionada pelo proprietário;
 - runtime publicado, OAuth, issuer do MCP, RLS e fluxos autenticados permanecem
   não confirmados.

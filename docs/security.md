@@ -170,3 +170,10 @@ selecionado e o Quality deve permanecer verde no HEAD atual, mas merge,
 publicação e testes autenticados continuam sujeitos a gates e autorizações
 separados. A auditoria de banco permanece na consulta funcional 1c; os passos
 posteriores não estão autorizados antes dela.
+
+O gate fail-closed do bundle também é específico por plataforma: Vercel valida
+`.vercel/output/static`, Cloudflare valida `.output/public` e GitHub Pages valida
+`dist/github-pages/client`. Isso impede que um diretório antigo de outro preset
+produza falso sucesso ou falso diagnóstico. A remoção local de `bun.lock`
+preserva npm `11.18.0` e `package-lock.json` como contrato único; não houve
+upgrade de dependências, alteração de segredo, publicação ou mudança remota.

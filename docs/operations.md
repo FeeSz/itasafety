@@ -117,6 +117,12 @@ executar `npm ci`. A declaração `packageManager` documenta o contrato, mas nã
 substitui a instalação explícita porque o Corepack não intercepta o binário npm
 por padrão.
 
+O único lockfile canônico é `package-lock.json`. Não manter `bun.lock`,
+`pnpm-lock.yaml` ou `yarn.lock` em paralelo: provedores que autodetectam o
+gerenciador podem escolher outro instalador e validar uma árvore diferente da
+usada pelo Quality. A instalação reproduzível, local e remota, é `npm ci` com
+npm `11.18.0`.
+
 ## Gates locais
 
 ```bash
@@ -194,6 +200,43 @@ se o erro é novo ou preexistente.
 O verificador deve falhar se as variáveis públicas obrigatórias estiverem ausentes
 ou se o bundle contiver um project ref Supabase diferente de
 `porgyoqngtshxdxuwaft`.
+
+O diretório inspecionado é determinado pelo ambiente de build e não por uma
+busca genérica em artefatos possivelmente antigos:
+
+- Vercel (`VERCEL=1`): `.vercel/output/static`;
+- GitHub Pages (`GITHUB_PAGES=true` ou lifecycle `build:github-pages`):
+  `dist/github-pages/client`;
+- build padrão/Cloudflare: `.output/public`.
+
+Diagnóstico somente leitura de 07/08/2026:
+
+- Cloudflare detectou `bun.lock`, escolheu `bun install --frozen-lockfile` e
+  parou antes do build porque o lockfile divergia do manifesto;
+- Vercel concluiu as etapas Vite/Nitro e gerou `.vercel/output/static`, mas o
+  verificador antigo procurou `.output/public` ou `dist/client`; com cache de
+  build restaurado, o erro em `dist/client` não comprova o conteúdo do artefato
+  Vercel recém-gerado;
+- a reconciliação local remove `bun.lock` e torna o caminho do verificador
+  específico por ambiente, sem upgrade de dependências;
+- após a implementação, `npm ci`, typecheck e lint passaram; o build padrão
+  confirmou `.output/public` e a simulação com `VERCEL=1` confirmou
+  `.vercel/output/static`, ambos com valores públicos fictícios;
+- os testes negativos sem variáveis e com project ref fictício incorreto foram
+  bloqueados com código `1`;
+- duas ocorrências depreciadas de `inputValidator()` reapareceram no commit
+  automático do Lovable e foram novamente reconciliadas para `validator()`, sem
+  alterar schemas ou handlers;
+- `.vercel` foi incluído nos ignores do ESLint, junto aos demais outputs de
+  build; isso exclui somente código gerado e mantém todos os avisos do fonte
+  visíveis;
+- a revalidação local em Node `24.16.0` passou em typecheck, lint e nos builds
+  Cloudflare/Vercel, sem o aviso depreciado; a repetição em Node 22 não pôde ser
+  executada porque o Docker daemon não estava ativo e não havia outro runtime
+  Node instalado, portanto o Quality remoto do novo SHA continuará sendo o gate
+  autoritativo para Node 22;
+- nenhum provedor foi alterado, nenhum build foi publicado e o health HTTP 503
+  do Vercel permanece uma pendência remota separada.
 
 Correção local de 29/07/2026:
 

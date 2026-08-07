@@ -103,6 +103,12 @@ limite de abuso e registro de erro.
 - `.output/server`: Worker e configuração Nitro;
 - `.output/server/wrangler.json`: configuração efetiva para deploy.
 
+Na Vercel, o preset gera os assets públicos em `.vercel/output/static` e as
+funções em `.vercel/output/functions`. O gate `verify-build-env` inspeciona
+somente o diretório correspondente ao provedor atual; ele não usa artefatos de
+outro preset como fallback. No GitHub Pages, o diretório verificado é
+`dist/github-pages/client`.
+
 `npm run deploy` executa o build e publica com Wrangler.
 
 Superfícies atualmente autorizadas:

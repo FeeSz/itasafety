@@ -6,7 +6,15 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
-const DIST_CANDIDATES = [".output/public", "dist/client"];
+const IS_VERCEL_BUILD = process.env.VERCEL === "1";
+const IS_GITHUB_PAGES_BUILD =
+  process.env.GITHUB_PAGES === "true" ||
+  process.env.npm_lifecycle_event === "build:github-pages";
+const DIST_CANDIDATES = IS_VERCEL_BUILD
+  ? [".vercel/output/static"]
+  : IS_GITHUB_PAGES_BUILD
+    ? ["dist/github-pages/client"]
+    : [".output/public"];
 const DIST = DIST_CANDIDATES.find(existsSync);
 const REQUIRED_MARKERS = ["VITE_SUPABASE_URL", "VITE_SUPABASE_PUBLISHABLE_KEY"];
 const EXPECTED_PROJECT_REF = "porgyoqngtshxdxuwaft";

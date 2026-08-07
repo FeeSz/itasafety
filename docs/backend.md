@@ -41,6 +41,10 @@ publishable key ou `service_role`.
 - campos informados pelo chamador não são usados para bloquear um e-mail
   específico.
 
+As duas Server Functions validam seus inputs Zod com a API atual
+`createServerFn().validator()`. A migração de `inputValidator()` não altera os
+schemas, os dados aceitos nem o comportamento dos handlers.
+
 ### `/api/public/health`
 
 Verifica apenas:

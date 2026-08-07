@@ -412,3 +412,31 @@ foi executado nesta etapa.
   200 e health HTTP 503. O bundle corrigido ainda não foi publicado nem validado;
 - nenhuma migration, escrita no banco, teste autenticado, merge ou deploy foi
   executado nesta reconciliação.
+
+### 07/08/2026 — reconciliação local dos builds Cloudflare e Vercel
+
+- o log do Cloudflare mostra falha em `bun install --frozen-lockfile`, antes de
+  qualquer build, porque `bun.lock` divergia de `package.json`;
+- o log do Vercel mostra geração em `.vercel/output/static`, mas o verificador
+  antigo leu `.output/public` ou `dist/client`; o resultado não é evidência
+  válida sobre as variáveis do artefato Vercel recém-gerado;
+- npm `11.18.0` e `package-lock.json` foram mantidos como contrato único, sem
+  upgrade de dependências, e `bun.lock` foi removido localmente;
+- `verify-build-env.mjs` passou a selecionar exclusivamente
+  `.vercel/output/static` na Vercel, `dist/github-pages/client` no GitHub Pages e
+  `.output/public` no build padrão/Cloudflare;
+- `npm ci`, typecheck, lint, build padrão/Cloudflare e simulação local do build
+  Vercel passaram; o verificador reportou o diretório correto nos dois builds;
+- os testes negativos sem variáveis e com ref fictício incorreto falharam com
+  código `1`, como exigido pelo gate fail-closed;
+- duas ocorrências de `inputValidator()` voltaram a ser observadas em
+  `src/lib/auth.functions.ts` e foram reconciliadas para `validator()` sem
+  alterar schemas ou handlers;
+- o output gerado `.vercel` foi excluído do escopo do ESLint, sem desabilitar ou
+  reduzir regras aplicadas ao código-fonte;
+- typecheck, lint e os builds locais Cloudflare/Vercel passaram em Node `24.16.0`
+  sem avisos de `inputValidator()`; a validação adicional em Node 22 ficou
+  pendente porque o Docker daemon não estava ativo e não havia outro runtime
+  Node instalado;
+- commit, push, merge, publicação, alteração de provedor, query e migration
+  permanecem fora desta etapa.
