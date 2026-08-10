@@ -1,7 +1,8 @@
 # 0003 — Migração do backend para o Supabase canônico `porgyoqngtshxdxuwaft`
 
-Data: 03/08/2026; atualizada em 07/08/2026
-Status: `em execução` (vínculo selecionado; publish e validação funcional congelados)
+Data: 03/08/2026; atualizada em 10/08/2026
+Status: `em execução` (código publicado no Lovable; identidade do backend e
+validação funcional ainda não confirmadas)
 
 ## Contexto
 
@@ -39,7 +40,9 @@ dados de negócio**. Não haverá cópia de dados do backend do Cloud para o des
 Usuários e roles serão migrados preservando os IDs de `auth.users`, por export
 conduzido pelo proprietário.
 
-Nenhuma migration, escrita remota ou publish foi executada nesta decisão.
+Na adoção inicial desta decisão não houve migration, escrita remota ou publish.
+As publicações e checks observados posteriormente estão registrados abaixo e não
+alteram o gate que proíbe correção cega do banco.
 
 Execução observada em 06/08/2026:
 
@@ -85,9 +88,34 @@ Execução observada em 06/08/2026:
   abrangendo suas branches, e armazenadas como `sensitive`;
 - nenhum valor foi documentado ou persistido, e Production, Development,
   Cloudflare e deployments permaneceram inalterados;
+- posteriormente, o PR [#1](https://github.com/FeeSz/itasafety/pull/1) foi
+  mesclado em `main` no commit `0dcc6c37b6f56a211911b0d1edc5e1900a2ad1de`;
+- o Quality de `main` `31383306219` passou e o Lovable registrou o mesmo commit
+  como latest commit do projeto publicado, com estado `ready`;
+- em smoke check de 10/08/2026, a home e `/api/public/health` do Lovable
+  responderam HTTP 200, mas a inspeção dos assets públicos não encontrou um
+  project ref Supabase literal; o backend efetivo permanece `não confirmado`;
+- o Preview Vercel do commit documental
+  `815a6a484ffea47ec409ac2ee8626173cd33b11a` concluiu o build e o
+  `verify-build-env` confirmou `VITE_SUPABASE_*` em `.vercel/output/static`; o
+  smoke funcional do Preview protegido não foi concluído;
+- o deployment Vercel Production de `main` falhou porque
+  `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY` não estavam no escopo
+  Production; a URL estável continuou com health HTTP 503 `degraded`;
+- os checks do mesmo commit de `main` falharam também no Cloudflare, no GitHub
+  Pages (`npm ci` sem o pin de npm `11.18.0`) e no Supabase Preview, que encontrou
+  o trigger `set_partners_updated_at` já existente;
+- o PR documental [#2](https://github.com/FeeSz/itasafety/pull/2) foi aberto no
+  commit `815a6a484ffea47ec409ac2ee8626173cd33b11a`; seu Quality
+  `31387836521` passou, mas o PR permaneceu `unstable` por carregar o check
+  Cloudflare com falha;
+- durante um smoke protegido, a CLI Vercel criou indevidamente o projeto
+  `itasafety-reconcile-20260806` e um token de bypass; a operação foi interrompida,
+  o projeto foi excluído com autorização, os arquivos locais de vínculo foram
+  removidos e nenhum valor de token foi exposto;
 - a senha exposta durante a operação foi rotacionada pelo proprietário;
-- runtime publicado, OAuth, issuer do MCP, RLS e fluxos autenticados permanecem
-  não confirmados.
+- o runtime Lovable está publicado, mas backend efetivo, OAuth, issuer do MCP,
+  RLS e fluxos autenticados permanecem não confirmados.
 
 ## Sequência de execução acordada
 
@@ -159,5 +187,7 @@ de banco sempre por migration nova.
 
 `parcialmente confirmado`: tabelas, coluna de claim e RPCs de notificação foram
 reconhecidos no catálogo do projeto `porgyoqngtshxdxuwaft`. Permanecem não
-confirmados RLS, grants, triggers, cron, bucket `empresa_logos`, usuários/roles,
-OAuth, issuer do MCP e comportamento funcional autenticado.
+confirmados o project ref usado pelo runtime Lovable, RLS, grants, triggers,
+cron, bucket `empresa_logos`, usuários/roles, OAuth, issuer do MCP e comportamento
+funcional autenticado. Vercel Production, Cloudflare, GitHub Pages e Supabase
+Preview também permanecem com checks vermelhos independentes.

@@ -165,11 +165,13 @@ e operações reversíveis.
 O trabalho prioritário iniciado em 29/07/2026 está em
 `security/priority-block-2026-07-29.md`.
 
-Em 07/08/2026, a reconciliação de código está no PR #1. O vínculo externo foi
-selecionado e o Quality deve permanecer verde no HEAD atual, mas merge,
-publicação e testes autenticados continuam sujeitos a gates e autorizações
-separados. A auditoria de banco permanece na consulta funcional 1c; os passos
-posteriores não estão autorizados antes dela.
+Em 10/08/2026, o PR #1 foi mesclado em `main` no commit
+`0dcc6c37b6f56a211911b0d1edc5e1900a2ad1de`. O Quality de `main` passou e o
+Lovable registrou esse commit como publicado e `ready`; home e health responderam
+HTTP 200. A inspeção dos assets públicos, porém, não revelou o project ref
+Supabase, portanto o backend efetivo, OAuth, issuer do MCP e fluxos autenticados
+permanecem não confirmados. A auditoria de banco continua na consulta funcional
+1c; os passos posteriores não estão autorizados antes de 1c e 1d.
 
 O gate fail-closed do bundle também é específico por plataforma: Vercel valida
 `.vercel/output/static`, Cloudflare valida `.output/public` e GitHub Pages valida
@@ -183,4 +185,19 @@ da Vercel para todas as branches Preview e marcadas como `sensitive`. O frontend
 usa a chave `publishable` moderna; o servidor usa a chave `secret` moderna sob o
 nome de compatibilidade `SUPABASE_SERVICE_ROLE_KEY`. Nenhum valor foi registrado
 em log, chat, arquivo ou commit. Production, Development e Cloudflare não foram
-alterados, e nenhum redeploy foi iniciado nesta etapa.
+alterados nessa configuração. O Preview posterior do commit
+`815a6a484ffea47ec409ac2ee8626173cd33b11a` passou no verificador, mas o smoke
+funcional permaneceu bloqueado pela proteção da Vercel.
+
+O deployment Vercel Production de `main` falhou fechado por ausência das duas
+variáveis públicas no escopo Production. Cloudflare também falhou sem diagnóstico
+público; GitHub Pages falhou em `npm ci`; e Supabase Preview encontrou o trigger
+`set_partners_updated_at` já existente. Esses resultados impedem classificar a
+cadeia de entrega como verde, mesmo com o Quality aprovado.
+
+Durante a tentativa de smoke protegido, a CLI Vercel criou indevidamente o
+projeto `itasafety-reconcile-20260806` e um token de bypass. A operação foi
+interrompida, o projeto foi excluído com autorização, os artefatos locais de
+vínculo foram removidos e nenhum valor de token foi exposto. O PR documental
+[#2](https://github.com/FeeSz/itasafety/pull/2) permanece aberto para registrar
+essa reconciliação; cada novo commit precisa de seu próprio Quality.

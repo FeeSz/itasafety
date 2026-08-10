@@ -48,8 +48,8 @@ Data da verificação: 28/07/2026, timezone America/Sao_Paulo.
 |     5 | Testar isolamento A/B e anon                   | Pendente                        | Toda tentativa cruzada/privada é negada.                                                 |
 |     6 | Confirmar concorrência de resposta/notificação | Pendente                        | Uma transição e um envio lógico.                                                         |
 |     7 | Reconciliar cron de retenção                   | Pendente                        | Job remoto correto ou migration nova aplicada.                                           |
-|     8 | Versionar migrations e código aplicados        | Em andamento — PR aberto        | Reconciliação no PR #1; merge depende de documentação atualizada e Quality verde.         |
-|     9 | Confirmar deploy Cloudflare do rate limit      | Bloqueado — credencial          | Deployment identificado e smoke test executado.                                          |
+|     8 | Versionar migrations e código aplicados        | Parcial — código em `main`, docs no PR #2 | Documentação atualizada e checks relevantes verdes no SHA final.                         |
+|     9 | Confirmar deploy Cloudflare do rate limit      | Bloqueado — log/credencial      | Causa do build atual confirmada, deployment identificado e smoke test executado.          |
 |    10 | Fechar gates                                   | Controle contínuo por SHA       | O check Quality deve permanecer verde no HEAD atual do PR e depois em `main`.              |
 
 ## Ação 1 — rotação da senha
@@ -268,20 +268,24 @@ exit code: 0
 [ ] teste A/B
 [ ] teste concorrência
 [ ] cron
-[~] commit/push — reconciliação no PR #1; merge não autorizado
+[~] código reconciliado em `main`; documentação corretiva no PR #2
 [ ] deploy Cloudflare
 ```
 
 ## Bloqueios atuais
 
-1. o PR #1 precisa manter a documentação atualizada e o Quality verde no HEAD
-   atual antes de qualquer merge;
-2. o vínculo Lovable → Supabase foi selecionado para `porgyoqngtshxdxuwaft`, mas
-   o build corrigido ainda não foi publicado nem validado no bundle remoto;
-3. testes autenticados exigem sessões/contas de teste reais após a publicação;
+1. o PR #2 precisa registrar o merge/publicação já ocorridos e os checks atuais;
+   qualquer novo commit exige novo Quality antes de merge;
+2. o Lovable está publicado no commit de `main`, mas o project ref usado pelo
+   runtime não foi provado pelos metadados, pelo health ou pelos assets públicos;
+3. testes autenticados exigem confirmação do backend e sessões/contas de teste
+   aprovadas;
 4. as consultas da auditoria permanecem ordenadas: 1c, parada em caso de
    recursão, 1d e somente depois os passos 2 a 4;
-5. consulta de deployment Cloudflare exige token disponível no ambiente.
+5. Vercel Production, Cloudflare, GitHub Pages e Supabase Preview têm falhas
+   independentes; nenhuma deve receber correção cega;
+6. a causa do Cloudflare exige log autenticado ou evidência fornecida pelo
+   proprietário.
 
 ## Estado operacional
 
@@ -289,21 +293,25 @@ O `STANDBY` por falta de tokens, iniciado em 29/07/2026, foi parcialmente
 encerrado em 06/08/2026 quando o proprietário selecionou o Supabase externo
 `porgyoqngtshxdxuwaft` no Lovable.
 
-Estado atual: `EM EXECUÇÃO CONTROLADA`. Código e documentação podem avançar na
-branch de reconciliação. Merge, publish, testes autenticados, continuação das
-consultas de produção, migrations e novas features permanecem congelados por
-seus gates próprios.
+Estado atual: `CONTENÇÃO E RECONCILIAÇÃO`. O código foi mesclado em `main` e o
+Lovable registra essa versão como publicada, mas a documentação e a cadeia de
+entrega não estão reconciliadas. Merge do PR #2, alterações de provedor, testes
+autenticados, continuação das consultas de produção, migrations e novas features
+permanecem congelados por seus gates próprios.
 
 Sequência de retomada:
 
-1. manter a documentação atualizada no PR #1;
-2. confirmar Quality verde para o HEAD atual;
-3. revisar e autorizar separadamente o merge;
-4. validar o Quality de `main` após o merge;
-5. confirmar Auth/OAuth, contas/roles, MCP e Storage no destino;
-6. autorizar separadamente e publicar o build corrigido;
-7. validar o ref canônico no bundle e o login Google;
-8. retomar pela consulta funcional 1c, sem saltar etapas.
+1. atualizar localmente os quatro documentos do PR #2 com o estado remoto real;
+2. revisar e versionar essa documentação em gates separados;
+3. obter novo Quality e revisar todos os checks do novo SHA;
+4. diagnosticar, sem correção cega, Vercel Production, Cloudflare, GitHub Pages e
+   Supabase Preview;
+5. somente com a cadeia documentada e estabilizada, revisar e autorizar
+   separadamente o merge do PR #2;
+6. confirmar o backend efetivo do Lovable e Auth/OAuth, contas/roles, MCP e
+   Storage no destino;
+7. retomar pela consulta funcional 1c, parar em caso de recursão e executar 1d;
+8. somente depois executar os passos 2 a 4 da auditoria.
 
 ### Trabalho local independente durante o standby
 
@@ -455,4 +463,40 @@ foi executado nesta etapa.
 - uma segunda listagem confirmou exatamente seis entradas e os vínculos locais
   temporários foram removidos;
 - Production, Development, Cloudflare, banco, deployment, commit, push e merge
-  não foram alterados; o próximo gate é um novo Preview build autorizado.
+  não foram alterados nessa configuração; o próximo gate era um novo Preview
+  build autorizado.
+
+### 10/08/2026 — merge, publicação e reconciliação do estado real
+
+- o PR [#1](https://github.com/FeeSz/itasafety/pull/1) foi mesclado em `main` no
+  commit `0dcc6c37b6f56a211911b0d1edc5e1900a2ad1de`;
+- o Quality de `main` `31383306219` passou;
+- o Lovable registrou esse commit como latest commit do projeto publicado, com
+  estado `ready`; home e `/api/public/health` responderam HTTP 200;
+- a inspeção dos assets públicos não encontrou project ref Supabase nem
+  marcadores `VITE_SUPABASE_*`; isso não comprova qual backend o runtime usa;
+- o Preview Vercel do commit
+  `815a6a484ffea47ec409ac2ee8626173cd33b11a` ficou `Ready` e o
+  `verify-build-env` confirmou as variáveis públicas no bundle; o smoke funcional
+  do Preview protegido não foi concluído;
+- o deployment Vercel Production de `main` falhou fechado por ausência de
+  `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY` no escopo Production; a
+  URL estável permaneceu com health HTTP 503 `degraded`;
+- o Cloudflare Worker build falhou sem annotations públicas e sua causa atual
+  permanece não confirmada;
+- o GitHub Pages falhou em `npm ci` com `EUSAGE` e ausência de
+  `lru-cache@11.5.2`; o workflow não fixa npm `11.18.0` como o Quality;
+- o Supabase Preview falhou com SQLSTATE `42710` porque o trigger
+  `set_partners_updated_at` já existia;
+- o PR documental [#2](https://github.com/FeeSz/itasafety/pull/2) foi aberto no
+  commit `815a6a484ffea47ec409ac2ee8626173cd33b11a`; seu Quality
+  `31387836521` passou, mas o PR permaneceu `unstable` por causa do check
+  Cloudflare com falha;
+- uma tentativa de smoke protegido pela CLI Vercel criou acidentalmente o projeto
+  `itasafety-reconcile-20260806` e um token de bypass. A operação foi interrompida,
+  o projeto foi excluído com autorização, os arquivos locais de vínculo foram
+  removidos e nenhum valor de token foi exposto;
+- o domínio legado continuou com falha TLS de nome/SNI; nenhum bypass de
+  certificado foi usado;
+- nenhuma query de banco, migration, teste autenticado, rerun ou correção de
+  provedor foi executada durante esta reconciliação documental.

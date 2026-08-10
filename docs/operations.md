@@ -9,7 +9,7 @@
 | Desenvolvimento    | `http://localhost:8080/`                    |
 | Site legado        | `https://itasafety.com.br/`                 |
 | Aplicação          | Cloudflare Worker `itasafety`               |
-| Banco/Auth/Storage | Supabase externo selecionado: `porgyoqngtshxdxuwaft`; runtime publicado ainda não validado |
+| Banco/Auth/Storage | Supabase externo selecionado: `porgyoqngtshxdxuwaft`; Lovable publicado, backend efetivo ainda não confirmado |
 | Edge Function      | `enviar-notificacao-cotacao`                |
 | E-mail             | EmailJS                                     |
 | Build alternativo  | GitHub Pages em `/itasafety/`               |
@@ -62,8 +62,10 @@ identifica qual projeto está conectado.
 
 Em 06/08/2026, o proprietário selecionou o projeto externo `ItaSafety`. O
 Lovable reconheceu o catálogo esperado e gerou configuração para o ref
-`porgyoqngtshxdxuwaft`. A seleção está confirmada; o runtime publicado e os
-fluxos autenticados posteriores à troca ainda não estão validados. Ver
+`porgyoqngtshxdxuwaft`. Em 10/08/2026, o código reconciliado chegou a `main` e o
+Lovable registrou esse commit como publicado e `ready`. Isso confirma a versão
+de código, mas não o project ref efetivamente consumido pelo runtime nem os
+fluxos autenticados posteriores à troca. Ver
 `decisions/0003-migracao-backend-supabase-canonico.md`.
 
 Depois de conectar ou corrigir as variáveis, é obrigatório gerar e publicar um
@@ -254,8 +256,12 @@ Configuração Vercel Preview de 10/08/2026:
   alvo Preview e o vínculo local temporário foi removido;
 - nenhuma variável de Production ou Development, deployment, domínio, banco ou
   configuração Cloudflare foi alterada;
-- a configuração não republica o deployment que falhou; um novo Preview build
-  e seu health check ainda precisam de autorização e validação separadas.
+- a configuração não republicou retroativamente o deployment que falhou;
+- o push posterior do commit documental
+  `815a6a484ffea47ec409ac2ee8626173cd33b11a` gerou um novo Preview, cujo build
+  terminou `Ready` e cujo `verify-build-env` confirmou `VITE_SUPABASE_*` no
+  diretório correto;
+- o Preview está protegido pela Vercel e seu smoke funcional não foi concluído.
 
 Correção local de 29/07/2026:
 
@@ -267,9 +273,10 @@ Correção local de 29/07/2026:
   variáveis não foram incorporadas;
 - `npm run build` passou localmente e o verificador confirmou
   `VITE_SUPABASE_*` no bundle local;
-- a conexão foi selecionada em 06/08/2026, mas a publicação no Lovable continua
-  pendente; o bundle remoto existente não comprova a incorporação do ref canônico
-  até que um novo build seja publicado e inspecionado.
+- a conexão foi selecionada em 06/08/2026; em 10/08/2026 o merge chegou ao
+  Lovable publicado, mas a inspeção dos assets públicos não encontrou um project
+  ref Supabase literal. O backend efetivo permanece `não confirmado` até uma
+  evidência operacional ou teste autenticado controlado.
 
 Reconciliação local de 06/08/2026, após o vínculo externo:
 
@@ -306,12 +313,41 @@ Reconciliação local de 06/08/2026, após o vínculo externo:
 - o incidente foi resolvido pelo GitHub em 07/08/2026, e o run `31185659802`
   concluiu `static-analysis` com sucesso no commit documental
   `e3893458e996554b2617c4449895685e109dea11`;
-- o PR continua sem merge. O check autoritativo é sempre o Quality do HEAD atual;
-  cada novo commit invalida a suficiência de runs anteriores até obter seu
-  próprio resultado verde;
+- naquele snapshot o PR ainda estava sem merge. O check autoritativo é sempre o
+  Quality do HEAD atual; cada novo commit invalida a suficiência de runs
+  anteriores até obter seu próprio resultado verde;
 - `npm ci` reportou 15 vulnerabilidades (1 baixa, 10 moderadas e 4 altas), que
   permanecem fora deste bloco de reconciliação e não foram mascaradas com
   `npm audit fix --force`.
+
+### Estado remoto após o merge do PR #1 — 10/08/2026
+
+- o PR [#1](https://github.com/FeeSz/itasafety/pull/1) foi mesclado em `main` no
+  commit `0dcc6c37b6f56a211911b0d1edc5e1900a2ad1de`;
+- o Quality de `main` `31383306219` passou;
+- o projeto Lovable está publicado, `ready` e registra o mesmo commit como
+  latest commit; home e `/api/public/health` responderam HTTP 200;
+- o deployment Vercel Production de `main` falhou no `verify-build-env` por
+  ausência de `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY` no escopo
+  Production; `https://itasafety.vercel.app/api/public/health` continuou HTTP
+  503 `degraded` no deployment anterior;
+- o Cloudflare Worker build falhou sem annotations públicas; a causa atual exige
+  o log autenticado e não deve ser inferida do incidente antigo do `bun.lock`;
+- o GitHub Pages falhou em `npm ci` com `EUSAGE` e
+  `Missing: lru-cache@11.5.2 from lock file`; esse workflow não fixa npm
+  `11.18.0`, ao contrário do Quality;
+- o Supabase Preview falhou com SQLSTATE `42710` porque o trigger
+  `set_partners_updated_at` já existia; a evidência não autoriza editar migration
+  aplicada nem criar correção cega;
+- o PR documental [#2](https://github.com/FeeSz/itasafety/pull/2) foi aberto no
+  commit `815a6a484ffea47ec409ac2ee8626173cd33b11a`; o Quality
+  `31387836521` passou, mas o PR permaneceu `unstable` por causa do check
+  Cloudflare com falha;
+- a CLI Vercel criou acidentalmente o projeto
+  `itasafety-reconcile-20260806` e um token de bypass durante uma tentativa de
+  smoke protegido. A operação foi interrompida, o projeto foi excluído com
+  autorização e os arquivos locais de vínculo foram removidos. Nenhum valor de
+  token foi exposto ou persistido no repositório.
 
 ### Gate atual do ambiente Lovable
 
@@ -319,15 +355,17 @@ Em 29/07/2026, o proprietário colocou a aplicação em standby operacional porq
 a conexão do projeto Lovable ao Supabase depende de tokens/créditos do Lovable,
 com reset previsto para 01/08/2026.
 
-Após a seleção do vínculo em 06/08/2026:
+Após o merge e a publicação observados em 10/08/2026:
 
-- não realizar merge até a documentação do PR estar atualizada e o Quality do
-  SHA final estar verde;
-- não publicar o build antes do merge e da validação das configurações do
-  destino;
-- não prosseguir com os testes autenticados 1c e 1d;
-- não executar as consultas seguintes da auditoria;
-- preservar as correções locais e a documentação já produzida.
+- não mesclar o PR #2 enquanto a documentação não refletir o estado real e os
+  checks relevantes permanecerem vermelhos;
+- não configurar Production, Cloudflare ou Supabase Preview sem diagnóstico,
+  rollback e autorização próprios;
+- não considerar o health HTTP 200 do Lovable como prova do project ref;
+- não prosseguir com os testes autenticados 1c e 1d até confirmar o backend
+  efetivo e dispor das contas/sessões aprovadas;
+- não executar as consultas seguintes da auditoria antes de 1c e 1d;
+- não iniciar migration ou feature enquanto esses gates estiverem abertos.
 
 Smoke check público de 07/08/2026:
 
@@ -336,9 +374,18 @@ Smoke check público de 07/08/2026:
 - localhost: um processo já em execução respondeu HTTP 200 na porta 8080; o SHA
   servido não foi identificado neste smoke check;
 - a inspeção dos assets públicos de Lovable e Vercel não encontrou o ref
-  canônico como literal. Esse resultado não identifica outro ref nem valida a
-  configuração do browser; o bundle corrigido continua classificado como
-  `não implantado` e `não validado`.
+  canônico como literal. Naquele snapshot, o bundle corrigido continuava
+  classificado como `não implantado` e `não validado`.
+
+Smoke check público de 10/08/2026:
+
+- Lovable: home HTTP 200 e `/api/public/health` HTTP 200 `{"status":"ok"}`;
+- Vercel estável: home HTTP 200 e `/api/public/health` HTTP 503
+  `{"status":"degraded"}`;
+- `itasafety.com.br`: a verificação TLS falhou por incompatibilidade de
+  nome/SNI; não foi usado bypass de certificado;
+- os assets públicos do Lovable não expuseram project ref nem marcadores
+  `VITE_SUPABASE_*`; o resultado não comprova o backend efetivo.
 
 O standby não impede typecheck, lint, build local, documentação, testes unitários
 sem rede ou preparação de CI que não consulte nem altere serviços remotos.
