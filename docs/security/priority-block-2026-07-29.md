@@ -49,7 +49,7 @@ Data da verificação: 28/07/2026, timezone America/Sao_Paulo.
 |     6 | Confirmar concorrência de resposta/notificação | Pendente                        | Uma transição e um envio lógico.                                                         |
 |     7 | Reconciliar cron de retenção                   | Pendente                        | Job remoto correto ou migration nova aplicada.                                           |
 |     8 | Versionar migrations e código aplicados        | Parcial — código em `main`, docs no PR #2 | Documentação atualizada e checks relevantes verdes no SHA final.                         |
-|     9 | Confirmar deploy Cloudflare do rate limit      | Bloqueado — log/credencial      | Causa do build atual confirmada, deployment identificado e smoke test executado.          |
+|     9 | Confirmar deploy Cloudflare do rate limit      | Parcial — deploy/smoke concluídos | Deployment identificado e smoke verde; teste funcional de abuso ainda pendente.           |
 |    10 | Fechar gates                                   | Controle contínuo por SHA       | O check Quality deve permanecer verde no HEAD atual do PR e depois em `main`.              |
 
 ## Ação 1 — rotação da senha
@@ -269,7 +269,7 @@ exit code: 0
 [ ] teste concorrência
 [ ] cron
 [~] código reconciliado em `main`; documentação corretiva no PR #2
-[ ] deploy Cloudflare
+[x] Cloudflare: runtime, bundle cliente e smoke público reconciliados
 ```
 
 ## Bloqueios atuais
@@ -282,10 +282,13 @@ exit code: 0
    aprovadas;
 4. as consultas da auditoria permanecem ordenadas: 1c, parada em caso de
    recursão, 1d e somente depois os passos 2 a 4;
-5. Vercel Production, Cloudflare, GitHub Pages e Supabase Preview têm falhas
-   independentes; nenhuma deve receber correção cega;
-6. a causa do Cloudflare exige log autenticado ou evidência fornecida pelo
-   proprietário.
+5. Vercel Production, GitHub Pages e Supabase Preview têm falhas independentes;
+   nenhuma deve receber correção cega;
+6. runtime e bundle cliente Cloudflare foram reconciliados e o smoke retornou
+   HTTP 200; o endurecimento do verificador de JWT foi implementado e validado
+   somente localmente. Seu versionamento/publicação e o teste de abuso do rate
+   limit permanecem gates próprios e não autorizam antecipar os testes
+   autenticados ou as consultas seguintes da auditoria.
 
 ## Estado operacional
 
@@ -304,8 +307,8 @@ Sequência de retomada:
 1. atualizar localmente os quatro documentos do PR #2 com o estado remoto real;
 2. revisar e versionar essa documentação em gates separados;
 3. obter novo Quality e revisar todos os checks do novo SHA;
-4. diagnosticar, sem correção cega, Vercel Production, Cloudflare, GitHub Pages e
-   Supabase Preview;
+4. diagnosticar, sem correção cega, Vercel Production, GitHub Pages e Supabase
+   Preview; runtime, bundle cliente e health Cloudflare já foram reconciliados;
 5. somente com a cadeia documentada e estabilizada, revisar e autorizar
    separadamente o merge do PR #2;
 6. confirmar o backend efetivo do Lovable e Auth/OAuth, contas/roles, MCP e
@@ -500,3 +503,65 @@ foi executado nesta etapa.
   certificado foi usado;
 - nenhuma query de banco, migration, teste autenticado, rerun ou correção de
   provedor foi executada durante esta reconciliação documental.
+
+### 10/08/2026 — bindings de runtime e health do Cloudflare
+
+- o inventário remoto confirmou que as variáveis Supabase existiam no build,
+  mas não nos bindings de runtime do Worker `itasafety`;
+- o health HTTP 503 era causado pela ausência de `SUPABASE_URL` e
+  `SUPABASE_PUBLISHABLE_KEY` em runtime e ocorria antes de qualquer chamada ao
+  Supabase;
+- os dois nomes foram adicionados como `secret_text`, a partir de valores locais
+  ignorados pelo Git e validados contra `porgyoqngtshxdxuwaft`; nenhum valor foi
+  revelado;
+- nenhum `SUPABASE_SERVICE_ROLE_KEY` foi configurado neste gate;
+- a versão `1db139bb-8d60-4d18-b4fa-f0c472cc986d` foi criada e publicada pelo
+  deployment `97e9c9de-4189-49c6-83b0-8dd1c5c6dd72`, recebendo 100% do tráfego;
+- a URL estável e a URL imutável da versão retornaram HTTP 200
+  `{"status":"ok"}`;
+- a inspeção sanitizada do bundle ativo encontrou a URL canônica, nenhuma chave
+  moderna `sb_publishable_*` e um único JWT `anon` cujo `ref` e issuer não
+  correspondem ao projeto canônico; a correção exige novo build em gate próprio;
+- não houve alteração de código, banco, migration, Vercel, Lovable, commit ou
+  push; os testes autenticados e a sequência 1c, 1d e passos 2 a 4 permanecem
+  submetidos aos gates já definidos.
+
+### 10/08/2026 — reconciliação do bundle cliente Cloudflare
+
+- as três variáveis `VITE_SUPABASE_*` foram rotacionadas no build Cloudflare
+  com os valores canônicos e sem exposição;
+- o build de produção `12174877-dfaa-4d22-bfb3-f82420734ec9` usou `main` no
+  commit `0dcc6c37b6f56a211911b0d1edc5e1900a2ad1de` e terminou com sucesso;
+- `verify-build-env` confirmou as variáveis em `.output/public`, e a versão
+  `f65c358c-bcb0-4d2b-9f19-a29641a8b1dd` foi publicada pelo deployment
+  `defddbf6-e606-4cc5-9f83-b7d34a956f0e` com 100% do tráfego;
+- a versão anterior `1db139bb-8d60-4d18-b4fa-f0c472cc986d` permaneceu como
+  referência imediata de rollback;
+- os bindings `SUPABASE_URL` e `SUPABASE_PUBLISHABLE_KEY` permaneceram como
+  `secret_text`, sem inclusão de `service_role`;
+- o bundle servido contém a URL canônica e uma chave moderna
+  `sb_publishable_*`, sem JWT `anon` divergente; nenhum valor foi revelado;
+- home e health responderam HTTP 200 nas URLs estável e imutável, com
+  `{"status":"ok"}` no health;
+- o verificador publicado ainda não associa JWT legado ao project ref. Seu
+  endurecimento local e o teste funcional de abuso do rate limit permanecem
+  pendências separadas até versionamento/publicação e execução, respectivamente;
+- não houve alteração de código, banco, migration, Vercel, Lovable, commit ou
+  push.
+
+### 10/08/2026 — endurecimento local do `verify-build-env`
+
+- o verificador passou a decodificar JWTs candidatos sem expor seu conteúdo e a
+  considerar apenas tokens com papel `anon`;
+- o project ref é extraído do claim `ref` ou do issuer canônico do Supabase;
+- um JWT legado só satisfaz a presença da chave pública se corresponder a
+  `porgyoqngtshxdxuwaft`, e qualquer JWT `anon` divergente bloqueia o build mesmo
+  quando existe uma chave moderna válida;
+- cinco testes automatizados cobriram os caminhos positivo e negativos sem
+  registrar qualquer token;
+- `npm run test:build-env`, lint, typecheck e build local passaram; a primeira
+  tentativa de build foi bloqueada apenas pela restrição de escrita do sandbox
+  em `node_modules/.vite-temp`, e a repetição autorizada concluiu com sucesso;
+- a alteração foi versionada localmente nesta branch, sem push ou publicação.
+  Banco, migrations, Cloudflare, Vercel e Lovable permaneceram inalterados neste
+  gate.

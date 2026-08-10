@@ -184,16 +184,47 @@ Em 10/08/2026, as seis variáveis Supabase foram configuradas somente no Preview
 da Vercel para todas as branches Preview e marcadas como `sensitive`. O frontend
 usa a chave `publishable` moderna; o servidor usa a chave `secret` moderna sob o
 nome de compatibilidade `SUPABASE_SERVICE_ROLE_KEY`. Nenhum valor foi registrado
-em log, chat, arquivo ou commit. Production, Development e Cloudflare não foram
-alterados nessa configuração. O Preview posterior do commit
+em log, chat, arquivo ou commit. Naquele gate, Production, Development e
+Cloudflare não foram alterados. O Preview posterior do commit
 `815a6a484ffea47ec409ac2ee8626173cd33b11a` passou no verificador, mas o smoke
 funcional permaneceu bloqueado pela proteção da Vercel.
 
-O deployment Vercel Production de `main` falhou fechado por ausência das duas
-variáveis públicas no escopo Production. Cloudflare também falhou sem diagnóstico
-público; GitHub Pages falhou em `npm ci`; e Supabase Preview encontrou o trigger
-`set_partners_updated_at` já existente. Esses resultados impedem classificar a
-cadeia de entrega como verde, mesmo com o Quality aprovado.
+Em um gate posterior de 10/08/2026, o Cloudflare recebeu somente
+`SUPABASE_URL` e `SUPABASE_PUBLISHABLE_KEY` como segredos de runtime. Nenhum
+`service_role` foi adicionado. A versão
+`1db139bb-8d60-4d18-b4fa-f0c472cc986d` foi publicada com 100% do tráfego, e o
+health check estável e o imutável retornaram HTTP 200 `{"status":"ok"}`. Isso
+prova a configuração mínima e a chamada básica ao Auth, não a matriz de
+autorização ou os fluxos autenticados. O bundle cliente ativo ainda não contém a
+chave moderna `sb_publishable_*` e inclui um JWT `anon` cujo `ref` e issuer não
+correspondem ao projeto canônico; os valores não foram expostos. Portanto, o
+runtime de servidor está reconciliado, mas o cliente Cloudflare requer novo
+build e validação em gate próprio.
+
+Esse gate foi executado em seguida: as três variáveis `VITE_SUPABASE_*` do build
+foram rotacionadas sem exposição, e o build de produção
+`12174877-dfaa-4d22-bfb3-f82420734ec9` publicou a versão
+`f65c358c-bcb0-4d2b-9f19-a29641a8b1dd`. A inspeção do bundle servido confirmou
+o ref canônico, a chave moderna `sb_publishable_*` e nenhuma chave `anon`
+divergente; os dois secrets de runtime permaneceram vinculados. Home e health
+estável/imutável responderam HTTP 200. Nenhum `service_role` foi adicionado.
+
+O verificador publicado no SHA desse deploy ainda aceita qualquer literal com
+formato JWT como publishable key e não decodifica seu `ref`; por isso, a inspeção
+sanitizada foi mantida como evidência adicional. Em 10/08/2026, o script foi
+endurecido localmente para decodificar apenas JWTs `anon`, associar o token ao
+project ref por `ref` ou issuer e rejeitar refs divergentes mesmo na presença de
+uma chave moderna válida. Cinco testes automatizados, lint, typecheck e build
+local passaram. A proteção foi versionada localmente nesta branch, mas ainda não
+foi enviada nem publicada e, portanto, não altera a evidência nem o artefato
+remoto atual.
+
+O deployment Vercel Production de `main` continua falhando fechado por ausência
+das duas variáveis públicas no escopo Production. GitHub Pages falhou em
+`npm ci`; e Supabase Preview encontrou o trigger `set_partners_updated_at` já
+existente. Esses resultados ainda impedem classificar toda a cadeia de entrega
+como verde, mesmo com o cliente e o health Cloudflare reconciliados e o Quality
+aprovado.
 
 Durante a tentativa de smoke protegido, a CLI Vercel criou indevidamente o
 projeto `itasafety-reconcile-20260806` e um token de bypass. A operação foi

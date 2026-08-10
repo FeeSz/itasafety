@@ -387,6 +387,83 @@ Smoke check público de 10/08/2026:
 - os assets públicos do Lovable não expuseram project ref nem marcadores
   `VITE_SUPABASE_*`; o resultado não comprova o backend efetivo.
 
+### Reconciliação do runtime Cloudflare — 10/08/2026
+
+- o diagnóstico autenticado confirmou que as seis variáveis Supabase estavam
+  disponíveis somente no ambiente de build, enquanto o runtime continha apenas
+  `ASSETS`, `SITE_URL` e `VITE_SITE_URL`;
+- por isso, `/api/public/health` parava na verificação de variáveis e respondia
+  HTTP 503 `{"status":"degraded"}` antes de chamar o Supabase;
+- foram adicionados exclusivamente os bindings de runtime `SUPABASE_URL` e
+  `SUPABASE_PUBLISHABLE_KEY`, ambos como `secret_text`, usando valores locais
+  ignorados pelo Git e previamente validados contra o project ref
+  `porgyoqngtshxdxuwaft`; nenhum valor foi exibido ou persistido na
+  documentação;
+- o Dashboard criou a versão
+  `1db139bb-8d60-4d18-b4fa-f0c472cc986d` e o deployment
+  `97e9c9de-4189-49c6-83b0-8dd1c5c6dd72`, com 100% do tráfego nessa versão;
+- o deployment anterior `28c60d87-1724-4303-9b7b-f58c7825b25f`, que servia a
+  versão `b27ad7f8-d870-4869-af15-90dbca98c082`, foi registrado como referência
+  de rollback;
+- `https://itasafety.itasafety.workers.dev/api/public/health` e a URL imutável
+  da nova versão responderam HTTP 200 `{"status":"ok"}`;
+- uma inspeção sanitizada do bundle ativo confirmou a URL do projeto canônico,
+  mas não encontrou a chave moderna `sb_publishable_*` e encontrou um único JWT
+  `anon` cujo `ref` e issuer não correspondem a `porgyoqngtshxdxuwaft`; nenhum
+  valor foi exibido. Como a atualização de secrets não recompila o cliente, os
+  fluxos executados no browser permanecem pendentes de um build separado;
+- o resultado valida a configuração mínima e a chamada básica ao Auth, mas não
+  substitui testes de catálogo, RLS, OAuth ou fluxos autenticados;
+- nenhum código, banco, migration, Vercel ou Lovable foi alterado neste gate.
+
+### Reconciliação do bundle cliente Cloudflare — 10/08/2026
+
+- `VITE_SUPABASE_URL`, `VITE_SUPABASE_PROJECT_ID` e
+  `VITE_SUPABASE_PUBLISHABLE_KEY` foram rotacionadas no ambiente de build do
+  Cloudflare com os valores canônicos, mantendo o armazenamento como secret e
+  sem exibir seus valores;
+- o build manual de produção `12174877-dfaa-4d22-bfb3-f82420734ec9` executou o
+  gatilho `Deploy default branch` sobre `main`, commit
+  `0dcc6c37b6f56a211911b0d1edc5e1900a2ad1de`;
+- `verify-build-env` retornou OK para `.output/public`, 60 assets foram
+  processados e o deploy criou a versão
+  `f65c358c-bcb0-4d2b-9f19-a29641a8b1dd`;
+- o deployment `defddbf6-e606-4cc5-9f83-b7d34a956f0e` direcionou 100% do
+  tráfego para essa versão e preservou `SUPABASE_URL` e
+  `SUPABASE_PUBLISHABLE_KEY` como `secret_text` de runtime;
+- a versão anterior `1db139bb-8d60-4d18-b4fa-f0c472cc986d` permaneceu
+  registrada como referência imediata de rollback;
+- a inspeção sanitizada do artefato servido confirmou a URL
+  `porgyoqngtshxdxuwaft.supabase.co`, a chave moderna `sb_publishable_*` e zero
+  JWTs `anon` divergentes; nenhum valor de chave foi exibido;
+- home e `/api/public/health` retornaram HTTP 200 nas URLs estável e imutável da
+  versão; o health respondeu `{"status":"ok"}`;
+- o `verify-build-env` publicado nesse SHA reconhece uma chave pelo formato e
+  não associa um JWT legado ao project ref esperado. O deploy foi validado pela
+  inspeção adicional acima; o fortalecimento local posterior é registrado no
+  gate seguinte;
+- nenhum código, commit, push, banco, migration, Vercel ou Lovable foi alterado
+  neste gate.
+
+### Endurecimento local do gate do bundle — 10/08/2026
+
+- `scripts/verify-build-env.mjs` agora decodifica candidatos JWT sem registrar o
+  token, considera somente o papel `anon` e obtém o project ref pelo claim `ref`
+  ou pelo issuer canônico do Supabase;
+- um JWT `anon` legado só satisfaz o marcador de chave pública quando pertence a
+  `porgyoqngtshxdxuwaft`;
+- qualquer JWT `anon` de outro projeto bloqueia o build, mesmo se o bundle também
+  contiver uma chave moderna `sb_publishable_*` válida;
+- `scripts/verify-build-env.test.mjs` cobre cinco cenários: chave moderna correta,
+  JWT legado correto, JWT legado divergente, JWT divergente acompanhado de chave
+  moderna e URL Supabase divergente;
+- `npm run test:build-env`, lint, typecheck e build local passaram. O primeiro
+  build ficou impedido de escrever em `node_modules/.vite-temp` pelo sandbox; a
+  repetição autorizada fora dele concluiu e o verificador retornou OK;
+- esta mudança foi versionada localmente nesta branch. Nenhum push, build
+  remoto, publicação, banco, migration, Vercel ou Lovable foi alterado neste
+  gate.
+
 O standby não impede typecheck, lint, build local, documentação, testes unitários
 sem rede ou preparação de CI que não consulte nem altere serviços remotos.
 
@@ -417,8 +494,8 @@ Depois:
 - testar home, autenticação e uma rota protegida;
 - registrar timestamp, versão e resultado.
 
-Enquanto não houver domínio canônico definitivo, repetir esses testes em Lovable
-e Vercel e identificar explicitamente qual URL foi validada.
+Enquanto não houver domínio canônico definitivo, repetir esses testes em
+Cloudflare, Lovable e Vercel e identificar explicitamente qual URL foi validada.
 
 ## Supabase
 
