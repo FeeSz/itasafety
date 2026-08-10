@@ -41,6 +41,10 @@ publishable key ou `service_role`.
 - campos informados pelo chamador não são usados para bloquear um e-mail
   específico.
 
+As duas Server Functions validam seus inputs Zod com a API atual
+`createServerFn().validator()`. A migração de `inputValidator()` não altera os
+schemas, os dados aceitos nem o comportamento dos handlers.
+
 ### `/api/public/health`
 
 Verifica apenas:
@@ -262,20 +266,23 @@ RLS habilitada em todas as tabelas, com grants explícitos: leitura anônima ape
 Pendências: `não confirmado` o bucket de storage `empresa_logos` (não recriado nesta
 migration) e a validação funcional ponta a ponta das telas de cotação.
 
-## Divergência de vínculo — 03/08/2026
+## Reconciliação do vínculo — 03 a 06/08/2026
 
-Verificação somente leitura: o runtime e o build consomem exclusivamente as
+O runtime e o build consomem exclusivamente as
 variáveis `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`,
 `SUPABASE_SERVICE_ROLE_KEY`, `VITE_SUPABASE_URL`,
-`VITE_SUPABASE_PUBLISHABLE_KEY` e `VITE_SUPABASE_PROJECT_ID`, hoje apontando para
-o backend Supabase gerenciado pelo Lovable Cloud — **não** para
-`porgyoqngtshxdxuwaft`. O issuer do MCP (`src/lib/mcp/index.ts`) é derivado de
-`VITE_SUPABASE_PROJECT_ID` e acompanha essa mesma configuração.
+`VITE_SUPABASE_PUBLISHABLE_KEY` e `VITE_SUPABASE_PROJECT_ID`. Em 06/08/2026, o
+Lovable selecionou o projeto externo `porgyoqngtshxdxuwaft`, reconheceu seu
+catálogo e gerou configuração apontando para esse ref. O issuer do MCP
+(`src/lib/mcp/index.ts`) continua derivado de `VITE_SUPABASE_PROJECT_ID`.
 
 Decisão registrada: `porgyoqngtshxdxuwaft` é a fonte de verdade dos dados de
 negócio; não haverá cópia de dados a partir do Cloud, e usuários e roles serão
 migrados preservando IDs. Sequência, responsabilidades, riscos, rollback e
 validações estão em `decisions/0003-migracao-backend-supabase-canonico.md`.
 
-Estado: migrations e ações remotas permanecem congeladas. A paridade de schema,
-RLS, grants, RPCs e do bucket `empresa_logos` no destino é `não confirmado`.
+Estado: o vínculo foi selecionado, mas o cliente automático que incorporava a
+configuração no fonte foi rejeitado. A branch de reconciliação mantém resolução
+por ambiente, falha fechada e tipos alinhados ao catálogo observado. Migrations,
+publish e testes autenticados permanecem congelados; RLS, grants, OAuth, issuer
+do MCP e o bucket `empresa_logos` continuam `não confirmados` funcionalmente.

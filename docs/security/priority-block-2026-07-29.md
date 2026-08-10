@@ -42,15 +42,15 @@ Data da verificação: 28/07/2026, timezone America/Sao_Paulo.
 | Ordem | Ação                                           | Estado                          | Critério de conclusão                                                                    |
 | ----: | ---------------------------------------------- | ------------------------------- | ---------------------------------------------------------------------------------------- |
 |     1 | Rotacionar senha PostgreSQL exposta            | Concluída                       | Nova credencial validada, consumidores inventariados e referência principal disponível. |
-|     2 | Confirmar catálogo P0 após rotação             | Pendente                        | Grants, policies, funções, triggers, cron e migration history salvos sem dados pessoais. |
+|     2 | Confirmar catálogo P0 após rotação             | Em andamento                    | Consultas 1a e 1b registradas; testes 1c/1d e consultas seguintes ainda pendentes.       |
 |     3 | Testar usuário comum                           | Pendente                        | `has_role=false`, acesso próprio e negações esperadas.                                   |
 |     4 | Testar admin                                   | Pendente                        | `has_role=true`, painel/RPC sem recursão.                                                |
 |     5 | Testar isolamento A/B e anon                   | Pendente                        | Toda tentativa cruzada/privada é negada.                                                 |
 |     6 | Confirmar concorrência de resposta/notificação | Pendente                        | Uma transição e um envio lógico.                                                         |
 |     7 | Reconciliar cron de retenção                   | Pendente                        | Job remoto correto ou migration nova aplicada.                                           |
-|     8 | Versionar migrations e código aplicados        | Em andamento                    | Working tree revisada e commit/push autorizado.                                          |
+|     8 | Versionar migrations e código aplicados        | Em andamento — PR aberto        | Reconciliação no PR #1; merge depende de documentação atualizada e Quality verde.         |
 |     9 | Confirmar deploy Cloudflare do rate limit      | Bloqueado — credencial          | Deployment identificado e smoke test executado.                                          |
-|    10 | Fechar gates                                   | Concluída                       | Typecheck, lint, build e workflow remoto passam.                                          |
+|    10 | Fechar gates                                   | Controle contínuo por SHA       | O check Quality deve permanecer verde no HEAD atual do PR e depois em `main`.              |
 
 ## Ação 1 — rotação da senha
 
@@ -262,44 +262,48 @@ exit code: 0
 [ ] saúde do Vercel reconciliada
 [ ] URL canônica e plano de cutover definidos
 [~] catálogo em coleta sequencial — consultas 1a e 1b registradas
-[ ] teste usuário comum — bloqueado pela configuração do bundle Lovable
-[ ] teste admin — bloqueado pela configuração do bundle Lovable
+[ ] teste usuário comum — bloqueado até build corrigido e conta aprovada
+[ ] teste admin — bloqueado até build corrigido e conta aprovada
 [ ] teste anon
 [ ] teste A/B
 [ ] teste concorrência
 [ ] cron
-[ ] commit/push
+[~] commit/push — reconciliação no PR #1; merge não autorizado
 [ ] deploy Cloudflare
 ```
 
 ## Bloqueios atuais
 
-1. o bundle publicado no Lovable não contém as variáveis públicas do Supabase;
-2. o project ref da conexão Lovable → Supabase ainda precisa ser confirmado
-   como `porgyoqngtshxdxuwaft`;
-3. testes autenticados exigem sessões/contas de teste reais após a reconciliação;
-4. consulta de deployment Cloudflare exige token disponível no ambiente;
-5. audit npm online envia metadados de dependências ao registro externo e requer
-   autorização consciente.
+1. o PR #1 precisa manter a documentação atualizada e o Quality verde no HEAD
+   atual antes de qualquer merge;
+2. o vínculo Lovable → Supabase foi selecionado para `porgyoqngtshxdxuwaft`, mas
+   o build corrigido ainda não foi publicado nem validado no bundle remoto;
+3. testes autenticados exigem sessões/contas de teste reais após a publicação;
+4. as consultas da auditoria permanecem ordenadas: 1c, parada em caso de
+   recursão, 1d e somente depois os passos 2 a 4;
+5. consulta de deployment Cloudflare exige token disponível no ambiente.
 
 ## Estado operacional
 
-`STANDBY` desde 29/07/2026, por decisão do proprietário.
+O `STANDBY` por falta de tokens, iniciado em 29/07/2026, foi parcialmente
+encerrado em 06/08/2026 quando o proprietário selecionou o Supabase externo
+`porgyoqngtshxdxuwaft` no Lovable.
 
-Motivo: a conexão Lovable → Supabase depende de tokens/créditos do Lovable, com
-reset previsto para 01/08/2026.
+Estado atual: `EM EXECUÇÃO CONTROLADA`. Código e documentação podem avançar na
+branch de reconciliação. Merge, publish, testes autenticados, continuação das
+consultas de produção, migrations e novas features permanecem congelados por
+seus gates próprios.
 
-Escopo do standby: conexão/deploy Lovable, testes autenticados e continuação
-sequencial das consultas de produção. Manutenção local independente permanece
-autorizada.
+Sequência de retomada:
 
-Critério de retomada:
-
-1. proprietário confirmar disponibilidade dos tokens;
-2. conectar o Lovable ao Supabase `porgyoqngtshxdxuwaft`;
-3. publicar o build corrigido;
-4. validar o login Google;
-5. retomar pela consulta funcional 1c, sem saltar etapas.
+1. manter a documentação atualizada no PR #1;
+2. confirmar Quality verde para o HEAD atual;
+3. revisar e autorizar separadamente o merge;
+4. validar o Quality de `main` após o merge;
+5. confirmar Auth/OAuth, contas/roles, MCP e Storage no destino;
+6. autorizar separadamente e publicar o build corrigido;
+7. validar o ref canônico no bundle e o login Google;
+8. retomar pela consulta funcional 1c, sem saltar etapas.
 
 ### Trabalho local independente durante o standby
 
@@ -382,3 +386,57 @@ foi executado nesta etapa.
   `npm ci`, typecheck e lint;
 - containers, volumes, redes, processos e arquivos temporários da rodada foram
   removidos; imagens Docker permaneceram apenas como cache reutilizável.
+
+### 06 e 07/08/2026 — reconciliação Lovable e gate do pull request
+
+- o proprietário selecionou no Lovable o projeto Supabase externo com project
+  ref `porgyoqngtshxdxuwaft`;
+- a alteração automática do Lovable que incorporava configuração no cliente,
+  removia o fail-closed e dessincronizava manifesto e lockfile foi rejeitada e
+  reconciliada na branch `reconcile/lovable-supabase-20260806`;
+- `npm ci`, typecheck e lint passaram; os testes negativos bloquearam ausência
+  de variáveis e ref incorreto, e o build com valores públicos fictícios no ref
+  canônico passou;
+- a reconciliação foi enviada e abriu o PR
+  [#1](https://github.com/FeeSz/itasafety/pull/1), sem merge ou publicação;
+- o run Quality `31118936956` passou no commit
+  `bca061996dc27dcdb1514d769f0cdafa06a42069`;
+- o run `31119315666`, acionado pelo commit documental
+  `1fc1a6c323f0a578e87116a7e7b6b861bb1918d4`, foi cancelado sem executar etapas
+  durante o incidente do GitHub Actions de 06/08/2026;
+- o GitHub declarou o incidente resolvido em 07/08/2026 e o run `31185659802`
+  passou no commit documental `e3893458e996554b2617c4449895685e109dea11`;
+- cada novo commit substitui essa evidência como HEAD do PR e deve obter seu
+  próprio Quality verde antes de qualquer merge;
+- smoke checks de 07/08 retornaram Lovable home/health HTTP 200, Vercel home HTTP
+  200 e health HTTP 503. O bundle corrigido ainda não foi publicado nem validado;
+- nenhuma migration, escrita no banco, teste autenticado, merge ou deploy foi
+  executado nesta reconciliação.
+
+### 07/08/2026 — reconciliação local dos builds Cloudflare e Vercel
+
+- o log do Cloudflare mostra falha em `bun install --frozen-lockfile`, antes de
+  qualquer build, porque `bun.lock` divergia de `package.json`;
+- o log do Vercel mostra geração em `.vercel/output/static`, mas o verificador
+  antigo leu `.output/public` ou `dist/client`; o resultado não é evidência
+  válida sobre as variáveis do artefato Vercel recém-gerado;
+- npm `11.18.0` e `package-lock.json` foram mantidos como contrato único, sem
+  upgrade de dependências, e `bun.lock` foi removido localmente;
+- `verify-build-env.mjs` passou a selecionar exclusivamente
+  `.vercel/output/static` na Vercel, `dist/github-pages/client` no GitHub Pages e
+  `.output/public` no build padrão/Cloudflare;
+- `npm ci`, typecheck, lint, build padrão/Cloudflare e simulação local do build
+  Vercel passaram; o verificador reportou o diretório correto nos dois builds;
+- os testes negativos sem variáveis e com ref fictício incorreto falharam com
+  código `1`, como exigido pelo gate fail-closed;
+- duas ocorrências de `inputValidator()` voltaram a ser observadas em
+  `src/lib/auth.functions.ts` e foram reconciliadas para `validator()` sem
+  alterar schemas ou handlers;
+- o output gerado `.vercel` foi excluído do escopo do ESLint, sem desabilitar ou
+  reduzir regras aplicadas ao código-fonte;
+- typecheck, lint e os builds locais Cloudflare/Vercel passaram em Node `24.16.0`
+  sem avisos de `inputValidator()`; a validação adicional em Node 22 ficou
+  pendente porque o Docker daemon não estava ativo e não havia outro runtime
+  Node instalado;
+- commit, push, merge, publicação, alteração de provedor, query e migration
+  permanecem fora desta etapa.

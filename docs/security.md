@@ -100,6 +100,17 @@ foi validada por conexão interativa ao Session Pooler do projeto
 `porgyoqngtshxdxuwaft`. A credencial anterior não foi reutilizada no teste e
 permanece proibida para novas consultas.
 
+Durante a conexão Lovable de 06/08/2026, outra senha PostgreSQL foi colada no
+chat da plataforma. O proprietário confirmou sua rotação no dashboard Supabase
+no mesmo dia. A credencial exposta não foi reutilizada nem testada nesta
+reconciliação.
+
+O cliente gerado automaticamente pelo Lovable também incorporou a configuração
+pública diretamente no fonte e removeu a falha fechada para ausência de
+`VITE_SUPABASE_*`. A versão reconciliada rejeita essa alteração: URL e
+publishable key continuam fornecidas pelo ambiente, e o build falha se o ref
+canônico não estiver presente ou se outro ref Supabase for incorporado.
+
 ## Estado dos achados
 
 | ID     | Estado em 29/07/2026                   | Próxima evidência                                                |
@@ -153,3 +164,16 @@ e operações reversíveis.
 
 O trabalho prioritário iniciado em 29/07/2026 está em
 `security/priority-block-2026-07-29.md`.
+
+Em 07/08/2026, a reconciliação de código está no PR #1. O vínculo externo foi
+selecionado e o Quality deve permanecer verde no HEAD atual, mas merge,
+publicação e testes autenticados continuam sujeitos a gates e autorizações
+separados. A auditoria de banco permanece na consulta funcional 1c; os passos
+posteriores não estão autorizados antes dela.
+
+O gate fail-closed do bundle também é específico por plataforma: Vercel valida
+`.vercel/output/static`, Cloudflare valida `.output/public` e GitHub Pages valida
+`dist/github-pages/client`. Isso impede que um diretório antigo de outro preset
+produza falso sucesso ou falso diagnóstico. A remoção local de `bun.lock`
+preserva npm `11.18.0` e `package-lock.json` como contrato único; não houve
+upgrade de dependências, alteração de segredo, publicação ou mudança remota.

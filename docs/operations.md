@@ -9,7 +9,7 @@
 | Desenvolvimento    | `http://localhost:8080/`                    |
 | Site legado        | `https://itasafety.com.br/`                 |
 | Aplicação          | Cloudflare Worker `itasafety`               |
-| Banco/Auth/Storage | Supabase gerenciado pelo Lovable Cloud (ref canônico pretendido: `porgyoqngtshxdxuwaft`) |
+| Banco/Auth/Storage | Supabase externo selecionado: `porgyoqngtshxdxuwaft`; runtime publicado ainda não validado |
 | Edge Function      | `enviar-notificacao-cotacao`                |
 | E-mail             | EmailJS                                     |
 | Build alternativo  | GitHub Pages em `/itasafety/`               |
@@ -60,8 +60,10 @@ No ItaSafety, o vínculo deve apontar para o project ref canônico
 editor do projeto e no painel Supabase; o simples estado `stack: supabase` não
 identifica qual projeto está conectado.
 
-Em 03/08/2026 a verificação mostrou que o vínculo efetivo ainda é o Supabase
-gerenciado pelo Lovable Cloud. Ver
+Em 06/08/2026, o proprietário selecionou o projeto externo `ItaSafety`. O
+Lovable reconheceu o catálogo esperado e gerou configuração para o ref
+`porgyoqngtshxdxuwaft`. A seleção está confirmada; o runtime publicado e os
+fluxos autenticados posteriores à troca ainda não estão validados. Ver
 `decisions/0003-migracao-backend-supabase-canonico.md`.
 
 Depois de conectar ou corrigir as variáveis, é obrigatório gerar e publicar um
@@ -114,6 +116,12 @@ declara essa versão e o workflow instala explicitamente o mesmo npm antes de
 executar `npm ci`. A declaração `packageManager` documenta o contrato, mas não
 substitui a instalação explícita porque o Corepack não intercepta o binário npm
 por padrão.
+
+O único lockfile canônico é `package-lock.json`. Não manter `bun.lock`,
+`pnpm-lock.yaml` ou `yarn.lock` em paralelo: provedores que autodetectam o
+gerenciador podem escolher outro instalador e validar uma árvore diferente da
+usada pelo Quality. A instalação reproduzível, local e remota, é `npm ci` com
+npm `11.18.0`.
 
 ## Gates locais
 
@@ -190,7 +198,45 @@ se o erro é novo ou preexistente.
 4. roda `verify-build-env.mjs`.
 
 O verificador deve falhar se as variáveis públicas obrigatórias estiverem ausentes
-ou se padrões de credenciais inesperadas aparecerem no bundle.
+ou se o bundle contiver um project ref Supabase diferente de
+`porgyoqngtshxdxuwaft`.
+
+O diretório inspecionado é determinado pelo ambiente de build e não por uma
+busca genérica em artefatos possivelmente antigos:
+
+- Vercel (`VERCEL=1`): `.vercel/output/static`;
+- GitHub Pages (`GITHUB_PAGES=true` ou lifecycle `build:github-pages`):
+  `dist/github-pages/client`;
+- build padrão/Cloudflare: `.output/public`.
+
+Diagnóstico somente leitura de 07/08/2026:
+
+- Cloudflare detectou `bun.lock`, escolheu `bun install --frozen-lockfile` e
+  parou antes do build porque o lockfile divergia do manifesto;
+- Vercel concluiu as etapas Vite/Nitro e gerou `.vercel/output/static`, mas o
+  verificador antigo procurou `.output/public` ou `dist/client`; com cache de
+  build restaurado, o erro em `dist/client` não comprova o conteúdo do artefato
+  Vercel recém-gerado;
+- a reconciliação local remove `bun.lock` e torna o caminho do verificador
+  específico por ambiente, sem upgrade de dependências;
+- após a implementação, `npm ci`, typecheck e lint passaram; o build padrão
+  confirmou `.output/public` e a simulação com `VERCEL=1` confirmou
+  `.vercel/output/static`, ambos com valores públicos fictícios;
+- os testes negativos sem variáveis e com project ref fictício incorreto foram
+  bloqueados com código `1`;
+- duas ocorrências depreciadas de `inputValidator()` reapareceram no commit
+  automático do Lovable e foram novamente reconciliadas para `validator()`, sem
+  alterar schemas ou handlers;
+- `.vercel` foi incluído nos ignores do ESLint, junto aos demais outputs de
+  build; isso exclui somente código gerado e mantém todos os avisos do fonte
+  visíveis;
+- a revalidação local em Node `24.16.0` passou em typecheck, lint e nos builds
+  Cloudflare/Vercel, sem o aviso depreciado; a repetição em Node 22 não pôde ser
+  executada porque o Docker daemon não estava ativo e não havia outro runtime
+  Node instalado, portanto o Quality remoto do novo SHA continuará sendo o gate
+  autoritativo para Node 22;
+- nenhum provedor foi alterado, nenhum build foi publicado e o health HTTP 503
+  do Vercel permanece uma pendência remota separada.
 
 Correção local de 29/07/2026:
 
@@ -202,22 +248,78 @@ Correção local de 29/07/2026:
   variáveis não foram incorporadas;
 - `npm run build` passou localmente e o verificador confirmou
   `VITE_SUPABASE_*` no bundle local;
-- a publicação no Lovable continua pendente; o bundle remoto existente permanece
-  inválido até que a conexão seja confirmada e um novo build seja publicado.
+- a conexão foi selecionada em 06/08/2026, mas a publicação no Lovable continua
+  pendente; o bundle remoto existente não comprova a incorporação do ref canônico
+  até que um novo build seja publicado e inspecionado.
 
-### Standby do ambiente Lovable
+Reconciliação local de 06/08/2026, após o vínculo externo:
+
+- o commit automático interno do Lovable incorporou a configuração pública em
+  `src/integrations/supabase/client.ts`, removeu a resolução fail-closed por
+  ambiente e alterou dependências sem sincronizar o lockfile;
+- o commit interno não foi sincronizado ao GitHub. A reconciliação parte de
+  `origin/main` e preserva a branch local de UI/UX em worktree separada;
+- o cliente e o servidor continuam lazy, orientados por ambiente e fail-closed;
+- a injeção manual duplicada foi removida de `vite.config.ts`;
+- `package.json` voltou às versões presentes em `package-lock.json`, sem upgrade
+  colateral;
+- os tipos confirmados pelo catálogo canônico foram preservados;
+- `verify-build-env.mjs` agora exige o ref canônico e rejeita qualquer outro ref
+  Supabase encontrado no bundle;
+- `npm ci`, typecheck e lint passaram;
+- o build sem variáveis falhou como esperado, um ref incorreto foi rejeitado e o
+  build com valores públicos fictícios no ref canônico passou;
+- nenhum segredo real, publish, migration ou teste autenticado foi usado ou
+  executado;
+- a reconciliação foi commitada como `4982ca704f4f0ccddad33ca050266480240eb992`
+  e enviada para `origin/reconcile/lovable-supabase-20260806`;
+- o push isolado não disparou workflows: `quality.yml` executa em push apenas na
+  `main`, além de `pull_request` e `workflow_dispatch`;
+- o pull request [#1](https://github.com/FeeSz/itasafety/pull/1) foi aberto da
+  branch de reconciliação para `main`, sem merge ou publicação;
+- o workflow Quality `31118936956`, acionado pelo evento `pull_request` para o
+  commit `bca061996dc27dcdb1514d769f0cdafa06a42069`, concluiu o job
+  `static-analysis` com sucesso;
+- o commit documental `1fc1a6c323f0a578e87116a7e7b6b861bb1918d4`
+  atualizou o PR e acionou o run `31119315666`; durante a indisponibilidade do
+  GitHub Actions de 06/08/2026, o job foi cancelado sem executar etapas e o run
+  terminou como falha de infraestrutura, não como falha observada do código;
+- o incidente foi resolvido pelo GitHub em 07/08/2026, e o run `31185659802`
+  concluiu `static-analysis` com sucesso no commit documental
+  `e3893458e996554b2617c4449895685e109dea11`;
+- o PR continua sem merge. O check autoritativo é sempre o Quality do HEAD atual;
+  cada novo commit invalida a suficiência de runs anteriores até obter seu
+  próprio resultado verde;
+- `npm ci` reportou 15 vulnerabilidades (1 baixa, 10 moderadas e 4 altas), que
+  permanecem fora deste bloco de reconciliação e não foram mascaradas com
+  `npm audit fix --force`.
+
+### Gate atual do ambiente Lovable
 
 Em 29/07/2026, o proprietário colocou a aplicação em standby operacional porque
 a conexão do projeto Lovable ao Supabase depende de tokens/créditos do Lovable,
 com reset previsto para 01/08/2026.
 
-Até a retomada autorizada:
+Após a seleção do vínculo em 06/08/2026:
 
-- não publicar o build local;
-- não tentar conectar ou trocar o backend no Lovable;
+- não realizar merge até a documentação do PR estar atualizada e o Quality do
+  SHA final estar verde;
+- não publicar o build antes do merge e da validação das configurações do
+  destino;
 - não prosseguir com os testes autenticados 1c e 1d;
 - não executar as consultas seguintes da auditoria;
 - preservar as correções locais e a documentação já produzida.
+
+Smoke check público de 07/08/2026:
+
+- Lovable: home HTTP 200 e `/api/public/health` HTTP 200 com `{"status":"ok"}`;
+- Vercel: home HTTP 200 e `/api/public/health` HTTP 503;
+- localhost: um processo já em execução respondeu HTTP 200 na porta 8080; o SHA
+  servido não foi identificado neste smoke check;
+- a inspeção dos assets públicos de Lovable e Vercel não encontrou o ref
+  canônico como literal. Esse resultado não identifica outro ref nem valida a
+  configuração do browser; o bundle corrigido continua classificado como
+  `não implantado` e `não validado`.
 
 O standby não impede typecheck, lint, build local, documentação, testes unitários
 sem rede ou preparação de CI que não consulte nem altere serviços remotos.
