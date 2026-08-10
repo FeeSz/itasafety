@@ -238,6 +238,25 @@ Diagnóstico somente leitura de 07/08/2026:
 - nenhum provedor foi alterado, nenhum build foi publicado e o health HTTP 503
   do Vercel permanece uma pendência remota separada.
 
+Configuração Vercel Preview de 10/08/2026:
+
+- uma inspeção autenticada confirmou inicialmente zero variáveis no escopo
+  Preview do projeto `feeszs-projects/itasafety`;
+- após autorização explícita, foram adicionadas somente ao alvo `preview`, para
+  todas as branches Preview, as variáveis `VITE_SUPABASE_URL`,
+  `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_SUPABASE_PROJECT_ID`, `SUPABASE_URL`,
+  `SUPABASE_PUBLISHABLE_KEY` e `SUPABASE_SERVICE_ROLE_KEY`;
+- todas foram armazenadas como `sensitive`; nenhum valor foi impresso, salvo no
+  repositório ou mantido em arquivo temporário;
+- as variáveis públicas usam a chave `publishable` moderna e a variável
+  server-side privilegiada usa a chave `secret` moderna do projeto canônico;
+- uma segunda listagem independente confirmou exatamente as seis entradas no
+  alvo Preview e o vínculo local temporário foi removido;
+- nenhuma variável de Production ou Development, deployment, domínio, banco ou
+  configuração Cloudflare foi alterada;
+- a configuração não republica o deployment que falhou; um novo Preview build
+  e seu health check ainda precisam de autorização e validação separadas.
+
 Correção local de 29/07/2026:
 
 - as substituições manuais de `VITE_SUPABASE_URL` e

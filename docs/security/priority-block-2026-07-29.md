@@ -440,3 +440,19 @@ foi executado nesta etapa.
   Node instalado;
 - commit, push, merge, publicação, alteração de provedor, query e migration
   permanecem fora desta etapa.
+
+### 10/08/2026 — configuração segura do Preview Vercel
+
+- o deployment do commit `f6a7c19c62d78981816537ac78ad4aa27eb04916`
+  compilou, mas o gate correto em `.vercel/output/static` bloqueou a ausência de
+  `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY`;
+- uma inspeção autenticada confirmou zero variáveis no alvo Preview;
+- após autorização explícita, as seis variáveis Supabase esperadas foram
+  adicionadas somente ao Preview, para todas as branches Preview, e armazenadas
+  como `sensitive`;
+- foram usadas as chaves modernas `publishable` e `secret` do projeto canônico
+  `porgyoqngtshxdxuwaft`, sem revelar ou persistir seus valores localmente;
+- uma segunda listagem confirmou exatamente seis entradas e os vínculos locais
+  temporários foram removidos;
+- Production, Development, Cloudflare, banco, deployment, commit, push e merge
+  não foram alterados; o próximo gate é um novo Preview build autorizado.

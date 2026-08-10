@@ -79,6 +79,12 @@ Execução observada em 06/08/2026:
 - a validação local confirmou `npm ci`, typecheck, lint e os builds
   padrão/Cloudflare e Vercel; os cenários sem variáveis e com ref incorreto foram
   bloqueados com código `1`;
+- em 10/08/2026, o Preview Vercel foi configurado com as seis variáveis do
+  projeto canônico, usando a chave moderna `publishable` no cliente e a chave
+  moderna `secret` no servidor; todas ficaram restritas ao alvo Preview,
+  abrangendo suas branches, e armazenadas como `sensitive`;
+- nenhum valor foi documentado ou persistido, e Production, Development,
+  Cloudflare e deployments permaneceram inalterados;
 - a senha exposta durante a operação foi rotacionada pelo proprietário;
 - runtime publicado, OAuth, issuer do MCP, RLS e fluxos autenticados permanecem
   não confirmados.

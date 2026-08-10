@@ -177,3 +177,10 @@ O gate fail-closed do bundle também é específico por plataforma: Vercel valid
 produza falso sucesso ou falso diagnóstico. A remoção local de `bun.lock`
 preserva npm `11.18.0` e `package-lock.json` como contrato único; não houve
 upgrade de dependências, alteração de segredo, publicação ou mudança remota.
+
+Em 10/08/2026, as seis variáveis Supabase foram configuradas somente no Preview
+da Vercel para todas as branches Preview e marcadas como `sensitive`. O frontend
+usa a chave `publishable` moderna; o servidor usa a chave `secret` moderna sob o
+nome de compatibilidade `SUPABASE_SERVICE_ROLE_KEY`. Nenhum valor foi registrado
+em log, chat, arquivo ou commit. Production, Development e Cloudflare não foram
+alterados, e nenhum redeploy foi iniciado nesta etapa.
