@@ -178,6 +178,21 @@ Triagem AUD-12 em 29/07/2026:
 - antes de release/deploy, repetir a consulta online e revisar a decisão
   `decisions/0002-temporary-dependency-risk.md`.
 
+Revalidação AUD-12 em 11/08/2026:
+
+- o audit anterior à alteração reproduziu os 17 registros vistos no build
+  Cloudflare: seis altos, dez moderados, um baixo e nenhum crítico;
+- `npm update fast-uri` atualizou somente a resolução transitiva no lockfile de
+  `3.1.4` para `3.1.5`, sem alterar `package.json`;
+- o audit posterior retornou 16 registros no total e 14 com `--omit=dev`;
+- `fast-uri` deixou de aparecer nos dois relatórios;
+- os 16 registros restantes não foram corrigidos neste lote;
+- typecheck, lint e build passaram, incluindo `verify-build-env`;
+- o bundle regenerado contém `fast-uri` no caminho de AJV, resolve a versão
+  instalada `3.1.5` e não contém referência textual a `3.1.4`;
+- o lote está autorizado apenas para commit local; push, CI e publicação
+  continuam etapas posteriores e separadas.
+
 Avisos residuais do build:
 
 - chunk principal do cliente acima de 500 kB minificado;

@@ -126,8 +126,15 @@ canônico não estiver presente ou se outro ref Supabase for incorporado.
 | AUD-09 | Pendente                               | Submissão e outbox transacionais.                                |
 | AUD-10 | Parcial                                | Limites MIME/tamanho e validação de conteúdo.                    |
 | AUD-11 | Parcial                                | Constraints restantes e backfill.                                |
-| AUD-12 | Triado online, risco residual aceito   | Remover exceção por upgrades major isolados.                     |
+| AUD-12 | `fast-uri` corrigido e validado localmente | Revisar o diff; tratar 16 registros residuais por lotes.         |
 | AUD-13 | CI local e remoto validado               | Manter os gates e adicionar replay SQL após sanear a trilha.     |
+
+Em 11/08/2026, a resolução transitiva de `fast-uri` foi atualizada isoladamente
+de `3.1.4` para `3.1.5`. O audit online passou de 17 para 16 registros no total e
+de 15 para 14 com `--omit=dev`; `fast-uri` não aparece mais nos relatórios. A
+alteração permanece na branch local, sem push ou deploy. Os gates de typecheck,
+lint, build e inspeção do bundle passaram; os avisos não bloqueantes do build
+permanecem documentados em `operations.md`.
 
 ## Testes funcionais mínimos
 
