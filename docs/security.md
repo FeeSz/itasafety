@@ -126,8 +126,15 @@ canônico não estiver presente ou se outro ref Supabase for incorporado.
 | AUD-09 | Pendente                               | Submissão e outbox transacionais.                                |
 | AUD-10 | Parcial                                | Limites MIME/tamanho e validação de conteúdo.                    |
 | AUD-11 | Parcial                                | Constraints restantes e backfill.                                |
-| AUD-12 | Triado online, risco residual aceito   | Remover exceção por upgrades major isolados.                     |
+| AUD-12 | `fast-uri` corrigido e validado localmente | Revisar o diff; tratar 16 registros residuais por lotes.         |
 | AUD-13 | CI local e remoto validado               | Manter os gates e adicionar replay SQL após sanear a trilha.     |
+
+Em 11/08/2026, a resolução transitiva de `fast-uri` foi atualizada isoladamente
+de `3.1.4` para `3.1.5`. O audit online passou de 17 para 16 registros no total e
+de 15 para 14 com `--omit=dev`; `fast-uri` não aparece mais nos relatórios. A
+alteração permanece na branch local, sem push ou deploy. Os gates de typecheck,
+lint, build e inspeção do bundle passaram; os avisos não bloqueantes do build
+permanecem documentados em `operations.md`.
 
 ## Testes funcionais mínimos
 
@@ -165,11 +172,13 @@ e operações reversíveis.
 O trabalho prioritário iniciado em 29/07/2026 está em
 `security/priority-block-2026-07-29.md`.
 
-Em 07/08/2026, a reconciliação de código está no PR #1. O vínculo externo foi
-selecionado e o Quality deve permanecer verde no HEAD atual, mas merge,
-publicação e testes autenticados continuam sujeitos a gates e autorizações
-separados. A auditoria de banco permanece na consulta funcional 1c; os passos
-posteriores não estão autorizados antes dela.
+Em 10/08/2026, o PR #1 foi mesclado em `main` no commit
+`0dcc6c37b6f56a211911b0d1edc5e1900a2ad1de`. O Quality de `main` passou e o
+Lovable registrou esse commit como publicado e `ready`; home e health responderam
+HTTP 200. A inspeção dos assets públicos, porém, não revelou o project ref
+Supabase, portanto o backend efetivo, OAuth, issuer do MCP e fluxos autenticados
+permanecem não confirmados. A auditoria de banco continua na consulta funcional
+1c; os passos posteriores não estão autorizados antes de 1c e 1d.
 
 O gate fail-closed do bundle também é específico por plataforma: Vercel valida
 `.vercel/output/static`, Cloudflare valida `.output/public` e GitHub Pages valida
@@ -177,3 +186,56 @@ O gate fail-closed do bundle também é específico por plataforma: Vercel valid
 produza falso sucesso ou falso diagnóstico. A remoção local de `bun.lock`
 preserva npm `11.18.0` e `package-lock.json` como contrato único; não houve
 upgrade de dependências, alteração de segredo, publicação ou mudança remota.
+
+Em 10/08/2026, as seis variáveis Supabase foram configuradas somente no Preview
+da Vercel para todas as branches Preview e marcadas como `sensitive`. O frontend
+usa a chave `publishable` moderna; o servidor usa a chave `secret` moderna sob o
+nome de compatibilidade `SUPABASE_SERVICE_ROLE_KEY`. Nenhum valor foi registrado
+em log, chat, arquivo ou commit. Naquele gate, Production, Development e
+Cloudflare não foram alterados. O Preview posterior do commit
+`815a6a484ffea47ec409ac2ee8626173cd33b11a` passou no verificador, mas o smoke
+funcional permaneceu bloqueado pela proteção da Vercel.
+
+Em um gate posterior de 10/08/2026, o Cloudflare recebeu somente
+`SUPABASE_URL` e `SUPABASE_PUBLISHABLE_KEY` como segredos de runtime. Nenhum
+`service_role` foi adicionado. A versão
+`1db139bb-8d60-4d18-b4fa-f0c472cc986d` foi publicada com 100% do tráfego, e o
+health check estável e o imutável retornaram HTTP 200 `{"status":"ok"}`. Isso
+prova a configuração mínima e a chamada básica ao Auth, não a matriz de
+autorização ou os fluxos autenticados. O bundle cliente ativo ainda não contém a
+chave moderna `sb_publishable_*` e inclui um JWT `anon` cujo `ref` e issuer não
+correspondem ao projeto canônico; os valores não foram expostos. Portanto, o
+runtime de servidor está reconciliado, mas o cliente Cloudflare requer novo
+build e validação em gate próprio.
+
+Esse gate foi executado em seguida: as três variáveis `VITE_SUPABASE_*` do build
+foram rotacionadas sem exposição, e o build de produção
+`12174877-dfaa-4d22-bfb3-f82420734ec9` publicou a versão
+`f65c358c-bcb0-4d2b-9f19-a29641a8b1dd`. A inspeção do bundle servido confirmou
+o ref canônico, a chave moderna `sb_publishable_*` e nenhuma chave `anon`
+divergente; os dois secrets de runtime permaneceram vinculados. Home e health
+estável/imutável responderam HTTP 200. Nenhum `service_role` foi adicionado.
+
+O verificador publicado no SHA desse deploy ainda aceita qualquer literal com
+formato JWT como publishable key e não decodifica seu `ref`; por isso, a inspeção
+sanitizada foi mantida como evidência adicional. Em 10/08/2026, o script foi
+endurecido localmente para decodificar apenas JWTs `anon`, associar o token ao
+project ref por `ref` ou issuer e rejeitar refs divergentes mesmo na presença de
+uma chave moderna válida. Cinco testes automatizados, lint, typecheck e build
+local passaram. A proteção foi versionada localmente nesta branch, mas ainda não
+foi enviada nem publicada e, portanto, não altera a evidência nem o artefato
+remoto atual.
+
+O deployment Vercel Production de `main` continua falhando fechado por ausência
+das duas variáveis públicas no escopo Production. GitHub Pages falhou em
+`npm ci`; e Supabase Preview encontrou o trigger `set_partners_updated_at` já
+existente. Esses resultados ainda impedem classificar toda a cadeia de entrega
+como verde, mesmo com o cliente e o health Cloudflare reconciliados e o Quality
+aprovado.
+
+Durante a tentativa de smoke protegido, a CLI Vercel criou indevidamente o
+projeto `itasafety-reconcile-20260806` e um token de bypass. A operação foi
+interrompida, o projeto foi excluído com autorização, os artefatos locais de
+vínculo foram removidos e nenhum valor de token foi exposto. O PR documental
+[#2](https://github.com/FeeSz/itasafety/pull/2) permanece aberto para registrar
+essa reconciliação; cada novo commit precisa de seu próprio Quality.

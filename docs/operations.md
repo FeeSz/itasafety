@@ -9,7 +9,7 @@
 | Desenvolvimento    | `http://localhost:8080/`                    |
 | Site legado        | `https://itasafety.com.br/`                 |
 | Aplicação          | Cloudflare Worker `itasafety`               |
-| Banco/Auth/Storage | Supabase externo selecionado: `porgyoqngtshxdxuwaft`; runtime publicado ainda não validado |
+| Banco/Auth/Storage | Supabase externo selecionado: `porgyoqngtshxdxuwaft`; Lovable publicado, backend efetivo ainda não confirmado |
 | Edge Function      | `enviar-notificacao-cotacao`                |
 | E-mail             | EmailJS                                     |
 | Build alternativo  | GitHub Pages em `/itasafety/`               |
@@ -62,8 +62,10 @@ identifica qual projeto está conectado.
 
 Em 06/08/2026, o proprietário selecionou o projeto externo `ItaSafety`. O
 Lovable reconheceu o catálogo esperado e gerou configuração para o ref
-`porgyoqngtshxdxuwaft`. A seleção está confirmada; o runtime publicado e os
-fluxos autenticados posteriores à troca ainda não estão validados. Ver
+`porgyoqngtshxdxuwaft`. Em 10/08/2026, o código reconciliado chegou a `main` e o
+Lovable registrou esse commit como publicado e `ready`. Isso confirma a versão
+de código, mas não o project ref efetivamente consumido pelo runtime nem os
+fluxos autenticados posteriores à troca. Ver
 `decisions/0003-migracao-backend-supabase-canonico.md`.
 
 Depois de conectar ou corrigir as variáveis, é obrigatório gerar e publicar um
@@ -176,6 +178,21 @@ Triagem AUD-12 em 29/07/2026:
 - antes de release/deploy, repetir a consulta online e revisar a decisão
   `decisions/0002-temporary-dependency-risk.md`.
 
+Revalidação AUD-12 em 11/08/2026:
+
+- o audit anterior à alteração reproduziu os 17 registros vistos no build
+  Cloudflare: seis altos, dez moderados, um baixo e nenhum crítico;
+- `npm update fast-uri` atualizou somente a resolução transitiva no lockfile de
+  `3.1.4` para `3.1.5`, sem alterar `package.json`;
+- o audit posterior retornou 16 registros no total e 14 com `--omit=dev`;
+- `fast-uri` deixou de aparecer nos dois relatórios;
+- os 16 registros restantes não foram corrigidos neste lote;
+- typecheck, lint e build passaram, incluindo `verify-build-env`;
+- o bundle regenerado contém `fast-uri` no caminho de AJV, resolve a versão
+  instalada `3.1.5` e não contém referência textual a `3.1.4`;
+- o lote está autorizado apenas para commit local; push, CI e publicação
+  continuam etapas posteriores e separadas.
+
 Avisos residuais do build:
 
 - chunk principal do cliente acima de 500 kB minificado;
@@ -238,6 +255,29 @@ Diagnóstico somente leitura de 07/08/2026:
 - nenhum provedor foi alterado, nenhum build foi publicado e o health HTTP 503
   do Vercel permanece uma pendência remota separada.
 
+Configuração Vercel Preview de 10/08/2026:
+
+- uma inspeção autenticada confirmou inicialmente zero variáveis no escopo
+  Preview do projeto `feeszs-projects/itasafety`;
+- após autorização explícita, foram adicionadas somente ao alvo `preview`, para
+  todas as branches Preview, as variáveis `VITE_SUPABASE_URL`,
+  `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_SUPABASE_PROJECT_ID`, `SUPABASE_URL`,
+  `SUPABASE_PUBLISHABLE_KEY` e `SUPABASE_SERVICE_ROLE_KEY`;
+- todas foram armazenadas como `sensitive`; nenhum valor foi impresso, salvo no
+  repositório ou mantido em arquivo temporário;
+- as variáveis públicas usam a chave `publishable` moderna e a variável
+  server-side privilegiada usa a chave `secret` moderna do projeto canônico;
+- uma segunda listagem independente confirmou exatamente as seis entradas no
+  alvo Preview e o vínculo local temporário foi removido;
+- nenhuma variável de Production ou Development, deployment, domínio, banco ou
+  configuração Cloudflare foi alterada;
+- a configuração não republicou retroativamente o deployment que falhou;
+- o push posterior do commit documental
+  `815a6a484ffea47ec409ac2ee8626173cd33b11a` gerou um novo Preview, cujo build
+  terminou `Ready` e cujo `verify-build-env` confirmou `VITE_SUPABASE_*` no
+  diretório correto;
+- o Preview está protegido pela Vercel e seu smoke funcional não foi concluído.
+
 Correção local de 29/07/2026:
 
 - as substituições manuais de `VITE_SUPABASE_URL` e
@@ -248,9 +288,10 @@ Correção local de 29/07/2026:
   variáveis não foram incorporadas;
 - `npm run build` passou localmente e o verificador confirmou
   `VITE_SUPABASE_*` no bundle local;
-- a conexão foi selecionada em 06/08/2026, mas a publicação no Lovable continua
-  pendente; o bundle remoto existente não comprova a incorporação do ref canônico
-  até que um novo build seja publicado e inspecionado.
+- a conexão foi selecionada em 06/08/2026; em 10/08/2026 o merge chegou ao
+  Lovable publicado, mas a inspeção dos assets públicos não encontrou um project
+  ref Supabase literal. O backend efetivo permanece `não confirmado` até uma
+  evidência operacional ou teste autenticado controlado.
 
 Reconciliação local de 06/08/2026, após o vínculo externo:
 
@@ -287,12 +328,41 @@ Reconciliação local de 06/08/2026, após o vínculo externo:
 - o incidente foi resolvido pelo GitHub em 07/08/2026, e o run `31185659802`
   concluiu `static-analysis` com sucesso no commit documental
   `e3893458e996554b2617c4449895685e109dea11`;
-- o PR continua sem merge. O check autoritativo é sempre o Quality do HEAD atual;
-  cada novo commit invalida a suficiência de runs anteriores até obter seu
-  próprio resultado verde;
+- naquele snapshot o PR ainda estava sem merge. O check autoritativo é sempre o
+  Quality do HEAD atual; cada novo commit invalida a suficiência de runs
+  anteriores até obter seu próprio resultado verde;
 - `npm ci` reportou 15 vulnerabilidades (1 baixa, 10 moderadas e 4 altas), que
   permanecem fora deste bloco de reconciliação e não foram mascaradas com
   `npm audit fix --force`.
+
+### Estado remoto após o merge do PR #1 — 10/08/2026
+
+- o PR [#1](https://github.com/FeeSz/itasafety/pull/1) foi mesclado em `main` no
+  commit `0dcc6c37b6f56a211911b0d1edc5e1900a2ad1de`;
+- o Quality de `main` `31383306219` passou;
+- o projeto Lovable está publicado, `ready` e registra o mesmo commit como
+  latest commit; home e `/api/public/health` responderam HTTP 200;
+- o deployment Vercel Production de `main` falhou no `verify-build-env` por
+  ausência de `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY` no escopo
+  Production; `https://itasafety.vercel.app/api/public/health` continuou HTTP
+  503 `degraded` no deployment anterior;
+- o Cloudflare Worker build falhou sem annotations públicas; a causa atual exige
+  o log autenticado e não deve ser inferida do incidente antigo do `bun.lock`;
+- o GitHub Pages falhou em `npm ci` com `EUSAGE` e
+  `Missing: lru-cache@11.5.2 from lock file`; esse workflow não fixa npm
+  `11.18.0`, ao contrário do Quality;
+- o Supabase Preview falhou com SQLSTATE `42710` porque o trigger
+  `set_partners_updated_at` já existia; a evidência não autoriza editar migration
+  aplicada nem criar correção cega;
+- o PR documental [#2](https://github.com/FeeSz/itasafety/pull/2) foi aberto no
+  commit `815a6a484ffea47ec409ac2ee8626173cd33b11a`; o Quality
+  `31387836521` passou, mas o PR permaneceu `unstable` por causa do check
+  Cloudflare com falha;
+- a CLI Vercel criou acidentalmente o projeto
+  `itasafety-reconcile-20260806` e um token de bypass durante uma tentativa de
+  smoke protegido. A operação foi interrompida, o projeto foi excluído com
+  autorização e os arquivos locais de vínculo foram removidos. Nenhum valor de
+  token foi exposto ou persistido no repositório.
 
 ### Gate atual do ambiente Lovable
 
@@ -300,15 +370,17 @@ Em 29/07/2026, o proprietário colocou a aplicação em standby operacional porq
 a conexão do projeto Lovable ao Supabase depende de tokens/créditos do Lovable,
 com reset previsto para 01/08/2026.
 
-Após a seleção do vínculo em 06/08/2026:
+Após o merge e a publicação observados em 10/08/2026:
 
-- não realizar merge até a documentação do PR estar atualizada e o Quality do
-  SHA final estar verde;
-- não publicar o build antes do merge e da validação das configurações do
-  destino;
-- não prosseguir com os testes autenticados 1c e 1d;
-- não executar as consultas seguintes da auditoria;
-- preservar as correções locais e a documentação já produzida.
+- não mesclar o PR #2 enquanto a documentação não refletir o estado real e os
+  checks relevantes permanecerem vermelhos;
+- não configurar Production, Cloudflare ou Supabase Preview sem diagnóstico,
+  rollback e autorização próprios;
+- não considerar o health HTTP 200 do Lovable como prova do project ref;
+- não prosseguir com os testes autenticados 1c e 1d até confirmar o backend
+  efetivo e dispor das contas/sessões aprovadas;
+- não executar as consultas seguintes da auditoria antes de 1c e 1d;
+- não iniciar migration ou feature enquanto esses gates estiverem abertos.
 
 Smoke check público de 07/08/2026:
 
@@ -317,9 +389,95 @@ Smoke check público de 07/08/2026:
 - localhost: um processo já em execução respondeu HTTP 200 na porta 8080; o SHA
   servido não foi identificado neste smoke check;
 - a inspeção dos assets públicos de Lovable e Vercel não encontrou o ref
-  canônico como literal. Esse resultado não identifica outro ref nem valida a
-  configuração do browser; o bundle corrigido continua classificado como
-  `não implantado` e `não validado`.
+  canônico como literal. Naquele snapshot, o bundle corrigido continuava
+  classificado como `não implantado` e `não validado`.
+
+Smoke check público de 10/08/2026:
+
+- Lovable: home HTTP 200 e `/api/public/health` HTTP 200 `{"status":"ok"}`;
+- Vercel estável: home HTTP 200 e `/api/public/health` HTTP 503
+  `{"status":"degraded"}`;
+- `itasafety.com.br`: a verificação TLS falhou por incompatibilidade de
+  nome/SNI; não foi usado bypass de certificado;
+- os assets públicos do Lovable não expuseram project ref nem marcadores
+  `VITE_SUPABASE_*`; o resultado não comprova o backend efetivo.
+
+### Reconciliação do runtime Cloudflare — 10/08/2026
+
+- o diagnóstico autenticado confirmou que as seis variáveis Supabase estavam
+  disponíveis somente no ambiente de build, enquanto o runtime continha apenas
+  `ASSETS`, `SITE_URL` e `VITE_SITE_URL`;
+- por isso, `/api/public/health` parava na verificação de variáveis e respondia
+  HTTP 503 `{"status":"degraded"}` antes de chamar o Supabase;
+- foram adicionados exclusivamente os bindings de runtime `SUPABASE_URL` e
+  `SUPABASE_PUBLISHABLE_KEY`, ambos como `secret_text`, usando valores locais
+  ignorados pelo Git e previamente validados contra o project ref
+  `porgyoqngtshxdxuwaft`; nenhum valor foi exibido ou persistido na
+  documentação;
+- o Dashboard criou a versão
+  `1db139bb-8d60-4d18-b4fa-f0c472cc986d` e o deployment
+  `97e9c9de-4189-49c6-83b0-8dd1c5c6dd72`, com 100% do tráfego nessa versão;
+- o deployment anterior `28c60d87-1724-4303-9b7b-f58c7825b25f`, que servia a
+  versão `b27ad7f8-d870-4869-af15-90dbca98c082`, foi registrado como referência
+  de rollback;
+- `https://itasafety.itasafety.workers.dev/api/public/health` e a URL imutável
+  da nova versão responderam HTTP 200 `{"status":"ok"}`;
+- uma inspeção sanitizada do bundle ativo confirmou a URL do projeto canônico,
+  mas não encontrou a chave moderna `sb_publishable_*` e encontrou um único JWT
+  `anon` cujo `ref` e issuer não correspondem a `porgyoqngtshxdxuwaft`; nenhum
+  valor foi exibido. Como a atualização de secrets não recompila o cliente, os
+  fluxos executados no browser permanecem pendentes de um build separado;
+- o resultado valida a configuração mínima e a chamada básica ao Auth, mas não
+  substitui testes de catálogo, RLS, OAuth ou fluxos autenticados;
+- nenhum código, banco, migration, Vercel ou Lovable foi alterado neste gate.
+
+### Reconciliação do bundle cliente Cloudflare — 10/08/2026
+
+- `VITE_SUPABASE_URL`, `VITE_SUPABASE_PROJECT_ID` e
+  `VITE_SUPABASE_PUBLISHABLE_KEY` foram rotacionadas no ambiente de build do
+  Cloudflare com os valores canônicos, mantendo o armazenamento como secret e
+  sem exibir seus valores;
+- o build manual de produção `12174877-dfaa-4d22-bfb3-f82420734ec9` executou o
+  gatilho `Deploy default branch` sobre `main`, commit
+  `0dcc6c37b6f56a211911b0d1edc5e1900a2ad1de`;
+- `verify-build-env` retornou OK para `.output/public`, 60 assets foram
+  processados e o deploy criou a versão
+  `f65c358c-bcb0-4d2b-9f19-a29641a8b1dd`;
+- o deployment `defddbf6-e606-4cc5-9f83-b7d34a956f0e` direcionou 100% do
+  tráfego para essa versão e preservou `SUPABASE_URL` e
+  `SUPABASE_PUBLISHABLE_KEY` como `secret_text` de runtime;
+- a versão anterior `1db139bb-8d60-4d18-b4fa-f0c472cc986d` permaneceu
+  registrada como referência imediata de rollback;
+- a inspeção sanitizada do artefato servido confirmou a URL
+  `porgyoqngtshxdxuwaft.supabase.co`, a chave moderna `sb_publishable_*` e zero
+  JWTs `anon` divergentes; nenhum valor de chave foi exibido;
+- home e `/api/public/health` retornaram HTTP 200 nas URLs estável e imutável da
+  versão; o health respondeu `{"status":"ok"}`;
+- o `verify-build-env` publicado nesse SHA reconhece uma chave pelo formato e
+  não associa um JWT legado ao project ref esperado. O deploy foi validado pela
+  inspeção adicional acima; o fortalecimento local posterior é registrado no
+  gate seguinte;
+- nenhum código, commit, push, banco, migration, Vercel ou Lovable foi alterado
+  neste gate.
+
+### Endurecimento local do gate do bundle — 10/08/2026
+
+- `scripts/verify-build-env.mjs` agora decodifica candidatos JWT sem registrar o
+  token, considera somente o papel `anon` e obtém o project ref pelo claim `ref`
+  ou pelo issuer canônico do Supabase;
+- um JWT `anon` legado só satisfaz o marcador de chave pública quando pertence a
+  `porgyoqngtshxdxuwaft`;
+- qualquer JWT `anon` de outro projeto bloqueia o build, mesmo se o bundle também
+  contiver uma chave moderna `sb_publishable_*` válida;
+- `scripts/verify-build-env.test.mjs` cobre cinco cenários: chave moderna correta,
+  JWT legado correto, JWT legado divergente, JWT divergente acompanhado de chave
+  moderna e URL Supabase divergente;
+- `npm run test:build-env`, lint, typecheck e build local passaram. O primeiro
+  build ficou impedido de escrever em `node_modules/.vite-temp` pelo sandbox; a
+  repetição autorizada fora dele concluiu e o verificador retornou OK;
+- esta mudança foi versionada localmente nesta branch. Nenhum push, build
+  remoto, publicação, banco, migration, Vercel ou Lovable foi alterado neste
+  gate.
 
 O standby não impede typecheck, lint, build local, documentação, testes unitários
 sem rede ou preparação de CI que não consulte nem altere serviços remotos.
@@ -351,8 +509,8 @@ Depois:
 - testar home, autenticação e uma rota protegida;
 - registrar timestamp, versão e resultado.
 
-Enquanto não houver domínio canônico definitivo, repetir esses testes em Lovable
-e Vercel e identificar explicitamente qual URL foi validada.
+Enquanto não houver domínio canônico definitivo, repetir esses testes em
+Cloudflare, Lovable e Vercel e identificar explicitamente qual URL foi validada.
 
 ## Supabase
 

@@ -19,6 +19,19 @@ const DIST = DIST_CANDIDATES.find(existsSync);
 const REQUIRED_MARKERS = ["VITE_SUPABASE_URL", "VITE_SUPABASE_PUBLISHABLE_KEY"];
 const EXPECTED_PROJECT_REF = "porgyoqngtshxdxuwaft";
 const EXPECTED_SUPABASE_URL = `https://${EXPECTED_PROJECT_REF}.supabase.co`;
+const JWT_REGEX =
+  /eyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}/g;
+const MODERN_PUBLISHABLE_KEY_REGEX = /sb_publishable_[A-Za-z0-9_-]{20,}/;
+const SUPABASE_ISSUER_REGEX =
+  /^https:\/\/([a-z0-9]+)\.supabase\.co\/auth\/v1\/?$/i;
+
+function decodeJwtPayload(token) {
+  try {
+    return JSON.parse(Buffer.from(token.split(".")[1], "base64url").toString("utf8"));
+  } catch {
+    return null;
+  }
+}
 
 function walk(dir) {
   const out = [];
@@ -51,21 +64,36 @@ for (const f of files) {
   for (const match of content.matchAll(supabaseUrlRegex)) {
     observedProjectRefs.add(match[1]);
   }
+
+  if (MODERN_PUBLISHABLE_KEY_REGEX.test(content)) {
+    found.add("VITE_SUPABASE_PUBLISHABLE_KEY");
+  }
+
+  for (const match of content.matchAll(JWT_REGEX)) {
+    const payload = decodeJwtPayload(match[0]);
+    if (!payload || payload.role !== "anon") continue;
+
+    const projectRef =
+      typeof payload.ref === "string"
+        ? payload.ref
+        : typeof payload.iss === "string"
+          ? payload.iss.match(SUPABASE_ISSUER_REGEX)?.[1]
+          : undefined;
+
+    if (!projectRef) continue;
+    observedProjectRefs.add(projectRef);
+    if (projectRef === EXPECTED_PROJECT_REF) {
+      found.add("VITE_SUPABASE_PUBLISHABLE_KEY");
+    }
+  }
+
   for (const marker of REQUIRED_MARKERS) {
     if (found.has(marker)) continue;
     // Vite replaces import.meta.env.VITE_* with the literal string value.
     // We check for the presence of a supabase.co URL (VITE_SUPABASE_URL)
-    // and a JWT-shaped literal (VITE_SUPABASE_PUBLISHABLE_KEY).
+    // and validate publishable keys above. Legacy JWT keys must identify the
+    // canonical project through their `ref` claim or Supabase Auth issuer.
     if (marker === "VITE_SUPABASE_URL" && content.includes(EXPECTED_SUPABASE_URL)) {
-      found.add(marker);
-    }
-    if (
-      marker === "VITE_SUPABASE_PUBLISHABLE_KEY" &&
-      [
-        /eyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}/,
-        /sb_publishable_[A-Za-z0-9_-]{20,}/,
-      ].some((pattern) => pattern.test(content))
-    ) {
       found.add(marker);
     }
   }

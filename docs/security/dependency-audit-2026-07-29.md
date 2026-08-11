@@ -164,3 +164,50 @@ Para remover a exceção:
 3. confirmar que o novo audit online não contém os caminhos anteriores;
 4. atualizar esta evidência e a decisão arquitetural;
 5. não promover a alteração sem concluir esses gates.
+
+## Revalidação e correção focal de `fast-uri` — 11/08/2026
+
+O build Cloudflare do commit `70105dbe263a49770050c0f2dad7b1ddf8363658`
+reportou 17 registros no audit. A consulta online foi reproduzida localmente antes
+da alteração e confirmou 17 registros no total (seis altos, dez moderados e um
+baixo) e 15 com `--omit=dev` (cinco altos, nove moderados e um baixo). Portanto,
+os números e a classificação por cadeia registrados em 29/07/2026 permanecem
+como evidência histórica, mas não descrevem mais o lockfile atual.
+
+A inspeção do bundle anterior confirmou `fast-uri@3.1.4` em
+`.output/server/_libs/fast-uri.mjs`, importado pelo bundle de AJV. Como o advisory
+`GHSA-7p8r-x3mc-p8w7` possui correção compatível em `fast-uri@3.1.5`, foi
+executada somente a atualização transitiva focal desse pacote. A alteração:
+
+- mudou exclusivamente a resolução de `fast-uri` no `package-lock.json`, de
+  `3.1.4` para `3.1.5`;
+- não alterou `package.json`, não adicionou override e não atravessou versão
+  major;
+- manteve os dois caminhos consumidores deduplicados em `fast-uri@3.1.5`;
+- não executou `npm audit fix`, push, deploy ou alteração remota.
+
+Após a correção, os audits online retornaram:
+
+| Consulta     | Crítica | Alta | Moderada | Baixa | Total |
+| ------------ | ------: | ---: | -------: | ----: | ----: |
+| completa     |       0 |    5 |       10 |     1 |    16 |
+| `--omit=dev` |       0 |    4 |        9 |     1 |    14 |
+
+`fast-uri` não aparece em nenhum dos dois relatórios. Os 16 registros residuais
+pertencem a outras cadeias e não foram alterados neste lote.
+
+Validação local concluída:
+
+- `npm run typecheck`: passou;
+- `npm run lint`: passou;
+- `npm run build`: passou, incluindo `verify-build-env`;
+- `npm ls fast-uri --all`: os dois caminhos consumidores resolvem
+  `fast-uri@3.1.5`;
+- o bundle regenerado contém `.output/server/_libs/fast-uri.mjs`, importado por
+  AJV, e não contém referência textual a `3.1.4`;
+- `git diff --check`: passou.
+
+Os avisos não bloqueantes de chunk acima de 500 kB e do toolchain continuam
+visíveis e já estão registrados em `docs/operations.md`. A correção foi validada
+para registro em commit local; push, CI e publicação permanecem gates
+posteriores e separados.

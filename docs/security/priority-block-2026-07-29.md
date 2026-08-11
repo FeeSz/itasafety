@@ -48,8 +48,8 @@ Data da verificação: 28/07/2026, timezone America/Sao_Paulo.
 |     5 | Testar isolamento A/B e anon                   | Pendente                        | Toda tentativa cruzada/privada é negada.                                                 |
 |     6 | Confirmar concorrência de resposta/notificação | Pendente                        | Uma transição e um envio lógico.                                                         |
 |     7 | Reconciliar cron de retenção                   | Pendente                        | Job remoto correto ou migration nova aplicada.                                           |
-|     8 | Versionar migrations e código aplicados        | Em andamento — PR aberto        | Reconciliação no PR #1; merge depende de documentação atualizada e Quality verde.         |
-|     9 | Confirmar deploy Cloudflare do rate limit      | Bloqueado — credencial          | Deployment identificado e smoke test executado.                                          |
+|     8 | Versionar migrations e código aplicados        | Parcial — código em `main`, docs no PR #2 | Documentação atualizada e checks relevantes verdes no SHA final.                         |
+|     9 | Confirmar deploy Cloudflare do rate limit      | Parcial — deploy/smoke concluídos | Deployment identificado e smoke verde; teste funcional de abuso ainda pendente.           |
 |    10 | Fechar gates                                   | Controle contínuo por SHA       | O check Quality deve permanecer verde no HEAD atual do PR e depois em `main`.              |
 
 ## Ação 1 — rotação da senha
@@ -268,20 +268,27 @@ exit code: 0
 [ ] teste A/B
 [ ] teste concorrência
 [ ] cron
-[~] commit/push — reconciliação no PR #1; merge não autorizado
-[ ] deploy Cloudflare
+[~] código reconciliado em `main`; documentação corretiva no PR #2
+[x] Cloudflare: runtime, bundle cliente e smoke público reconciliados
 ```
 
 ## Bloqueios atuais
 
-1. o PR #1 precisa manter a documentação atualizada e o Quality verde no HEAD
-   atual antes de qualquer merge;
-2. o vínculo Lovable → Supabase foi selecionado para `porgyoqngtshxdxuwaft`, mas
-   o build corrigido ainda não foi publicado nem validado no bundle remoto;
-3. testes autenticados exigem sessões/contas de teste reais após a publicação;
+1. o PR #2 precisa registrar o merge/publicação já ocorridos e os checks atuais;
+   qualquer novo commit exige novo Quality antes de merge;
+2. o Lovable está publicado no commit de `main`, mas o project ref usado pelo
+   runtime não foi provado pelos metadados, pelo health ou pelos assets públicos;
+3. testes autenticados exigem confirmação do backend e sessões/contas de teste
+   aprovadas;
 4. as consultas da auditoria permanecem ordenadas: 1c, parada em caso de
    recursão, 1d e somente depois os passos 2 a 4;
-5. consulta de deployment Cloudflare exige token disponível no ambiente.
+5. Vercel Production, GitHub Pages e Supabase Preview têm falhas independentes;
+   nenhuma deve receber correção cega;
+6. runtime e bundle cliente Cloudflare foram reconciliados e o smoke retornou
+   HTTP 200; o endurecimento do verificador de JWT foi implementado e validado
+   somente localmente. Seu versionamento/publicação e o teste de abuso do rate
+   limit permanecem gates próprios e não autorizam antecipar os testes
+   autenticados ou as consultas seguintes da auditoria.
 
 ## Estado operacional
 
@@ -289,21 +296,25 @@ O `STANDBY` por falta de tokens, iniciado em 29/07/2026, foi parcialmente
 encerrado em 06/08/2026 quando o proprietário selecionou o Supabase externo
 `porgyoqngtshxdxuwaft` no Lovable.
 
-Estado atual: `EM EXECUÇÃO CONTROLADA`. Código e documentação podem avançar na
-branch de reconciliação. Merge, publish, testes autenticados, continuação das
-consultas de produção, migrations e novas features permanecem congelados por
-seus gates próprios.
+Estado atual: `CONTENÇÃO E RECONCILIAÇÃO`. O código foi mesclado em `main` e o
+Lovable registra essa versão como publicada, mas a documentação e a cadeia de
+entrega não estão reconciliadas. Merge do PR #2, alterações de provedor, testes
+autenticados, continuação das consultas de produção, migrations e novas features
+permanecem congelados por seus gates próprios.
 
 Sequência de retomada:
 
-1. manter a documentação atualizada no PR #1;
-2. confirmar Quality verde para o HEAD atual;
-3. revisar e autorizar separadamente o merge;
-4. validar o Quality de `main` após o merge;
-5. confirmar Auth/OAuth, contas/roles, MCP e Storage no destino;
-6. autorizar separadamente e publicar o build corrigido;
-7. validar o ref canônico no bundle e o login Google;
-8. retomar pela consulta funcional 1c, sem saltar etapas.
+1. atualizar localmente os quatro documentos do PR #2 com o estado remoto real;
+2. revisar e versionar essa documentação em gates separados;
+3. obter novo Quality e revisar todos os checks do novo SHA;
+4. diagnosticar, sem correção cega, Vercel Production, GitHub Pages e Supabase
+   Preview; runtime, bundle cliente e health Cloudflare já foram reconciliados;
+5. somente com a cadeia documentada e estabilizada, revisar e autorizar
+   separadamente o merge do PR #2;
+6. confirmar o backend efetivo do Lovable e Auth/OAuth, contas/roles, MCP e
+   Storage no destino;
+7. retomar pela consulta funcional 1c, parar em caso de recursão e executar 1d;
+8. somente depois executar os passos 2 a 4 da auditoria.
 
 ### Trabalho local independente durante o standby
 
@@ -440,3 +451,117 @@ foi executado nesta etapa.
   Node instalado;
 - commit, push, merge, publicação, alteração de provedor, query e migration
   permanecem fora desta etapa.
+
+### 10/08/2026 — configuração segura do Preview Vercel
+
+- o deployment do commit `f6a7c19c62d78981816537ac78ad4aa27eb04916`
+  compilou, mas o gate correto em `.vercel/output/static` bloqueou a ausência de
+  `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY`;
+- uma inspeção autenticada confirmou zero variáveis no alvo Preview;
+- após autorização explícita, as seis variáveis Supabase esperadas foram
+  adicionadas somente ao Preview, para todas as branches Preview, e armazenadas
+  como `sensitive`;
+- foram usadas as chaves modernas `publishable` e `secret` do projeto canônico
+  `porgyoqngtshxdxuwaft`, sem revelar ou persistir seus valores localmente;
+- uma segunda listagem confirmou exatamente seis entradas e os vínculos locais
+  temporários foram removidos;
+- Production, Development, Cloudflare, banco, deployment, commit, push e merge
+  não foram alterados nessa configuração; o próximo gate era um novo Preview
+  build autorizado.
+
+### 10/08/2026 — merge, publicação e reconciliação do estado real
+
+- o PR [#1](https://github.com/FeeSz/itasafety/pull/1) foi mesclado em `main` no
+  commit `0dcc6c37b6f56a211911b0d1edc5e1900a2ad1de`;
+- o Quality de `main` `31383306219` passou;
+- o Lovable registrou esse commit como latest commit do projeto publicado, com
+  estado `ready`; home e `/api/public/health` responderam HTTP 200;
+- a inspeção dos assets públicos não encontrou project ref Supabase nem
+  marcadores `VITE_SUPABASE_*`; isso não comprova qual backend o runtime usa;
+- o Preview Vercel do commit
+  `815a6a484ffea47ec409ac2ee8626173cd33b11a` ficou `Ready` e o
+  `verify-build-env` confirmou as variáveis públicas no bundle; o smoke funcional
+  do Preview protegido não foi concluído;
+- o deployment Vercel Production de `main` falhou fechado por ausência de
+  `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY` no escopo Production; a
+  URL estável permaneceu com health HTTP 503 `degraded`;
+- o Cloudflare Worker build falhou sem annotations públicas e sua causa atual
+  permanece não confirmada;
+- o GitHub Pages falhou em `npm ci` com `EUSAGE` e ausência de
+  `lru-cache@11.5.2`; o workflow não fixa npm `11.18.0` como o Quality;
+- o Supabase Preview falhou com SQLSTATE `42710` porque o trigger
+  `set_partners_updated_at` já existia;
+- o PR documental [#2](https://github.com/FeeSz/itasafety/pull/2) foi aberto no
+  commit `815a6a484ffea47ec409ac2ee8626173cd33b11a`; seu Quality
+  `31387836521` passou, mas o PR permaneceu `unstable` por causa do check
+  Cloudflare com falha;
+- uma tentativa de smoke protegido pela CLI Vercel criou acidentalmente o projeto
+  `itasafety-reconcile-20260806` e um token de bypass. A operação foi interrompida,
+  o projeto foi excluído com autorização, os arquivos locais de vínculo foram
+  removidos e nenhum valor de token foi exposto;
+- o domínio legado continuou com falha TLS de nome/SNI; nenhum bypass de
+  certificado foi usado;
+- nenhuma query de banco, migration, teste autenticado, rerun ou correção de
+  provedor foi executada durante esta reconciliação documental.
+
+### 10/08/2026 — bindings de runtime e health do Cloudflare
+
+- o inventário remoto confirmou que as variáveis Supabase existiam no build,
+  mas não nos bindings de runtime do Worker `itasafety`;
+- o health HTTP 503 era causado pela ausência de `SUPABASE_URL` e
+  `SUPABASE_PUBLISHABLE_KEY` em runtime e ocorria antes de qualquer chamada ao
+  Supabase;
+- os dois nomes foram adicionados como `secret_text`, a partir de valores locais
+  ignorados pelo Git e validados contra `porgyoqngtshxdxuwaft`; nenhum valor foi
+  revelado;
+- nenhum `SUPABASE_SERVICE_ROLE_KEY` foi configurado neste gate;
+- a versão `1db139bb-8d60-4d18-b4fa-f0c472cc986d` foi criada e publicada pelo
+  deployment `97e9c9de-4189-49c6-83b0-8dd1c5c6dd72`, recebendo 100% do tráfego;
+- a URL estável e a URL imutável da versão retornaram HTTP 200
+  `{"status":"ok"}`;
+- a inspeção sanitizada do bundle ativo encontrou a URL canônica, nenhuma chave
+  moderna `sb_publishable_*` e um único JWT `anon` cujo `ref` e issuer não
+  correspondem ao projeto canônico; a correção exige novo build em gate próprio;
+- não houve alteração de código, banco, migration, Vercel, Lovable, commit ou
+  push; os testes autenticados e a sequência 1c, 1d e passos 2 a 4 permanecem
+  submetidos aos gates já definidos.
+
+### 10/08/2026 — reconciliação do bundle cliente Cloudflare
+
+- as três variáveis `VITE_SUPABASE_*` foram rotacionadas no build Cloudflare
+  com os valores canônicos e sem exposição;
+- o build de produção `12174877-dfaa-4d22-bfb3-f82420734ec9` usou `main` no
+  commit `0dcc6c37b6f56a211911b0d1edc5e1900a2ad1de` e terminou com sucesso;
+- `verify-build-env` confirmou as variáveis em `.output/public`, e a versão
+  `f65c358c-bcb0-4d2b-9f19-a29641a8b1dd` foi publicada pelo deployment
+  `defddbf6-e606-4cc5-9f83-b7d34a956f0e` com 100% do tráfego;
+- a versão anterior `1db139bb-8d60-4d18-b4fa-f0c472cc986d` permaneceu como
+  referência imediata de rollback;
+- os bindings `SUPABASE_URL` e `SUPABASE_PUBLISHABLE_KEY` permaneceram como
+  `secret_text`, sem inclusão de `service_role`;
+- o bundle servido contém a URL canônica e uma chave moderna
+  `sb_publishable_*`, sem JWT `anon` divergente; nenhum valor foi revelado;
+- home e health responderam HTTP 200 nas URLs estável e imutável, com
+  `{"status":"ok"}` no health;
+- o verificador publicado ainda não associa JWT legado ao project ref. Seu
+  endurecimento local e o teste funcional de abuso do rate limit permanecem
+  pendências separadas até versionamento/publicação e execução, respectivamente;
+- não houve alteração de código, banco, migration, Vercel, Lovable, commit ou
+  push.
+
+### 10/08/2026 — endurecimento local do `verify-build-env`
+
+- o verificador passou a decodificar JWTs candidatos sem expor seu conteúdo e a
+  considerar apenas tokens com papel `anon`;
+- o project ref é extraído do claim `ref` ou do issuer canônico do Supabase;
+- um JWT legado só satisfaz a presença da chave pública se corresponder a
+  `porgyoqngtshxdxuwaft`, e qualquer JWT `anon` divergente bloqueia o build mesmo
+  quando existe uma chave moderna válida;
+- cinco testes automatizados cobriram os caminhos positivo e negativos sem
+  registrar qualquer token;
+- `npm run test:build-env`, lint, typecheck e build local passaram; a primeira
+  tentativa de build foi bloqueada apenas pela restrição de escrita do sandbox
+  em `node_modules/.vite-temp`, e a repetição autorizada concluiu com sucesso;
+- a alteração foi versionada localmente nesta branch, sem push ou publicação.
+  Banco, migrations, Cloudflare, Vercel e Lovable permaneceram inalterados neste
+  gate.

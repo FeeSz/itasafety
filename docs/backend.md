@@ -55,6 +55,29 @@ Verifica apenas:
 
 Não deve retornar segredos, usuários, schema ou diagnósticos internos detalhados.
 
+Em 10/08/2026, a versão Cloudflare
+`1db139bb-8d60-4d18-b4fa-f0c472cc986d` recebeu os bindings de runtime
+`SUPABASE_URL` e `SUPABASE_PUBLISHABLE_KEY` como `secret_text`. A URL estável e
+a URL imutável dessa versão responderam HTTP 200 com `{"status":"ok"}`. Esse
+resultado confirma somente a disponibilidade das variáveis e a chamada básica
+ao Supabase Auth prevista acima; não valida catálogo, RLS, OAuth, roles nem
+fluxos autenticados.
+
+No gate seguinte do mesmo dia, o build de `main` recompilou o cliente com as
+três variáveis `VITE_SUPABASE_*` reconciliadas. A versão
+`f65c358c-bcb0-4d2b-9f19-a29641a8b1dd` preservou os bindings de runtime, passou
+no `verify-build-env` e foi confirmada por inspeção sanitizada com a URL canônica
+e a chave moderna `sb_publishable_*`, sem JWT `anon` divergente. Home e health
+responderam HTTP 200 nas URLs estável e imutável. Fluxos autenticados continuam
+sujeitos aos testes funcionais próprios.
+
+Ainda em 10/08/2026, o verificador foi endurecido localmente para decodificar
+JWTs legados de papel `anon`, obter o project ref pelo claim `ref` ou pelo issuer
+canônico do Supabase e rejeitar qualquer ref divergente, inclusive quando uma
+chave moderna válida também estiver no bundle. A mudança passou em cinco testes
+automatizados, lint, typecheck e build local e foi versionada localmente nesta
+branch; ainda não foi enviada nem publicada.
+
 ## Modelo de dados
 
 Os tipos do schema `public`, regenerados e comparados com produção em 28/07/2026,
