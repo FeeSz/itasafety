@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { IS_VISUAL_MODE } from "@/lib/visual-mode";
 
 export const Route = createFileRoute("/auth/callback")({
   component: AuthCallbackPage,
@@ -13,6 +14,12 @@ function AuthCallbackPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (IS_VISUAL_MODE) {
+      toast.info("Modo visual: callback externo desativado.");
+      navigate({ to: "/auth", replace: true });
+      return;
+    }
+
     let mounted = true;
 
     async function handleCallback() {

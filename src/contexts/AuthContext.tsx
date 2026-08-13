@@ -3,6 +3,7 @@ import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthContext } from "@/contexts/auth-context";
 import { toast } from "sonner";
+import { IS_VISUAL_MODE } from "@/lib/visual-mode";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -16,6 +17,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   });
 
   useEffect(() => {
+    if (IS_VISUAL_MODE) {
+      setUser(null);
+      setSession(null);
+      setIsAdmin(false);
+      setLoading(false);
+      return;
+    }
+
     let mounted = true;
     let previousUser: User | null = null;
     let subscription: { unsubscribe: () => void } | undefined;

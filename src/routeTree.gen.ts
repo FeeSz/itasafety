@@ -21,6 +21,7 @@ import { Route as LocalizacaoRouteImport } from './routes/localizacao'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as CategoriasRouteImport } from './routes/categorias'
+import { Route as CatalogoRouteImport } from './routes/catalogo'
 import { Route as CarrinhoRouteImport } from './routes/carrinho'
 import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -109,6 +110,11 @@ const ContatoRoute = ContatoRouteImport.update({
 const CategoriasRoute = CategoriasRouteImport.update({
   id: '/categorias',
   path: '/categorias',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CatalogoRoute = CatalogoRouteImport.update({
+  id: '/catalogo',
+  path: '/catalogo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CarrinhoRoute = CarrinhoRouteImport.update({
@@ -275,6 +281,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRouteWithChildren
   '/cadastro': typeof CadastroRoute
   '/carrinho': typeof CarrinhoRoute
+  '/catalogo': typeof CatalogoRoute
   '/categorias': typeof CategoriasRoute
   '/contato': typeof ContatoRoute
   '/cookies': typeof CookiesRoute
@@ -316,6 +323,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cadastro': typeof CadastroRoute
   '/carrinho': typeof CarrinhoRoute
+  '/catalogo': typeof CatalogoRoute
   '/categorias': typeof CategoriasRoute
   '/contato': typeof ContatoRoute
   '/cookies': typeof CookiesRoute
@@ -358,6 +366,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRouteWithChildren
   '/cadastro': typeof CadastroRoute
   '/carrinho': typeof CarrinhoRoute
+  '/catalogo': typeof CatalogoRoute
   '/categorias': typeof CategoriasRoute
   '/contato': typeof ContatoRoute
   '/cookies': typeof CookiesRoute
@@ -402,6 +411,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cadastro'
     | '/carrinho'
+    | '/catalogo'
     | '/categorias'
     | '/contato'
     | '/cookies'
@@ -443,6 +453,7 @@ export interface FileRouteTypes {
     | '/'
     | '/cadastro'
     | '/carrinho'
+    | '/catalogo'
     | '/categorias'
     | '/contato'
     | '/cookies'
@@ -484,6 +495,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cadastro'
     | '/carrinho'
+    | '/catalogo'
     | '/categorias'
     | '/contato'
     | '/cookies'
@@ -528,6 +540,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
   CadastroRoute: typeof CadastroRoute
   CarrinhoRoute: typeof CarrinhoRoute
+  CatalogoRoute: typeof CatalogoRoute
   CategoriasRoute: typeof CategoriasRoute
   ContatoRoute: typeof ContatoRoute
   CookiesRoute: typeof CookiesRoute
@@ -635,6 +648,13 @@ declare module '@tanstack/react-router' {
       path: '/categorias'
       fullPath: '/categorias'
       preLoaderRoute: typeof CategoriasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/catalogo': {
+      id: '/catalogo'
+      path: '/catalogo'
+      fullPath: '/catalogo'
+      preLoaderRoute: typeof CatalogoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/carrinho': {
@@ -922,6 +942,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
   CadastroRoute: CadastroRoute,
   CarrinhoRoute: CarrinhoRoute,
+  CatalogoRoute: CatalogoRoute,
   CategoriasRoute: CategoriasRoute,
   ContatoRoute: ContatoRoute,
   CookiesRoute: CookiesRoute,

@@ -4,21 +4,22 @@ import { ArrowRight, Loader2 } from "lucide-react";
 import emailjs from "@emailjs/browser";
 import DemandChips from "@/components/ui/DemandChips";
 import FormSuccess from "@/components/ui/FormSuccess";
+import { IS_VISUAL_MODE } from "@/lib/visual-mode";
 
 // ─── EmailJS config ─────────────────────────────────────────────────────────
-const EMAILJS_SERVICE_ID  = "service_qz2af8x";
+const EMAILJS_SERVICE_ID = "service_qz2af8x";
 const EMAILJS_TEMPLATE_ID_COTACAO = "template_wdyquq6";
 const EMAILJS_TEMPLATE_ID_RESET_SENHA = "template_zxjeqan";
-const EMAILJS_PUBLIC_KEY  = "KUpCqP8GI8O64tYfB";
+const EMAILJS_PUBLIC_KEY = "KUpCqP8GI8O64tYfB";
 // ────────────────────────────────────────────────────────────────────────────
 
 const schema = z.object({
   demand_type: z.string().min(1),
-  company:     z.string().trim().min(2, "Informe o nome da empresa").max(120),
-  name:        z.string().trim().min(2, "Informe seu nome").max(80),
-  email:       z.string().trim().email("E-mail inválido").max(160),
-  phone:       z.string().trim().min(8, "Telefone inválido").max(20),
-  message:     z.string().trim().min(10, "Descreva sua necessidade").max(2000),
+  company: z.string().trim().min(2, "Informe o nome da empresa").max(120),
+  name: z.string().trim().min(2, "Informe seu nome").max(80),
+  email: z.string().trim().email("E-mail inválido").max(160),
+  phone: z.string().trim().min(8, "Telefone inválido").max(20),
+  message: z.string().trim().min(10, "Descreva sua necessidade").max(2000),
 });
 
 type FieldErrors = Partial<Record<keyof z.infer<typeof schema>, string>>;
@@ -95,13 +96,13 @@ function FloatingInput({
 
 export default function QuoteForm() {
   const formRef = useRef<HTMLFormElement>(null);
-  const [errors,  setErrors]  = useState<FieldErrors>({});
-  const [status,  setStatus]  = useState<Status>("idle");
-  const [errMsg,  setErrMsg]  = useState("");
+  const [errors, setErrors] = useState<FieldErrors>({});
+  const [status, setStatus] = useState<Status>("idle");
+  const [errMsg, setErrMsg] = useState("");
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const data   = Object.fromEntries(new FormData(e.currentTarget));
+    const data = Object.fromEntries(new FormData(e.currentTarget));
     const parsed = schema.safeParse(data);
 
     if (!parsed.success) {
@@ -119,6 +120,11 @@ export default function QuoteForm() {
 
     setErrors({});
     setStatus("loading");
+
+    if (IS_VISUAL_MODE) {
+      setStatus("success");
+      return;
+    }
 
     try {
       await emailjs.sendForm(
@@ -153,8 +159,7 @@ export default function QuoteForm() {
           Solicite seu orçamento
         </h2>
         <p className="mt-1 text-sm text-ink-muted">
-          Resposta em até{" "}
-          <span className="font-semibold text-ink">24h úteis</span>.
+          Resposta em até <span className="font-semibold text-ink">24h úteis</span>.
         </p>
       </div>
 

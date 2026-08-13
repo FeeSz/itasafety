@@ -8,6 +8,7 @@ import Reveal from "@/components/ui/Reveal";
 import { toast } from "sonner";
 import { Building2, CheckCircle2, Clock, Loader2, Save, XCircle } from "lucide-react";
 import { getErrorMessage } from "@/lib/utils";
+import { DetailSkeleton } from "@/components/ui/Skeletons";
 
 export const Route = createFileRoute("/_authenticated/perfil/")({
   component: PerfilPage,
@@ -141,11 +142,7 @@ function PerfilPage() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="size-8 animate-spin text-brand-blue" />
-      </div>
-    );
+    return <DetailSkeleton />;
   }
 
   return (

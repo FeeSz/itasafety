@@ -3,8 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useEffect } from "react";
-import { Loader2, ClipboardList, ArrowRight, Clock, CheckCircle2, XCircle, Search } from "lucide-react";
+import { ClipboardList, ArrowRight, Clock, CheckCircle2, XCircle, Search } from "lucide-react";
 import { pageMeta } from "@/lib/seo";
+import { ListSkeleton, PageSkeleton } from "@/components/ui/Skeletons";
 
 export const Route = createFileRoute("/minhas-cotacoes/")({
   head: () =>
@@ -59,11 +60,7 @@ function MinhasCotacoesPage() {
   });
 
   if (loading || !user) {
-    return (
-      <div className="flex min-h-[50vh] items-center justify-center">
-        <Loader2 className="size-6 animate-spin text-ink-soft" />
-      </div>
-    );
+    return <PageSkeleton />;
   }
 
   return (
@@ -76,9 +73,7 @@ function MinhasCotacoesPage() {
       </div>
 
       {isLoading ? (
-        <div className="flex items-center justify-center py-16">
-          <Loader2 className="size-6 animate-spin text-ink-soft" />
-        </div>
+        <ListSkeleton />
       ) : !cotacoes?.length ? (
         <div className="flex flex-col items-center justify-center rounded-xl border border-hairline bg-white py-16 text-center shadow-card">
           <ClipboardList className="size-12 text-ink-soft mb-3" />
@@ -87,7 +82,7 @@ function MinhasCotacoesPage() {
             Adicione EPIs ao carrinho e envie sua primeira solicitação.
           </p>
           <Link
-            to="/categorias"
+            to="/catalogo"
             className="mt-5 inline-flex items-center gap-2 rounded-full bg-brand-blue px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-blue/90 transition-colors"
           >
             Ver Produtos <ArrowRight className="size-4" />

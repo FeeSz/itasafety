@@ -14,6 +14,12 @@ O projeto Supabase de produção usa o project ref:
 porgyoqngtshxdxuwaft
 ```
 
+O runtime publicado no Lovable ainda não usa esse projeto. A inspeção via
+integração Lovable em 03/08/2026 confirmou o backend gerenciado do projeto com
+outro project ref, enquanto `supabase/config.toml` já declara o ref canônico.
+Essa divergência deve ser resolvida pelo vínculo de Supabase externo no painel
+Lovable antes de qualquer retomada de migration, teste autenticado ou publicação.
+
 Não registre neste documento senha, connection string completa, JWT, anon key,
 publishable key ou `service_role`.
 

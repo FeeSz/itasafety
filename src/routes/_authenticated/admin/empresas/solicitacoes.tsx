@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { getErrorMessage } from "@/lib/utils";
+import { ListSkeleton } from "@/components/ui/Skeletons";
 
 export const Route = createFileRoute("/_authenticated/admin/empresas/solicitacoes")({
   component: AdminSolicitacoesPage,
@@ -148,9 +149,7 @@ function AdminSolicitacoesPage() {
 
           {/* Lista */}
           {isLoading ? (
-            <div className="flex justify-center py-16">
-              <Loader2 className="size-8 animate-spin text-brand-blue" />
-            </div>
+            <ListSkeleton />
           ) : !requests?.length ? (
             <div className="flex flex-col items-center gap-3 rounded-2xl border border-hairline bg-white py-16 text-center shadow-card">
               <InboxIcon className="size-10 text-ink-soft/40" />

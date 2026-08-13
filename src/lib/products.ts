@@ -16,7 +16,8 @@ export type Product = {
   tags?: ReadonlyArray<"destaque" | "novo" | "mais-vendido" | "certificado">;
 };
 
-export const FEATURED_PRODUCTS: ReadonlyArray<Product> = [
+/** Seleção local versionada; não representa a completude ou o estado remoto do catálogo. */
+export const LOCAL_CATALOG_PRODUCTS: ReadonlyArray<Product> = [
   {
     sku: "CAP-V8829",
     name: "Capacete Aba Frontal Classe B",
@@ -103,3 +104,6 @@ export const FEATURED_PRODUCTS: ReadonlyArray<Product> = [
     tags: ["mais-vendido", "certificado"],
   },
 ] as const;
+
+/** Compatibilidade com componentes editoriais e ferramentas MCP existentes. */
+export const FEATURED_PRODUCTS = LOCAL_CATALOG_PRODUCTS;

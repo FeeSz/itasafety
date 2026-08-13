@@ -87,12 +87,14 @@ function AboutPage() {
           </div>
 
           <div className="mt-14 flex flex-wrap items-center gap-4">
-            <CtaButton as={Link} to="/contato">
-              Falar com a Engenharia
-              <ArrowRight className="size-4" aria-hidden />
+            <CtaButton asChild>
+              <Link to="/contato">
+                Falar com a Engenharia
+                <ArrowRight className="size-4" aria-hidden />
+              </Link>
             </CtaButton>
-            <CtaButton as={Link} to="/categorias" variant="outline">
-              Ver Catálogo
+            <CtaButton asChild variant="outline">
+              <Link to="/catalogo">Ver Catálogo</Link>
             </CtaButton>
           </div>
         </Container>

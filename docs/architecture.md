@@ -40,6 +40,74 @@ storage e uma Edge Function.
 - `src/styles.css`: tema e estilos globais;
 - `src/assets/` e `public/`: ativos empacotados ou publicados.
 
+### Arquitetura de informação pública
+
+Estado: **implementado localmente, não implantado**.
+
+```text
+/                         Landing institucional
+/catalogo                 descoberta e seleção geral
+/categorias               índice completo da taxonomia local
+/departamento/$slug       seleção local por categoria
+/detalhes/$sku            dados locais do produto
+/carrinho                 revisão e submissão com gate final
+```
+
+Landing e Catálogo compartilham Header, Footer, tokens, focus rings e
+primitivas. Eles não compartilham responsabilidade de página: `LandingReasons`
+e seus assets entram somente pelo grafo da Landing. O Catálogo usa `CatalogSearch`, `CategoryGrid` e
+`CatalogProductCard`, sem importar seções promocionais da antiga home.
+
+O Header expõe uma única entrada de busca em `/catalogo`, evitando dois
+contratos concorrentes. O estado da busca é navegável pelo search param `q`.
+
+### Fundação visual
+
+Estado: **implementado localmente, não implantado**.
+
+```text
+src/styles.css
+├─ tokens semânticos de cor, tipo, spacing, radius, sombra, foco e motion
+├─ aliases temporários para consumidores legados
+└─ utilidades de container, densidade, foco e transição
+
+src/components/ui
+├─ Button, Input, Textarea, Card e Surface
+├─ Skeleton, EmptyState e ErrorState
+└─ Radix: Dropdown, Sheet, Dialog e Accordion
+
+src/components/catalog
+├─ CatalogSearch
+├─ CategoryCard
+└─ CatalogProductCard
+```
+
+Inter é a única família web. Mono usa fontes do sistema e só representa dados.
+Tokens CSS são a fonte de verdade para Tailwind 4, inclusive para duração e
+easing. A composição ativa não depende de biblioteca JavaScript de motion nem
+mantém uma camada paralela de tokens.
+
+O sistema suporta duas composições: editorial para Landing e funcional para
+Catálogo. Componentes editoriais continuam route-scoped.
+
+Na Fase 2.5, `EntryLanding` compõe somente `LandingHero`, `LandingReasons` e
+`LandingFAQ`. `LandingHero` carrega `SafetyVisorVisual` com `React.lazy`; esse
+boundary pertence exclusivamente à rota `/` e não entra no grafo do Catálogo.
+O componente registra `<model-viewer>` 3.5.0 por import dinâmico do módulo apenas
+quando o Hero se aproxima da viewport e o browser está ocioso. O modelo e o
+poster são assets locais; somente o runtime vem de `unpkg.com`. O poster constitui
+a experiência base e permanece em falha, timeout, bloqueio do runtime ou telas
+abaixo de 480 px. Não existe nova dependência npm, estado transversal ou import
+do viewer no shell compartilhado. O stage visual é transparente e não cria uma
+nova superfície de card; modelo e fallback compartilham a mesma geometria sobre
+o fundo do Hero. O `Footer` compartilhado consulta o pathname apenas para exibir
+a atribuição CC BY 4.0 na área legal quando a rota ativa é `/`; não importa nem
+inicializa o viewer. Essa decisão está registrada na ADR 0005.
+
+A variante transparente de `Header` é selecionada pelo pathname `/`; o header
+funcional permanece nas demais rotas. O Catálogo não importa os
+cards editoriais nem os assets exclusivos da Landing.
+
 ### Estado do cliente
 
 - `AuthContext`: sessão, usuário e indicação visual de admin;
@@ -50,6 +118,32 @@ storage e uma Edge Function.
 
 O cache `ita_is_admin` nunca deve ser usado como controle de autorização.
 Autorização efetiva ocorre no servidor, nas RPCs e nas policies RLS.
+
+### Isolamento visual local
+
+O modo Vite `ui` adiciona uma fronteira local de desenvolvimento antes da camada
+de integração:
+
+```text
+Componentes/rotas → fixtures e estados simulados
+                  ↘ guard de fetch → requisição bloqueada no browser
+```
+
+Essa fronteira existe apenas para revisão de UI/UX. Ela mantém o visitante
+anônimo, evita inicialização dos fluxos automáticos de autenticação e troca dados
+remotos já identificados por fixtures locais. O comportamento normal, os
+contratos Supabase e a autoridade de RLS não são alterados.
+
+Na rota `/`, os modos normal e `ui` usam `EntryLanding`. A diferença do modo
+`ui` permanece restrita ao isolamento local de rede e sessão; ele não seleciona
+mais uma home alternativa. A Landing usa conteúdo local tipado e Radix Accordion
+no FAQ. Todos os destinos internos são caminhos
+relativos, sem vínculo a uma porta local específica.
+
+O modo visual não é uma implantação alternativa: a configuração Vite impede a
+geração de build com `mode=ui`. O build normal inclui a Landing na rota `/`, mas
+mantém suas dependências fora do grafo da rota `/catalogo` por meio das
+fronteiras de arquivos do TanStack Router.
 
 ### Aplicação full-stack
 
@@ -68,6 +162,13 @@ Autorização efetiva ocorre no servidor, nas RPCs e nas policies RLS.
 - RPCs `SECURITY DEFINER` encapsulam operações privilegiadas;
 - triggers mantêm integridade e histórico;
 - Storage guarda logos.
+
+No projeto publicado pelo Lovable existe temporariamente uma divergência de
+ambiente: o código e `supabase/config.toml` reconhecem `porgyoqngtshxdxuwaft`
+como destino canônico, mas as variáveis gerenciadas do runtime ainda pertencem
+ao backend Lovable Cloud. O conector de Supabase externo é a fronteira que deve
+substituir essas variáveis de forma controlada; editar `.env` no repositório não
+resolve o vínculo e pode ser sobrescrito no build seguinte.
 
 ### Notificações
 
@@ -160,3 +261,7 @@ Aplicar migration e implantar Edge Function são operações independentes.
 - é necessário escolher a URL canônica de cada ambiente antes de reconciliar
   links de e-mail, OAuth, SEO, sitemap e MCP;
 - catálogo possui dados locais e remotos, exigindo disciplina para evitar drift.
+- a Fase 1 usa oito produtos e 14 categorias locais; a completude, a taxonomia e
+  a correspondência com o catálogo remoto permanecem não confirmadas;
+- a autenticação só ocorre ao finalizar a cotação, mas a criação transacional da
+  cotação permanece como débito independente e não foi alterada nesta fase.

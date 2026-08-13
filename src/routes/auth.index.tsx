@@ -1,28 +1,15 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import type {
-  Dispatch,
-  FormEvent,
-  InputHTMLAttributes,
-  ReactNode,
-  SetStateAction,
-} from "react";
+import type { Dispatch, FormEvent, InputHTMLAttributes, ReactNode, SetStateAction } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { pageMeta } from "@/lib/seo";
-import {
-  Loader2,
-  ArrowLeft,
-  CheckCircle2,
-  ShieldCheck,
-  Eye,
-  EyeOff,
-  Check,
-} from "lucide-react";
+import { Loader2, ArrowLeft, CheckCircle2, ShieldCheck, Eye, EyeOff, Check } from "lucide-react";
 import { checkAuthRateLimit, recordAuthAttempt } from "@/lib/auth.functions";
 import brandLogo from "@/assets/itasafety-header-logo.png";
 import { getErrorMessage, getErrorStatus } from "@/lib/utils";
+import { IS_VISUAL_MODE, visualModeActionMessage } from "@/lib/visual-mode";
 
 type AuthAttemptType = "login" | "signup" | "reset";
 
@@ -132,17 +119,27 @@ function AuthPage() {
         console.error("[Auth] Error checking existing session:", error);
       }
     }
-    redirectExistingSession();
+    if (!IS_VISUAL_MODE) {
+      redirectExistingSession();
+    }
 
-    const remembered = typeof window !== "undefined" ? localStorage.getItem("ita_remember_email") : null;
+    const remembered =
+      typeof window !== "undefined" ? localStorage.getItem("ita_remember_email") : null;
     if (remembered) {
       setEmail(remembered);
     }
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, [navigate, safeNext]);
 
   // Social Auth
   const handleSocialLogin = async (provider: "google" | "apple") => {
+    if (IS_VISUAL_MODE) {
+      toast.info(visualModeActionMessage(`Autenticação com ${provider}`));
+      return;
+    }
+
     setLoading(true);
     try {
       const { error } = await supabase.auth.signInWithOAuth({
@@ -172,14 +169,19 @@ function AuthPage() {
               ? "Enviamos um link de confirmação para "
               : "Se este e-mail estiver cadastrado, você receberá um link em "}
             <strong className="text-white">{email}</strong>.
-            <br /><br />
+            <br />
+            <br />
             {successView === "signup"
               ? "Clique no link para ativar sua conta e poder acessar."
               : "Verifique sua caixa de entrada e spam."}
           </p>
           <button
             type="button"
-            onClick={() => { setSuccessView(null); setIsSignUp(false); setIsForgot(false); }}
+            onClick={() => {
+              setSuccessView(null);
+              setIsSignUp(false);
+              setIsForgot(false);
+            }}
             className="mt-8 inline-flex min-h-[44px] items-center gap-2 px-4 py-2 text-sm font-bold text-brand-blue-light hover:underline"
           >
             <ArrowLeft className="size-4" /> Voltar para o login
@@ -196,26 +198,35 @@ function AuthPage() {
 
       {/* Header Minimalista (Voltar) */}
       <div className="absolute top-6 left-6 md:top-8 md:left-12 z-[100] flex items-center">
-        <Link to="/" className="inline-flex items-center text-xs font-bold uppercase tracking-wider text-white/50 hover:text-white transition">
+        <Link
+          to="/"
+          className="inline-flex items-center text-xs font-bold uppercase tracking-wider text-white/50 hover:text-white transition"
+        >
           <ArrowLeft className="mr-2 size-4" /> Voltar ao site
         </Link>
       </div>
 
       {/* Logo Centralizada */}
       <div className="absolute top-6 left-1/2 -translate-x-1/2 md:top-8 z-[100] flex items-center justify-center pointer-events-none">
-        <img src={brandLogo} alt="ItaSafety" className="h-[150px] w-auto brightness-0 invert drop-shadow-md" />
+        <img
+          src={brandLogo}
+          alt="ItaSafety"
+          className="h-[150px] w-auto brightness-0 invert drop-shadow-md"
+        />
       </div>
 
       {/* Main Container */}
       <div className="relative w-full h-[100dvh] overflow-hidden flex flex-col md:block">
-
         {/* ============================================================ */}
         {/* SIGN IN / FORGOT FORM (Left side desktop, crossfade mobile) */}
         {/* ============================================================ */}
-        <div className={`absolute inset-0 md:w-1/2 h-[100dvh] z-20 flex flex-col justify-center p-6 pt-20 sm:p-8 md:p-12 lg:px-20 transition-all duration-700 ease-in-out overflow-y-auto md:overflow-hidden
-          ${isSignUp ? 'opacity-0 pointer-events-none md:translate-x-full' : 'opacity-100 md:translate-x-0'}`}>
-
-          <div className={`transition-all duration-500 ease-in-out absolute inset-0 p-6 pt-20 sm:p-8 md:p-12 lg:px-20 flex flex-col justify-center overflow-y-auto md:overflow-hidden ${isForgot ? 'opacity-0 pointer-events-none scale-95' : 'opacity-100 scale-100'}`}>
+        <div
+          className={`absolute inset-0 md:w-1/2 h-[100dvh] z-20 flex flex-col justify-center p-6 pt-20 sm:p-8 md:p-12 lg:px-20 transition-all duration-700 ease-in-out overflow-y-auto md:overflow-hidden
+          ${isSignUp ? "opacity-0 pointer-events-none md:translate-x-full" : "opacity-100 md:translate-x-0"}`}
+        >
+          <div
+            className={`transition-all duration-500 ease-in-out absolute inset-0 p-6 pt-20 sm:p-8 md:p-12 lg:px-20 flex flex-col justify-center overflow-y-auto md:overflow-hidden ${isForgot ? "opacity-0 pointer-events-none scale-95" : "opacity-100 scale-100"}`}
+          >
             <SignInForm
               email={email}
               setEmail={setEmail}
@@ -229,11 +240,19 @@ function AuthPage() {
             />
             {/* Mobile Only Switcher */}
             <div className="md:hidden mt-8 text-center text-sm text-white/60">
-              Não tem uma conta? <button onClick={() => setIsSignUp(true)} className="text-white hover:underline font-bold">Cadastre-se</button>
+              Não tem uma conta?{" "}
+              <button
+                onClick={() => setIsSignUp(true)}
+                className="text-white hover:underline font-bold"
+              >
+                Cadastre-se
+              </button>
             </div>
           </div>
 
-          <div className={`transition-all duration-500 ease-in-out absolute inset-0 p-6 pt-20 sm:p-8 md:p-12 lg:px-20 flex flex-col justify-center overflow-y-auto md:overflow-hidden ${!isForgot ? 'opacity-0 pointer-events-none scale-105' : 'opacity-100 scale-100'}`}>
+          <div
+            className={`transition-all duration-500 ease-in-out absolute inset-0 p-6 pt-20 sm:p-8 md:p-12 lg:px-20 flex flex-col justify-center overflow-y-auto md:overflow-hidden ${!isForgot ? "opacity-0 pointer-events-none scale-105" : "opacity-100 scale-100"}`}
+          >
             <ForgotForm
               email={email}
               setEmail={setEmail}
@@ -245,14 +264,15 @@ function AuthPage() {
               loading={loading}
             />
           </div>
-
         </div>
 
         {/* ============================================================ */}
         {/* SIGN UP FORM (Right side desktop, crossfade mobile) */}
         {/* ============================================================ */}
-        <div className={`absolute inset-0 md:w-1/2 h-[100dvh] flex flex-col justify-center p-6 pt-20 sm:p-8 md:p-12 lg:px-20 transition-all duration-700 ease-in-out overflow-y-auto md:overflow-hidden
-          ${isSignUp ? 'opacity-100 z-20 md:translate-x-full' : 'opacity-0 pointer-events-none z-10 md:translate-x-0'}`}>
+        <div
+          className={`absolute inset-0 md:w-1/2 h-[100dvh] flex flex-col justify-center p-6 pt-20 sm:p-8 md:p-12 lg:px-20 transition-all duration-700 ease-in-out overflow-y-auto md:overflow-hidden
+          ${isSignUp ? "opacity-100 z-20 md:translate-x-full" : "opacity-0 pointer-events-none z-10 md:translate-x-0"}`}
+        >
           <SignUpForm
             email={email}
             setEmail={setEmail}
@@ -266,27 +286,44 @@ function AuthPage() {
           />
           {/* Mobile Only Switcher */}
           <div className="md:hidden mt-8 text-center text-sm text-white/60">
-            Já tem uma conta? <button onClick={() => setIsSignUp(false)} className="text-white hover:underline font-bold">Entrar</button>
+            Já tem uma conta?{" "}
+            <button
+              onClick={() => setIsSignUp(false)}
+              className="text-white hover:underline font-bold"
+            >
+              Entrar
+            </button>
           </div>
         </div>
 
         {/* ============================================================ */}
         {/* SLIDING OVERLAY (Desktop Only) */}
         {/* ============================================================ */}
-        <div className={`hidden md:block absolute top-0 left-1/2 w-1/2 h-[100dvh] bg-brand-blue overflow-hidden transition-transform duration-700 ease-in-out z-30 shadow-2xl ${isSignUp ? '-translate-x-full' : 'translate-x-0'}`}>
+        <div
+          className={`hidden md:block absolute top-0 left-1/2 w-1/2 h-[100dvh] bg-brand-blue overflow-hidden transition-transform duration-700 ease-in-out z-30 shadow-2xl ${isSignUp ? "-translate-x-full" : "translate-x-0"}`}
+        >
           <div className="relative w-full h-full bg-gradient-to-br from-brand-blue to-[#0f1f38]">
             {/* Decorative background circle */}
             <div className="absolute -top-32 -right-32 w-96 h-96 bg-white/5 rounded-full blur-3xl pointer-events-none" />
             <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-white/5 rounded-full blur-3xl pointer-events-none" />
 
             {/* Panel Left (Sign In CTA) */}
-            <div className={`absolute inset-0 flex flex-col items-center justify-center p-12 text-center transition-all duration-700 ease-in-out ${isSignUp ? 'translate-x-0 opacity-100' : '-translate-x-[20%] opacity-0 pointer-events-none'}`}>
-              <h2 className="text-4xl font-display font-black text-white mb-6 leading-tight">Já tem uma<br />conta?</h2>
+            <div
+              className={`absolute inset-0 flex flex-col items-center justify-center p-12 text-center transition-all duration-700 ease-in-out ${isSignUp ? "translate-x-0 opacity-100" : "-translate-x-[20%] opacity-0 pointer-events-none"}`}
+            >
+              <h2 className="text-4xl font-display font-black text-white mb-6 leading-tight">
+                Já tem uma
+                <br />
+                conta?
+              </h2>
               <p className="text-white/80 mb-10 max-w-sm leading-relaxed">
                 Acesse sua área restrita para conferir seus pedidos e as cotações de EPIs.
               </p>
               <button
-                onClick={() => { setIsSignUp(false); setIsForgot(false); }}
+                onClick={() => {
+                  setIsSignUp(false);
+                  setIsForgot(false);
+                }}
                 className="rounded-full border-2 border-white/30 px-10 py-3.5 text-sm font-bold uppercase tracking-widest text-white transition-all hover:bg-white hover:text-brand-blue active:scale-95"
               >
                 Entrar
@@ -294,13 +331,23 @@ function AuthPage() {
             </div>
 
             {/* Panel Right (Sign Up CTA) */}
-            <div className={`absolute inset-0 flex flex-col items-center justify-center p-12 text-center transition-all duration-700 ease-in-out ${isSignUp ? 'translate-x-[20%] opacity-0 pointer-events-none' : 'translate-x-0 opacity-100'}`}>
-              <h2 className="text-4xl font-display font-black text-white mb-6 leading-tight">Novo por<br />aqui?</h2>
+            <div
+              className={`absolute inset-0 flex flex-col items-center justify-center p-12 text-center transition-all duration-700 ease-in-out ${isSignUp ? "translate-x-[20%] opacity-0 pointer-events-none" : "translate-x-0 opacity-100"}`}
+            >
+              <h2 className="text-4xl font-display font-black text-white mb-6 leading-tight">
+                Novo por
+                <br />
+                aqui?
+              </h2>
               <p className="text-white/80 mb-10 max-w-sm leading-relaxed">
-                Cadastre-se para solicitar cotações e ter acesso ao nosso catálogo de proteção completo.
+                Cadastre-se para solicitar cotações e ter acesso ao nosso catálogo de proteção
+                completo.
               </p>
               <button
-                onClick={() => { setIsSignUp(true); setIsForgot(false); }}
+                onClick={() => {
+                  setIsSignUp(true);
+                  setIsForgot(false);
+                }}
                 className="rounded-full border-2 border-white/30 px-10 py-3.5 text-sm font-bold uppercase tracking-widest text-white transition-all hover:bg-white hover:text-brand-blue active:scale-95"
               >
                 Criar Conta
@@ -308,7 +355,6 @@ function AuthPage() {
             </div>
           </div>
         </div>
-
       </div>
 
       {/* Footer Trust Badges */}
@@ -353,10 +399,16 @@ function SignInForm({
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
+    if (IS_VISUAL_MODE) {
+      toast.success(visualModeActionMessage("Autenticação"));
+      return;
+    }
+
     setLoading(true);
     try {
       const limit = await checkLimit({ data: { email, attempt_type: "login" } });
-      if (limit.blocked) throw new Error(limit.reason || "Limite excedido. Aguarde alguns minutos.");
+      if (limit.blocked)
+        throw new Error(limit.reason || "Limite excedido. Aguarde alguns minutos.");
 
       const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
@@ -378,12 +430,16 @@ function SignInForm({
     } catch (err: unknown) {
       console.error("[Auth] Sign in failed:", err);
       const msg = getErrorMessage(err, "Erro");
-      const friendly = /invalid login credentials/i.test(msg) ? "E-mail ou senha inválidos."
-        : /email not confirmed/i.test(msg) ? "Confirme seu e-mail antes de entrar."
+      const friendly = /invalid login credentials/i.test(msg)
+        ? "E-mail ou senha inválidos."
+        : /email not confirmed/i.test(msg)
+          ? "Confirme seu e-mail antes de entrar."
           : "E-mail ou senha inválidos.";
       toast.error(friendly);
       if (/invalid login credentials/i.test(msg)) {
-        await recordAttempt({ data: { attempt_type: "login", success: false, email } }).catch(() => {});
+        await recordAttempt({ data: { attempt_type: "login", success: false, email } }).catch(
+          () => {},
+        );
       }
     } finally {
       setLoading(false);
@@ -396,7 +452,15 @@ function SignInForm({
       <p className="text-white/50 text-sm mb-5">Utilize suas credenciais para acessar.</p>
 
       <div className="space-y-4">
-        <FloatingInput id="login-email" label="E-mail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} disabled={loading} />
+        <FloatingInput
+          id="login-email"
+          label="E-mail"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          error={errors.email}
+          disabled={loading}
+        />
         <FloatingInput
           id="login-password"
           label="Senha"
@@ -406,7 +470,11 @@ function SignInForm({
           error={errors.password}
           disabled={loading}
           rightElement={
-            <button type="button" onClick={() => setShowPw(!showPw)} className="text-white/40 hover:text-white transition">
+            <button
+              type="button"
+              onClick={() => setShowPw(!showPw)}
+              className="text-white/40 hover:text-white transition"
+            >
               {showPw ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
             </button>
           }
@@ -415,21 +483,35 @@ function SignInForm({
 
       <div className="flex items-center justify-between mt-4 mb-4">
         <label className="flex items-center space-x-2 text-sm text-white/70 cursor-pointer hover:text-white transition group">
-          <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${remember ? 'bg-brand-blue border-brand-blue' : 'border-white/30 group-hover:border-white/50'}`}>
+          <div
+            className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${remember ? "bg-brand-blue border-brand-blue" : "border-white/30 group-hover:border-white/50"}`}
+          >
             {remember && <Check className="size-3 text-white" />}
           </div>
-          <input type="checkbox" className="hidden" checked={remember} onChange={(e) => setRemember(e.target.checked)} />
+          <input
+            type="checkbox"
+            className="hidden"
+            checked={remember}
+            onChange={(e) => setRemember(e.target.checked)}
+          />
           <span>Lembrar acesso</span>
         </label>
-        <button type="button" onClick={onForgot} className="text-sm text-brand-blue font-medium hover:underline">
+        <button
+          type="button"
+          onClick={onForgot}
+          className="text-sm text-brand-blue font-medium hover:underline"
+        >
           Esqueceu a senha?
         </button>
       </div>
 
-      <button type="submit" disabled={loading} className="w-full rounded-full bg-white py-3.5 text-sm font-bold uppercase tracking-widest text-brand-blue shadow-md transition-all hover:bg-gray-100 disabled:opacity-60 flex justify-center items-center h-[52px]">
+      <button
+        type="submit"
+        disabled={loading}
+        className="w-full rounded-full bg-white py-3.5 text-sm font-bold uppercase tracking-widest text-brand-blue shadow-md transition-all hover:bg-gray-100 disabled:opacity-60 flex justify-center items-center h-[52px]"
+      >
         {loading ? <Loader2 className="size-5 animate-spin" /> : "Entrar"}
       </button>
-
 
       <SocialLogin loading={loading} handleSocial={handleSocial} />
     </form>
@@ -466,10 +548,16 @@ function SignUpForm({
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
+    if (IS_VISUAL_MODE) {
+      setSuccessView("signup");
+      return;
+    }
+
     setLoading(true);
     try {
       const limit = await checkLimit({ data: { email, attempt_type: "signup" } });
-      if (limit.blocked) throw new Error(limit.reason || "Limite excedido. Aguarde alguns minutos.");
+      if (limit.blocked)
+        throw new Error(limit.reason || "Limite excedido. Aguarde alguns minutos.");
 
       const { error } = await supabase.auth.signUp({
         email,
@@ -486,7 +574,9 @@ function SignUpForm({
       toast.error(friendly);
       const status = getErrorStatus(err);
       if (status !== undefined && status >= 400 && status < 500) {
-        await recordAttempt({ data: { attempt_type: "signup", success: false, email } }).catch(() => {});
+        await recordAttempt({ data: { attempt_type: "signup", success: false, email } }).catch(
+          () => {},
+        );
       }
     } finally {
       setLoading(false);
@@ -499,8 +589,24 @@ function SignUpForm({
       <p className="text-white/50 text-sm mb-3">Preencha seus dados abaixo.</p>
 
       <div className="space-y-3">
-        <FloatingInput id="reg-name" label="Nome completo" type="text" value={name} onChange={(e) => setName(e.target.value)} error={errors.name} disabled={loading} />
-        <FloatingInput id="reg-email" label="E-mail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} disabled={loading} />
+        <FloatingInput
+          id="reg-name"
+          label="Nome completo"
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          error={errors.name}
+          disabled={loading}
+        />
+        <FloatingInput
+          id="reg-email"
+          label="E-mail"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          error={errors.email}
+          disabled={loading}
+        />
 
         <FloatingInput
           id="reg-password"
@@ -511,7 +617,11 @@ function SignUpForm({
           error={errors.password}
           disabled={loading}
           rightElement={
-            <button type="button" onClick={() => setShowPw(!showPw)} className="text-white/40 hover:text-white transition">
+            <button
+              type="button"
+              onClick={() => setShowPw(!showPw)}
+              className="text-white/40 hover:text-white transition"
+            >
               {showPw ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
             </button>
           }
@@ -525,17 +635,24 @@ function SignUpForm({
           error={errors.confirm}
           disabled={loading}
           rightElement={
-            <button type="button" onClick={() => setShowPw(!showPw)} className="text-white/40 hover:text-white transition">
+            <button
+              type="button"
+              onClick={() => setShowPw(!showPw)}
+              className="text-white/40 hover:text-white transition"
+            >
               {showPw ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
             </button>
           }
         />
       </div>
 
-      <button type="submit" disabled={loading} className="w-full rounded-full bg-brand-blue py-3.5 text-sm font-bold uppercase tracking-widest text-white shadow-md transition-all hover:bg-brand-blue-hover disabled:opacity-60 flex justify-center items-center h-[52px] mt-5">
+      <button
+        type="submit"
+        disabled={loading}
+        className="w-full rounded-full bg-brand-blue py-3.5 text-sm font-bold uppercase tracking-widest text-white shadow-md transition-all hover:bg-brand-blue-hover disabled:opacity-60 flex justify-center items-center h-[52px] mt-5"
+      >
         {loading ? <Loader2 className="size-5 animate-spin" /> : "Cadastrar"}
       </button>
-
 
       <SocialLogin loading={loading} handleSocial={handleSocial} />
     </form>
@@ -561,10 +678,16 @@ function ForgotForm({
       return;
     }
     setErrors({});
+    if (IS_VISUAL_MODE) {
+      setSuccessView("forgot");
+      return;
+    }
+
     setLoading(true);
     try {
       const limit = await checkLimit({ data: { email, attempt_type: "reset" } });
-      if (limit.blocked) throw new Error(limit.reason || "Limite excedido. Aguarde alguns minutos.");
+      if (limit.blocked)
+        throw new Error(limit.reason || "Limite excedido. Aguarde alguns minutos.");
 
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/reset-password`,
@@ -575,7 +698,9 @@ function ForgotForm({
       toast.error(getErrorMessage(err, "Erro"));
       const status = getErrorStatus(err);
       if (status !== undefined && status >= 400 && status < 500) {
-        await recordAttempt({ data: { attempt_type: "reset", success: false, email } }).catch(() => {});
+        await recordAttempt({ data: { attempt_type: "reset", success: false, email } }).catch(
+          () => {},
+        );
       }
     } finally {
       setLoading(false);
@@ -585,18 +710,36 @@ function ForgotForm({
   return (
     <form onSubmit={submit} className="w-full max-w-sm mx-auto" noValidate>
       <h2 className="text-3xl font-bold text-white mb-1">Recuperar Senha</h2>
-      <p className="text-white/50 text-sm mb-6">Enviaremos um link de redefinição para o seu e-mail.</p>
+      <p className="text-white/50 text-sm mb-6">
+        Enviaremos um link de redefinição para o seu e-mail.
+      </p>
 
       <div className="space-y-4 mb-6">
-        <FloatingInput id="forgot-email" label="E-mail de cadastro" type="email" value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} disabled={loading} />
+        <FloatingInput
+          id="forgot-email"
+          label="E-mail de cadastro"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          error={errors.email}
+          disabled={loading}
+        />
       </div>
 
-      <button type="submit" disabled={loading} className="w-full rounded-full bg-brand-blue py-3.5 text-sm font-bold uppercase tracking-widest text-white shadow-md transition-all hover:bg-brand-blue-hover disabled:opacity-60 flex justify-center items-center h-[52px] mb-6">
+      <button
+        type="submit"
+        disabled={loading}
+        className="w-full rounded-full bg-brand-blue py-3.5 text-sm font-bold uppercase tracking-widest text-white shadow-md transition-all hover:bg-brand-blue-hover disabled:opacity-60 flex justify-center items-center h-[52px] mb-6"
+      >
         {loading ? <Loader2 className="size-5 animate-spin" /> : "Enviar Link"}
       </button>
 
       <div className="text-center">
-        <button type="button" onClick={onBack} className="text-white hover:underline font-bold inline-flex items-center gap-1 text-sm">
+        <button
+          type="button"
+          onClick={onBack}
+          className="text-white hover:underline font-bold inline-flex items-center gap-1 text-sm"
+        >
           <ArrowLeft className="size-4" /> Voltar ao Login
         </button>
       </div>
@@ -604,30 +747,41 @@ function ForgotForm({
   );
 }
 
-function SocialLogin({
-  loading,
-  handleSocial,
-}: {
-  loading: boolean;
-  handleSocial: HandleSocial;
-}) {
+function SocialLogin({ loading, handleSocial }: { loading: boolean; handleSocial: HandleSocial }) {
   return (
     <>
       <div className="relative flex items-center py-6 mt-4">
         <div className="flex-grow border-t border-white/10"></div>
-        <span className="mx-4 text-[10px] font-bold text-white/30 uppercase tracking-wider">ou entre com</span>
+        <span className="mx-4 text-[10px] font-bold text-white/30 uppercase tracking-wider">
+          ou entre com
+        </span>
         <div className="flex-grow border-t border-white/10"></div>
       </div>
       <div className="flex justify-center gap-4">
-        <button type="button" onClick={() => handleSocial("google")} disabled={loading} className="flex h-[44px] w-full items-center justify-center gap-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors disabled:opacity-50 text-sm font-medium text-white/80">
+        <button
+          type="button"
+          onClick={() => handleSocial("google")}
+          disabled={loading}
+          className="flex h-[44px] w-full items-center justify-center gap-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors disabled:opacity-50 text-sm font-medium text-white/80"
+        >
           <svg className="size-4" viewBox="0 0 24 24">
-            <path fill="#EA4335" d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-5.136 4.114A5.59 5.59 0 0 1 8.4 12.928a5.59 5.59 0 0 1 5.59-5.59c1.47 0 2.81.57 3.82 1.49l3.12-3.12A9.95 9.95 0 0 0 13.99 2 9.99 9.99 0 0 0 4 12a9.99 9.99 0 0 0 9.99 10c5.52 0 10-4.48 10-10 0-.628-.068-1.242-.2-1.833h-11.55z" />
-          </svg> Google
+            <path
+              fill="#EA4335"
+              d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-5.136 4.114A5.59 5.59 0 0 1 8.4 12.928a5.59 5.59 0 0 1 5.59-5.59c1.47 0 2.81.57 3.82 1.49l3.12-3.12A9.95 9.95 0 0 0 13.99 2 9.99 9.99 0 0 0 4 12a9.99 9.99 0 0 0 9.99 10c5.52 0 10-4.48 10-10 0-.628-.068-1.242-.2-1.833h-11.55z"
+            />
+          </svg>{" "}
+          Google
         </button>
-        <button type="button" onClick={() => handleSocial("apple")} disabled={loading} className="flex h-[44px] w-full items-center justify-center gap-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors disabled:opacity-50 text-sm font-medium text-white/80">
+        <button
+          type="button"
+          onClick={() => handleSocial("apple")}
+          disabled={loading}
+          className="flex h-[44px] w-full items-center justify-center gap-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors disabled:opacity-50 text-sm font-medium text-white/80"
+        >
           <svg className="size-4 fill-current" viewBox="0 0 24 24">
             <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 4.17c.66-.81 1.11-1.93.99-3.06-1 .04-2.22.67-2.94 1.51-.63.73-1.18 1.87-1.03 2.98 1.1.09 2.24-.57 2.98-1.43z" />
-          </svg> Apple
+          </svg>{" "}
+          Apple
         </button>
       </div>
     </>
@@ -638,20 +792,13 @@ function SocialLogin({
 // MICRO-COMPONENTS
 // ============================================================================
 
-function FloatingInput({
-  id,
-  label,
-  type,
-  error,
-  rightElement,
-  ...props
-}: FloatingInputProps) {
+function FloatingInput({ id, label, type, error, rightElement, ...props }: FloatingInputProps) {
   return (
     <div className="relative">
       <input
         id={id}
         type={type}
-        className={`peer w-full h-[52px] bg-black/20 text-white rounded-lg border ${error ? 'border-brand-red' : 'border-white/10'} pl-4 pt-4 pb-1 text-sm outline-none transition-all focus:border-brand-blue focus:ring-1 focus:ring-brand-blue focus:bg-black/40 ${rightElement ? 'pr-10' : 'pr-4'}`}
+        className={`peer w-full h-[52px] bg-black/20 text-white rounded-lg border ${error ? "border-brand-red" : "border-white/10"} pl-4 pt-4 pb-1 text-sm outline-none transition-all focus:border-brand-blue focus:ring-1 focus:ring-brand-blue focus:bg-black/40 ${rightElement ? "pr-10" : "pr-4"}`}
         placeholder=" "
         {...props}
       />
@@ -666,7 +813,9 @@ function FloatingInput({
       >
         {label}
       </label>
-      {error && <p className="absolute -bottom-5 left-1 text-[10px] text-brand-red font-medium">{error}</p>}
+      {error && (
+        <p className="absolute -bottom-5 left-1 text-[10px] text-brand-red font-medium">{error}</p>
+      )}
     </div>
   );
 }
@@ -678,7 +827,7 @@ function FloatingInput({
 async function recordAuthenticatedAttempt(
   recordAttempt: RecordAttempt,
   attempt_type: AuthAttemptType,
-  email: string
+  email: string,
 ) {
   try {
     await recordAttempt({ data: { attempt_type, success: true, email } });
@@ -688,7 +837,10 @@ async function recordAuthenticatedAttempt(
 }
 
 async function getUserIsAdmin(userId: string) {
-  const { data: roles, error } = await supabase.from("user_roles").select("role").eq("user_id", userId);
+  const { data: roles, error } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId);
   if (error) {
     console.error("[Auth] Error checking user role:", error);
     return false;

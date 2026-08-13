@@ -1,6 +1,10 @@
 import { QueryClient } from "@tanstack/react-query";
 import { createRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
+import { PageSkeleton } from "@/components/ui/Skeletons";
+import { installVisualModeNetworkGuard } from "@/lib/visual-mode";
+
+installVisualModeNetworkGuard();
 
 export const getRouter = () => {
   const queryClient = new QueryClient();
@@ -10,6 +14,9 @@ export const getRouter = () => {
     context: { queryClient },
     scrollRestoration: true,
     defaultPreloadStaleTime: 0,
+    defaultPendingComponent: PageSkeleton,
+    defaultPendingMs: 250,
+    defaultPendingMinMs: 450,
   });
 
   return router;

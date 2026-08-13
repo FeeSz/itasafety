@@ -164,3 +164,24 @@ Para remover a exceção:
 3. confirmar que o novo audit online não contém os caminhos anteriores;
 4. atualizar esta evidência e a decisão arquitetural;
 5. não promover a alteração sem concluir esses gates.
+
+## Revalidação focal de `fast-uri` — 13/08/2026
+
+O lockfile consolidado voltou a resolver `fast-uri@3.1.4` pelo caminho
+`@lovable.dev/mcp-js` → `@modelcontextprotocol/sdk` → AJV. A consulta online
+anterior à alteração retornou 14 registros no total e 12 com `--omit=dev`, sem
+críticos.
+
+Como `3.1.5` é compatível com o range declarado, foi executada somente a
+atualização transitiva focal. `package.json` não foi alterado, nenhum override
+foi criado e nenhuma atualização major ou `npm audit fix --force` foi usada.
+
+Após a correção:
+
+| Consulta     | Crítica | Alta | Moderada | Baixa | Total |
+| ------------ | ------: | ---: | -------: | ----: | ----: |
+| completa     |       0 |    5 |        7 |     1 |    13 |
+
+`fast-uri` não aparece mais no relatório. Os 13 registros residuais pertencem a
+outras cadeias e permanecem documentados como risco separado da entrega de
+frontend.

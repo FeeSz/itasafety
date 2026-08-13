@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Building2, CheckCircle2, Loader2, XCircle, Search, ClipboardList } from "lucide-react";
 import { useState } from "react";
 import { getErrorMessage } from "@/lib/utils";
+import { PageSkeleton } from "@/components/ui/Skeletons";
 
 export const Route = createFileRoute("/_authenticated/admin/empresas/")({
   component: AdminEmpresasPage,
@@ -79,11 +80,7 @@ function AdminEmpresasPage() {
   });
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="size-8 animate-spin text-brand-blue" />
-      </div>
-    );
+    return <PageSkeleton />;
   }
 
   return (

@@ -176,6 +176,21 @@ Triagem AUD-12 em 29/07/2026:
 - antes de release/deploy, repetir a consulta online e revisar a decisão
   `decisions/0002-temporary-dependency-risk.md`.
 
+Revalidação e consolidação em 13/08/2026:
+
+- componentes e assets não importados das composições descartadas da Landing
+  foram removidos; os JPGs ativos da seção Motivos foram preservados;
+- `motion` e `@vercel/speed-insights` foram removidos porque não possuíam
+  consumidor; o motion ativo permanece em CSS e no `<model-viewer>`;
+- o audit anterior à correção focal retornou 14 registros no total e 12 com
+  `--omit=dev`, sem críticos;
+- `npm update fast-uri` alterou somente a resolução transitiva no lockfile de
+  `3.1.4` para `3.1.5`, sem modificar `package.json`;
+- o audit posterior retornou 13 registros no total: cinco altos, sete moderados,
+  um baixo e nenhum crítico;
+- os advisories residuais pertencem a outras cadeias e não foram mascarados com
+  `npm audit fix --force` ou override incompatível.
+
 Avisos residuais do build:
 
 - chunk principal do cliente acima de 500 kB minificado;

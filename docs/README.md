@@ -23,6 +23,9 @@ publicado ainda não foi validado após a troca — ver
 - [Auditoria inicial de segurança — 27/07/2026](auditoria-inicial-seguranca-2026-07-27.md)
 - [Bloco prioritário — 29/07/2026](security/priority-block-2026-07-29.md)
 - [Decisão 0001 — documentação como parte da entrega](decisions/0001-documentation-as-code.md)
+- [Decisão 0003 — separação entre Landing e Catálogo](decisions/0003-separacao-landing-catalogo.md)
+- [Decisão 0004 — fundação visual compartilhada](decisions/0004-fundacao-visual-compartilhada.md)
+- [Decisão 0005 — modelo 3D self-hosted na Landing](decisions/0005-modelo-3d-provisorio-landing.md)
 
 ## Fontes de verdade
 

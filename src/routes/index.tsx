@@ -1,26 +1,15 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import HeroSlider from "@/components/sections/HeroSlider";
-
-import CategoryGrid from "@/components/sections/CategoryGrid";
-import FeaturedProducts from "@/components/sections/FeaturedProducts";
-import ContactBanner from "@/components/sections/ContactBanner";
-import IntermediateBanners from "@/components/sections/IntermediateBanners";
-import PartnersStrip from "@/components/sections/PartnersStrip";
-import Differentials from "@/components/sections/Differentials";
-import Certifications from "@/components/sections/Certifications";
-import TrustSignals from "@/components/sections/TrustSignals";
-import CommercialCTA from "@/components/sections/CommercialCTA";
-import Reveal from "@/components/ui/Reveal";
+import { createFileRoute } from "@tanstack/react-router";
+import EntryLanding from "@/components/landing/EntryLanding";
 import { pageMeta, SITE_URL } from "@/lib/seo";
 
-const HOME_DESC =
-  "Distribuidora de EPIs com produtos certificados pelo MTE. Calçados, luvas, capacetes, proteção visual, respiratória e auditiva para empresas de todo o Brasil.";
+const LANDING_DESCRIPTION =
+  "Conheça a ItaSafety, explore soluções em equipamentos de proteção individual e organize uma solicitação de cotação para sua empresa.";
 
 export const Route = createFileRoute("/")({
   head: () => {
     const base = pageMeta({
-      title: "ItaSafety — Equipamentos de Proteção Individual (EPI)",
-      description: HOME_DESC,
+      title: "ItaSafety | Proteção individual para empresas",
+      description: LANDING_DESCRIPTION,
       path: "/",
     });
     return {
@@ -36,13 +25,6 @@ export const Route = createFileRoute("/")({
                 name: "ItaSafety",
                 url: SITE_URL,
                 logo: `${SITE_URL}/favicon-mark.png`,
-                contactPoint: {
-                  "@type": "ContactPoint",
-                  telephone: "+55-11-5178-5655",
-                  contactType: "sales",
-                  areaServed: "BR",
-                  availableLanguage: "Portuguese",
-                },
               },
               {
                 "@type": "WebSite",
@@ -55,90 +37,5 @@ export const Route = createFileRoute("/")({
       ],
     };
   },
-  component: HomePage,
+  component: EntryLanding,
 });
-
-function HomePage() {
-  return (
-    <>
-      <HeroSlider />
-
-      {/* Trust signals first — establish confiança */}
-      <Reveal>
-        <TrustSignals />
-      </Reveal>
-
-      {/* Categorias */}
-      <section className="bg-white py-8 md:py-14">
-        <div className="mx-auto max-w-7xl px-6">
-          <Reveal>
-            <div className="mb-8 flex items-end justify-between gap-4">
-              <div>
-                <h2 className="text-2xl font-extrabold text-ink md:text-3xl">
-                  Navegue por Categoria
-                </h2>
-                <span className="mt-2 block h-[3px] w-10 bg-brand-blue" />
-              </div>
-            </div>
-          </Reveal>
-          <Reveal delay={80}>
-            <CategoryGrid />
-          </Reveal>
-        </div>
-      </section>
-
-      <Reveal>
-        <PartnersStrip />
-      </Reveal>
-
-      {/* Produtos em destaque */}
-      <section className="bg-surface-sunken py-8 md:py-14">
-        <div className="mx-auto max-w-7xl px-6">
-          <Reveal>
-            <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <h2 className="text-2xl font-extrabold text-ink md:text-3xl">
-                  Produtos em Destaque
-                </h2>
-                <p className="mt-2 text-sm text-ink-muted">
-                  Seleção dos mais procurados com Certificado de Aprovação.
-                </p>
-              </div>
-              <Link
-                to="/departamento/$slug"
-                params={{ slug: "calcados" }}
-                className="text-sm font-bold text-brand-blue hover:text-brand-blue-hover"
-              >
-                Ver todos →
-              </Link>
-            </div>
-          </Reveal>
-          <Reveal delay={80}>
-            <FeaturedProducts />
-          </Reveal>
-        </div>
-      </section>
-
-      <Reveal>
-        <ContactBanner />
-      </Reveal>
-
-      <Reveal>
-        <IntermediateBanners />
-      </Reveal>
-
-
-      <Reveal>
-        <Differentials />
-      </Reveal>
-
-      <Reveal>
-        <Certifications />
-      </Reveal>
-
-      <Reveal>
-        <CommercialCTA />
-      </Reveal>
-    </>
-  );
-}

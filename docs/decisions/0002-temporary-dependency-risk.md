@@ -52,3 +52,14 @@ Revisar antes de qualquer release/deploy e quando ocorrer um destes eventos:
 - o ecossistema de plugins usado pelo projeto suportar ESLint 10;
 - um novo advisory ampliar a superfície ou severidade;
 - o servidor de desenvolvimento precisar ser acessível em rede compartilhada.
+
+## Revisão de 13/08/2026
+
+A decisão permanece aceita para caminhos cuja correção ainda exija major,
+override incompatível ou migração estrutural. Ela não impede correções
+transitivas compatíveis, isoladas e verificáveis.
+
+O audit atual identificou `fast-uri@3.1.4` em AJV, alcançando o bundle do Worker,
+com correção compatível em `3.1.5`. A resolução foi atualizada somente no
+lockfile, sem dependência direta, override, `npm audit fix --force` ou mudança
+major. Os demais advisories permanecem sujeitos aos gates desta decisão.

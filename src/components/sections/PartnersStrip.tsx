@@ -1,16 +1,11 @@
+import { useQuery } from "@tanstack/react-query";
 import Container from "@/components/ui/Container";
 import Eyebrow from "@/components/ui/Eyebrow";
-import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { IS_VISUAL_MODE } from "@/lib/visual-mode";
+import { VISUAL_PARTNERS, type VisualPartner } from "@/mocks/visual-fixtures";
 
-type Partner = {
-  id: string;
-  name: string;
-  logo_url: string;
-  href: string | null;
-  tagline: string | null;
-};
-
+type Partner = VisualPartner;
 
 export default function PartnersStrip() {
   const { data: partners = [] } = useQuery({
@@ -25,131 +20,80 @@ export default function PartnersStrip() {
       if (error) throw error;
       return data as Partner[];
     },
+    enabled: !IS_VISUAL_MODE,
   });
 
-  const displayPartners = partners.length > 0 ? partners : [
-    { 
-      id: 'mavaro', 
-      name: 'Mavaro', 
-      logo_url: '/logos/mavaro.png', 
-      href: 'https://www.mavaro.com.br', 
-      tagline: 'Proteção' 
-    },
-    { 
-      id: 'volk', 
-      name: 'Volk do Brasil', 
-      logo_url: '/logos/volk.png', 
-      href: 'https://www.volkdobrasil.com.br', 
-      tagline: 'Alta Performance' 
-    },
-    { 
-      id: 'conforto', 
-      name: 'Conforto', 
-      logo_url: '/logos/conforto.png', 
-      href: 'https://conforto.ind.br', 
-      tagline: 'Artefatos de Couro' 
-    },
-    { 
-      id: 'canada', 
-      name: 'Canada EPI', 
-      logo_url: '/logos/canada_epi.png', 
-      href: 'https://www.canadaepi.com.br', 
-      tagline: 'Calçados Profissionais' 
-    },
-  ];
-
-  // Duplicamos para garantir o loop contínuo do marquee fluindo na tela inteira
-  const loop = [...displayPartners, ...displayPartners, ...displayPartners, ...displayPartners];
+  const displayPartners = partners.length > 0 ? partners : VISUAL_PARTNERS;
+  const partnerLoop = Array.from({ length: 4 }, (_, cycle) =>
+    displayPartners.map((partner) => ({ partner, cycle })),
+  ).flat();
 
   return (
-    <section className="relative overflow-hidden border-y border-hairline bg-gradient-to-b from-white to-brand-blue-tint/40 py-16">
-      {/* halos decorativos */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_50%_at_50%_0%,rgba(27,79,138,0.06),transparent_70%)]"
-      />
-
-      <Container className="relative">
-        <div className="flex flex-col items-center gap-3 text-center">
-          <Eyebrow tone="muted">Marcas Parceiras</Eyebrow>
-          <h2 className="font-display text-2xl font-extrabold tracking-tight text-ink md:text-3xl">
-            Fabricantes que confiam na ItaSafety
+    <section
+      className="overflow-hidden border-y border-black/5 bg-white py-20 md:py-28"
+      aria-labelledby="partners-title"
+    >
+      <Container>
+        <div className="mx-auto max-w-3xl text-center">
+          <Eyebrow tone="muted">Marcas do portfólio</Eyebrow>
+          <h2
+            id="partners-title"
+            className="mt-4 text-balance font-display text-3xl font-bold leading-tight tracking-[-0.04em] text-ink sm:text-4xl md:text-5xl"
+          >
+            Fabricantes reconhecidos em proteção individual.
           </h2>
-          <p className="max-w-xl font-display text-sm text-ink-muted">
-            Trabalhamos com as marcas líderes em proteção individual — todas certificadas e com
-            Certificado de Aprovação (CA) do MTE.
+          <p className="mt-4 text-pretty text-base leading-relaxed text-ink-muted md:text-lg">
+            Uma seleção de marcas presentes no catálogo para diferentes aplicações e ambientes de
+            trabalho.
           </p>
         </div>
 
-        {/* Marquee Global para Todas as Telas — infinite scroll, pausa no hover */}
-        <div
-          className="relative mt-12 overflow-hidden w-full max-w-[100vw]"
-          style={{
-            maskImage:
-              "linear-gradient(90deg, transparent 0, #000 8%, #000 92%, transparent 100%)",
-            WebkitMaskImage:
-              "linear-gradient(90deg, transparent 0, #000 8%, #000 92%, transparent 100%)",
-          }}
-        >
-          <ul className="flex w-max animate-marquee items-stretch gap-6 [&:hover]:[animation-play-state:paused]">
-            {loop.map((p, i) => (
-              <li key={`${p.id}-${i}`} className="w-[240px] shrink-0">
-                <PartnerCard partner={p} />
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Selo de confiança */}
-        <p className="mt-10 text-center text-xs font-semibold uppercase tracking-widest text-ink-soft">
-          + de 50 fabricantes homologados · Distribuição autorizada
-        </p>
       </Container>
+
+      <div
+        className="relative mt-12 w-full overflow-hidden"
+        style={{
+          maskImage:
+            "linear-gradient(90deg, transparent 0, #000 8%, #000 92%, transparent 100%)",
+          WebkitMaskImage:
+            "linear-gradient(90deg, transparent 0, #000 8%, #000 92%, transparent 100%)",
+        }}
+      >
+        <ul className="flex w-max animate-marquee items-stretch gap-3 px-3 motion-reduce:animate-none [&:focus-within]:[animation-play-state:paused] [&:hover]:[animation-play-state:paused]">
+          {partnerLoop.map(({ partner, cycle }) => {
+            const isClone = cycle > 0;
+            return (
+              <li
+                key={`${partner.id}-${cycle}`}
+                className="w-[220px] shrink-0 sm:w-[250px]"
+                aria-hidden={isClone || undefined}
+              >
+                <PartnerCard partner={partner} isClone={isClone} />
+              </li>
+            );
+          })}
+        </ul>
+      </div>
     </section>
   );
 }
 
-function PartnerCard({ partner }: { partner: Partner }) {
-  const CardContent = (
+function PartnerCard({ partner, isClone }: { partner: Partner; isClone: boolean }) {
+  const content = (
     <>
-      {/* Brilho diagonal no hover */}
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/60 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-full"
+      <img
+        src={partner.logo_url}
+        alt={`Logo ${partner.name}`}
+        loading="lazy"
+        decoding="async"
+        className="max-h-12 w-auto max-w-[82%] object-contain mix-blend-multiply grayscale opacity-65 transition duration-300 group-hover:grayscale-0 group-hover:opacity-100 group-focus-visible:grayscale-0 group-focus-visible:opacity-100"
       />
-      {/* Halo azul no hover */}
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-        style={{
-          background:
-            "radial-gradient(60% 60% at 50% 100%, rgba(27,79,138,0.10), transparent 70%)",
-        }}
-      />
-
-      <div className="relative flex h-16 w-full items-center justify-center">
-        <img
-          src={partner.logo_url}
-          alt={`Logo ${partner.name}`}
-          loading="lazy"
-          decoding="async"
-          className="max-h-14 w-auto max-w-[85%] object-contain mix-blend-multiply filter contrast-125 saturate-110 grayscale opacity-70 transition-all duration-500 ease-out group-hover:scale-[1.08] group-hover:grayscale-0 group-hover:opacity-100 group-focus-visible:grayscale-0 group-focus-visible:opacity-100"
-        />
-      </div>
-
-      <span className="relative mt-auto text-[10px] font-bold uppercase tracking-wider text-ink-soft transition-colors duration-300 group-hover:text-brand-blue">
-        {partner.tagline || ""}
-      </span>
-
-      {/* Barra inferior azul revela no hover */}
-      <span
-        aria-hidden
-        className="absolute inset-x-4 bottom-0 h-[2px] origin-left scale-x-0 rounded-full bg-gradient-to-r from-brand-blue via-brand-blue-light to-brand-blue transition-transform duration-500 ease-out group-hover:scale-x-100"
-      />
+      <span className="sr-only">{partner.name}</span>
     </>
   );
 
-  const className = "group relative flex h-[132px] flex-col items-center justify-center gap-2 overflow-hidden rounded-2xl border border-hairline bg-white px-4 py-5 shadow-card transition-all duration-500 hover:-translate-y-1.5 hover:border-brand-blue/40 hover:shadow-strong";
+  const className =
+    "group flex min-h-28 items-center justify-center rounded-[1.4rem] border border-black/5 bg-[#f5f5f7] p-4 outline-none transition duration-300 hover:border-brand-blue/15 hover:bg-white hover:shadow-[0_12px_32px_rgba(15,23,42,0.07)] focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2";
 
   if (partner.href) {
     return (
@@ -158,12 +102,13 @@ function PartnerCard({ partner }: { partner: Partner }) {
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`Visitar site oficial de ${partner.name}`}
+        tabIndex={isClone ? -1 : undefined}
         className={className}
       >
-        {CardContent}
+        {content}
       </a>
     );
   }
 
-  return <div className={className}>{CardContent}</div>;
+  return <div className={className}>{content}</div>;
 }
