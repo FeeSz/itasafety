@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { pageMeta } from "@/lib/seo";
+import { IS_VISUAL_MODE } from "@/lib/visual-mode";
 import {
   Lock,
   Eye,
@@ -52,6 +53,12 @@ function ResetPasswordPage() {
 
   // ── Valida sessão de recovery recebida do link ─────────────────────────
   useEffect(() => {
+    if (IS_VISUAL_MODE) {
+      setValid(true);
+      setReady(true);
+      return;
+    }
+
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN") {
         setValid(true);
@@ -107,6 +114,11 @@ function ResetPasswordPage() {
       confirmInputRef.current?.focus();
       return;
     }
+    if (IS_VISUAL_MODE) {
+      setDone(true);
+      return;
+    }
+
     setLoading(true);
     try {
       const { error } = await supabase.auth.updateUser({ password });

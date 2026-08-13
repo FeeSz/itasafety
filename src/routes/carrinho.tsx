@@ -237,7 +237,7 @@ function CarrinhoPage() {
               Adicione EPIs do catálogo para montar sua solicitação de cotação.
             </p>
             <Link
-              to="/categorias"
+              to="/catalogo"
               className="group mt-7 inline-flex items-center gap-2 rounded-full bg-brand-blue px-7 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-brand-blue-hover hover:shadow-md"
             >
               Ver catálogo

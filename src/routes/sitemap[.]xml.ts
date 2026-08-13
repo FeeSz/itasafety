@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 import { CATEGORIES } from "@/lib/categories";
-import { FEATURED_PRODUCTS } from "@/lib/products";
+import { LOCAL_CATALOG_PRODUCTS } from "@/lib/products";
 import { SITE_URL } from "@/lib/seo";
 
 interface SitemapEntry {
@@ -16,6 +16,7 @@ export const Route = createFileRoute("/sitemap.xml")({
       GET: async () => {
         const entries: SitemapEntry[] = [
           { path: "/", changefreq: "weekly", priority: "1.0" },
+          { path: "/catalogo", changefreq: "weekly", priority: "0.9" },
           { path: "/categorias", changefreq: "weekly", priority: "0.9" },
           { path: "/sobre", changefreq: "monthly", priority: "0.7" },
           { path: "/quemsomos", changefreq: "monthly", priority: "0.7" },
@@ -32,7 +33,7 @@ export const Route = createFileRoute("/sitemap.xml")({
             changefreq: "weekly" as const,
             priority: "0.8",
           })),
-          ...FEATURED_PRODUCTS.map((p) => ({
+          ...LOCAL_CATALOG_PRODUCTS.map((p) => ({
             path: `/detalhes/${p.sku}`,
             changefreq: "weekly" as const,
             priority: "0.7",

@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Pencil, Plus, Trash2, Loader2, Eye, EyeOff } from "lucide-react";
+import { TableSkeleton } from "@/components/ui/Skeletons";
 import {
   Dialog,
   DialogContent,
@@ -93,9 +94,7 @@ function PartnersAdmin() {
 
       <div className="overflow-hidden rounded-xl border border-hairline bg-white shadow-card">
         {isLoading ? (
-          <div className="flex items-center justify-center p-12 text-ink-muted">
-            <Loader2 className="size-5 animate-spin" />
-          </div>
+          <TableSkeleton rows={4} />
         ) : (
           <table className="w-full text-sm">
             <thead className="border-b border-hairline bg-surface-sunken text-left text-xs uppercase tracking-wider text-ink-muted">

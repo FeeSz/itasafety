@@ -19,6 +19,8 @@ import { QuoteCartProvider } from "@/components/quote/QuoteCartContext";
 import QuoteFab from "@/components/quote/QuoteFab";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/contexts/AuthContext";
+import VisualModeBadge from "@/components/dev/VisualModeBadge";
+import { IS_VISUAL_MODE } from "@/lib/visual-mode";
 
 const publicAsset = (assetPath: string) =>
   `${import.meta.env.BASE_URL}${assetPath.replace(/^\/+/, "")}`;
@@ -32,8 +34,8 @@ function NotFoundComponent() {
           Página não encontrada
         </h1>
         <p className="mt-4 text-sm text-ink-muted">O endereço acessado não existe ou foi movido.</p>
-        <CtaButton as={Link} to="/" size="sm" className="mt-8">
-          Voltar ao início
+        <CtaButton asChild size="sm" className="mt-8">
+          <Link to="/">Voltar ao início</Link>
         </CtaButton>
       </div>
     </div>
@@ -104,8 +106,8 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
           >
             Tentar novamente
           </CtaButton>
-          <CtaButton as={Link} to="/" variant="outline" size="sm">
-            Início
+          <CtaButton asChild variant="outline" size="sm">
+            <Link to="/">Início</Link>
           </CtaButton>
         </div>
       </div>
@@ -118,7 +120,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { name: "theme-color", content: "#ffffff" },
+      { name: "theme-color", content: "#f4f8fb" },
       { property: "og:site_name", content: "ItaSafety" },
       { property: "og:type", content: "website" },
       { property: "og:locale", content: "pt_BR" },
@@ -135,7 +137,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap",
       },
     ],
   }),
@@ -162,30 +164,33 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const location = useRouter().state.location;
-  
-  const isAuthRoute = 
-    location.pathname.startsWith('/auth') || 
-    location.pathname.startsWith('/login') || 
-    location.pathname.startsWith('/cadastro') || 
-    location.pathname.startsWith('/reset-password');
+
+  const isAuthRoute =
+    location.pathname.startsWith("/auth") ||
+    location.pathname.startsWith("/login") ||
+    location.pathname.startsWith("/cadastro") ||
+    location.pathname.startsWith("/reset-password");
+  const isVisualEntryRoute = IS_VISUAL_MODE && location.pathname === "/";
+  const showApplicationChrome = !isAuthRoute;
 
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <QuoteCartProvider>
+          <VisualModeBadge />
           <a
             href="#main"
-            className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:bg-brand-blue focus:px-4 focus:py-2 focus:text-xs focus:font-bold focus:uppercase focus:tracking-wider focus:text-white"
+            className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-label focus:font-semibold focus:text-white"
           >
             Ir para o conteúdo
           </a>
-          {!isAuthRoute && <Header />}
+          {showApplicationChrome && <Header />}
           <main id="main">
             <Outlet />
           </main>
-          {!isAuthRoute && <Footer />}
-          <CookieBanner />
-          {!isAuthRoute && <QuoteFab />}
+          {showApplicationChrome && <Footer />}
+          {!isVisualEntryRoute && <CookieBanner />}
+          {showApplicationChrome && <QuoteFab />}
           <Toaster position="top-right" />
         </QuoteCartProvider>
       </AuthProvider>

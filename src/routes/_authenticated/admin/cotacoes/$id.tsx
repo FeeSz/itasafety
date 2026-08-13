@@ -21,6 +21,7 @@ import {
   DollarSign,
   FileText
 } from "lucide-react";
+import { DetailSkeleton } from "@/components/ui/Skeletons";
 
 export const Route = createFileRoute("/_authenticated/admin/cotacoes/$id")({
   component: AdminCotacaoDetailPage,
@@ -296,11 +297,7 @@ function AdminCotacaoDetailPage() {
   }
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="size-6 animate-spin text-ink-soft" />
-      </div>
-    );
+    return <DetailSkeleton />;
   }
 
   if (!cotacao) {

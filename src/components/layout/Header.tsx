@@ -1,493 +1,409 @@
-import { Link, useRouterState } from "@tanstack/react-router";
-import { useEffect, useState, useRef } from "react";
-
+import { Link, useRouter } from "@tanstack/react-router";
 import {
-  Menu,
-  Search,
-  ShoppingCart,
-  X,
-  Phone,
-  Mail,
-  MessageCircle,
+  Building2,
+  ChevronDown,
+  ClipboardList,
   LayoutDashboard,
   LogOut,
-  ChevronDown,
-  User,
-  ClipboardList,
+  Menu,
+  Search,
   Settings,
-  Building2,
+  ShoppingCart,
+  User,
 } from "lucide-react";
-import Logo from "./Logo";
-import MegaMenu from "./MegaMenu";
-import SearchBox from "./SearchBox";
-import { CATEGORIES } from "@/lib/categories";
-import { useQuoteCart } from "@/hooks/use-quote-cart";
-import { useAuth } from "@/hooks/use-auth";
-import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 import { toast } from "sonner";
+import Logo from "./Logo";
+import Container from "@/components/ui/Container";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
+import { useQuoteCart } from "@/hooks/use-quote-cart";
 
-const NAV_LINKS: { label: string; to: string; hasMenu?: boolean }[] = [
-  { label: "Produtos", to: "/categorias", hasMenu: true },
-  { label: "Categorias", to: "/categorias" },
-  { label: "Quem Somos", to: "/quemsomos" },
-  { label: "Localização", to: "/localizacao" },
-  { label: "Contato", to: "/contato" },
-];
+const navLinkClass =
+  "focus-ring motion-colors inline-flex min-h-11 items-center rounded-md px-3 text-body-sm font-medium text-foreground-muted hover:bg-accent hover:text-accent-foreground";
 
-const getFirstName = (email?: string, fullName?: string) => {
-  if (fullName) {
-    const first = fullName.trim().split(/\s+/)[0];
-    if (first) return first.charAt(0).toUpperCase() + first.slice(1).toLowerCase();
-  }
-  if (!email) return "Usuário";
-  const username = email.split("@")[0].toLowerCase();
-  if (username.includes("felype")) return "Felype";
-  const cleanPart = username.split(/[^a-zA-Z]/)[0];
-  if (cleanPart) {
-    if (cleanPart.startsWith("felypelopes")) return "Felype";
-    return cleanPart.charAt(0).toUpperCase() + cleanPart.slice(1).toLowerCase();
-  }
-  return "Usuário";
-};
+function firstNameFrom(email?: string, fullName?: string) {
+  const candidate = fullName?.trim().split(/\s+/)[0] || email?.split("@")[0];
+  if (!candidate) return "Conta";
+  return candidate.charAt(0).toUpperCase() + candidate.slice(1).toLowerCase();
+}
 
 export default function Header() {
+  const pathname = useRouter().state.location.pathname;
   const { user, isAdmin, loading } = useAuth();
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const userMenuRef = useRef<HTMLDivElement>(null);
-  const [scrolled, setScrolled] = useState(false);
-  const [drawer, setDrawer] = useState(false);
-  const [mega, setMega] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const { count, setOpen: setCartOpen } = useQuoteCart();
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const isHome = pathname === "/";
+  const { count } = useQuoteCart();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  const fullName = user?.user_metadata?.full_name || user?.user_metadata?.name;
-  const avatarUrl = user?.user_metadata?.avatar_url || user?.user_metadata?.picture;
-  const firstName = getFirstName(user?.email, fullName);
+  const fullName =
+    typeof user?.user_metadata?.full_name === "string"
+      ? user.user_metadata.full_name
+      : typeof user?.user_metadata?.name === "string"
+        ? user.user_metadata.name
+        : undefined;
+  const firstName = firstNameFrom(user?.email, fullName);
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 80);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  if (pathname === "/") {
+    return <LandingHeader />;
+  }
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
-        setUserMenuOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  const signOut = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast.error("Não foi possível encerrar a sessão. Tente novamente.");
+      return;
+    }
+    toast.success("Sessão encerrada");
+  };
 
-  useEffect(() => {
-    document.body.style.overflow = drawer || mega ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [drawer, mega]);
-
-  const showWhite = !isHome || scrolled;
   return (
-    <header
-      className="left-0 right-0 top-0 z-50 sticky header-scrolled"
-      style={{ height: "clamp(84px, 10vw, 136px)" }}
-    >
-      <div
-        className="mx-auto flex max-w-7xl items-center px-5 md:px-10"
-        style={{ height: "clamp(84px, 10vw, 136px)" }}
-      >
-        {/* Left — Logo proporcional a cada tela */}
-        <div className="flex shrink-0 items-center">
-          <Logo />
-        </div>
+    <header className="sticky top-0 z-50 border-b border-border bg-surface/95 backdrop-blur-sm">
+      <Container className="flex h-16 items-center gap-2 sm:gap-3">
+        <Logo />
 
-        {/* Center — Nav links (desktop) */}
-        <nav className="ml-12 hidden flex-1 items-center justify-center gap-8 md:flex">
-          {NAV_LINKS.map((l) =>
-            l.hasMenu ? (
-              <button
-                key={l.label}
-                type="button"
-                onClick={() => setMega(true)}
-                aria-haspopup="dialog"
-                aria-expanded={mega}
-                className={`group inline-flex h-10 items-center gap-2 rounded-full px-4 text-[15px] font-semibold transition-all duration-300 ${
-                  mega
-                    ? "bg-brand-blue-tint text-brand-blue shadow-[0_10px_24px_rgba(27,79,138,0.12)]"
-                    : "text-[#111111] hover:bg-brand-blue-tint hover:text-brand-blue"
-                }`}
-              >
-                <span>{l.label}</span>
-                <span
-                  className={`grid size-6 place-items-center rounded-full border transition-all duration-300 ${
-                    mega
-                      ? "border-brand-blue/25 bg-white text-brand-blue"
-                      : "border-transparent bg-white/0 text-[#5C6B7E] group-hover:border-brand-blue/20 group-hover:bg-white group-hover:text-brand-blue"
-                  }`}
-                >
-                  <ChevronDown
-                    className={`size-3.5 transition-transform duration-200 ease-in-out ${
-                      mega ? "rotate-180" : "group-hover:translate-y-0.5"
-                    }`}
-                    aria-hidden
-                  />
-                </span>
+        <nav
+          className="ml-4 hidden flex-1 items-center gap-1 lg:flex"
+          aria-label="Navegação principal"
+        >
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button type="button" className={navLinkClass}>
+                Explorar
+                <ChevronDown className="size-4" aria-hidden />
               </button>
-            ) : (
-              <Link
-                key={l.label}
-                to={l.to}
-                className="text-[15px] font-semibold text-[#111111] transition-colors duration-150 hover:text-[#1B4F8A]"
-              >
-                {l.label}
-              </Link>
-            ),
-          )}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-64">
+              <DropdownMenuLabel className="px-3 text-caption font-semibold text-foreground-subtle">
+                Produtos
+              </DropdownMenuLabel>
+              <DropdownMenuItem asChild className="cursor-pointer p-0">
+                <Link to="/catalogo" className="w-full px-3 py-2.5">
+                  <span className="block font-semibold text-foreground">Catálogo</span>
+                  <span className="mt-0.5 block text-caption text-foreground-muted">
+                    Buscar, descobrir e selecionar produtos
+                  </span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild className="cursor-pointer p-0">
+                <Link to="/categorias" className="w-full px-3 py-2.5">
+                  <span className="block font-semibold text-foreground">Categorias</span>
+                  <span className="mt-0.5 block text-caption text-foreground-muted">
+                    Ver o índice completo
+                  </span>
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button type="button" className={navLinkClass}>
+                Empresa
+                <ChevronDown className="size-4" aria-hidden />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-52">
+              <DropdownMenuItem asChild className="cursor-pointer p-0">
+                <Link to="/sobre" className="w-full px-3 py-2.5 font-semibold">
+                  Sobre
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild className="cursor-pointer p-0">
+                <Link to="/contato" className="w-full px-3 py-2.5 font-semibold">
+                  Contato
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </nav>
 
-        {/* Right zone */}
-        <div className="ml-auto flex items-center gap-6">
-          <button
-            type="button"
-            onClick={() => setSearchOpen((s) => !s)}
-            aria-label="Buscar"
-            aria-expanded={searchOpen}
-            className={`hidden rounded-full p-2 transition-all duration-300 active:scale-90 md:grid md:size-10 md:place-items-center ${
-              searchOpen
-                ? "bg-brand-blue-tint text-brand-blue shadow-[0_8px_20px_rgba(27,79,138,0.12)]"
-                : "text-[#374151] hover:scale-105 hover:bg-brand-blue-tint hover:text-brand-blue"
-            }`}
+        <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
+          <Link
+            to="/catalogo"
+            aria-label="Buscar no catálogo"
+            className="focus-ring motion-colors hidden size-11 items-center justify-center rounded-md text-foreground-muted hover:bg-accent hover:text-accent-foreground sm:inline-flex"
           >
-            <Search className="size-[22px]" />
-          </button>
+            <Search className="size-5" aria-hidden />
+          </Link>
 
-          {/* Cart Badge */}
           <Link
             to="/carrinho"
-            className="group relative flex items-center gap-2 rounded-full border border-hairline bg-white/50 px-3 py-1.5 transition-all hover:bg-brand-blue-tint hover:border-brand-blue/20 hover:text-brand-blue"
-            aria-label="Minha Cotação"
+            aria-label={count > 0 ? `Lista de cotação com ${count} unidades` : "Lista de cotação"}
+            className="focus-ring motion-surface relative inline-flex min-h-11 items-center gap-2 rounded-md border border-border bg-surface px-3 text-label font-semibold text-foreground hover:border-primary/30 hover:bg-accent hover:text-accent-foreground sm:px-4"
           >
-            <ShoppingCart className="size-[20px] text-[#374151] group-hover:text-brand-blue transition-colors" />
+            <ShoppingCart className="size-5" aria-hidden />
+            <span className="hidden sm:inline">Cotação</span>
             {count > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 grid size-5 place-items-center rounded-full bg-brand-red text-[10px] font-bold text-white shadow-sm ring-2 ring-white animate-in zoom-in-50 duration-300">
-                {count > 99 ? '99+' : count}
+              <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-brand-accent px-1 text-caption font-bold text-white ring-2 ring-surface">
+                {count > 99 ? "99+" : count}
               </span>
             )}
-            <span className="hidden md:inline text-sm font-semibold text-[#111111] group-hover:text-brand-blue transition-colors">
-              Cotação
-            </span>
           </Link>
 
           {!loading && user ? (
-            <div className="relative" ref={userMenuRef}>
-              <button
-                type="button"
-                onClick={() => setUserMenuOpen((o) => !o)}
-                className="flex items-center gap-2 rounded-full border border-hairline bg-white/50 px-3 py-1.5 transition-all hover:bg-slate-50 hover:shadow-sm"
-                aria-label="Menu do usuário"
-                aria-haspopup="true"
-                aria-expanded={userMenuOpen}
-              >
-                {avatarUrl ? (
-                  <img
-                    src={avatarUrl}
-                    alt={firstName}
-                    className="size-7 rounded-full object-cover border border-slate-200"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = "none";
-                    }}
-                  />
-                ) : (
-                  <div className="size-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 border border-slate-200">
-                    <User className="size-4" />
-                  </div>
-                )}
-                <span className="hidden md:inline text-sm font-semibold text-[#111111]">
-                  Olá, {firstName}
-                </span>
-                <ChevronDown
-                  className={`size-3.5 text-slate-500 transition-transform duration-200 hidden md:block ${userMenuOpen ? "rotate-180" : ""}`}
-                />
-              </button>
-
-              {userMenuOpen && (
-                <div className="absolute right-0 mt-2 w-56 rounded-xl border border-hairline bg-white py-1.5 shadow-lg z-50 animate-slide-down animate-in fade-in slide-in-from-top-1 duration-150">
-                  <div className="border-b border-hairline px-4 py-2 mb-1.5">
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-brand-blue">
-                      Sua Conta
-                    </p>
-                    <p className="text-xs font-bold text-ink truncate mt-0.5">
-                      {fullName || `Olá, ${firstName}`}
-                    </p>
-                    <p className="text-[10px] text-ink-muted truncate">{user.email}</p>
-                  </div>
-
-                  <Link
-                    to="/minhas-cotacoes"
-                    onClick={() => setUserMenuOpen(false)}
-                    className="flex w-full items-center gap-2 px-4 py-2 text-xs font-semibold text-[#111111] hover:bg-slate-50 transition-colors"
-                  >
-                    <ClipboardList className="size-4 text-brand-blue" />
-                    Minhas Cotações
-                  </Link>
-
-                  <Link
-                    to="/perfil"
-                    onClick={() => setUserMenuOpen(false)}
-                    className="flex w-full items-center gap-2 px-4 py-2 text-xs font-semibold text-[#111111] hover:bg-slate-50 transition-colors"
-                  >
-                    <Building2 className="size-4 text-brand-blue" />
-                    Meu Perfil
-                  </Link>
-
-                  <Link
-                    to="/configuracoes"
-                    onClick={() => setUserMenuOpen(false)}
-                    className="flex w-full items-center gap-2 px-4 py-2 text-xs font-semibold text-[#111111] hover:bg-slate-50 transition-colors"
-                  >
-                    <Settings className="size-4 text-brand-blue" />
-                    Configurações
-                  </Link>
-
-                  {isAdmin && (
-                    <Link
-                      to="/admin"
-                      onClick={() => setUserMenuOpen(false)}
-                      className="flex w-full items-center gap-2 px-4 py-2 text-xs font-semibold text-[#111111] hover:bg-slate-50 transition-colors"
-                    >
-                      <LayoutDashboard className="size-4 text-brand-blue" />
-                      Painel do Administrador
-                    </Link>
-                  )}
-
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      setUserMenuOpen(false);
-                      await supabase.auth.signOut();
-                      toast.success("Sessão encerrada");
-                    }}
-                    className="flex w-full items-center gap-2 px-4 py-2 text-xs font-semibold text-brand-red hover:bg-red-50 transition-colors"
-                  >
-                    <LogOut className="size-4" />
-                    Sair
-                  </button>
-                </div>
-              )}
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  aria-label="Abrir menu da conta"
+                  className="focus-ring motion-surface hidden min-h-11 items-center gap-2 rounded-md border border-border bg-surface px-3 text-label font-semibold text-foreground hover:bg-accent lg:inline-flex"
+                >
+                  <User className="size-4 text-brand-blue" aria-hidden />
+                  {firstName}
+                  <ChevronDown className="size-4 text-ink-soft" aria-hidden />
+                </button>
+              </DropdownMenuTrigger>
+              <AccountMenu
+                email={user.email}
+                fullName={fullName}
+                isAdmin={isAdmin}
+                onSignOut={signOut}
+              />
+            </DropdownMenu>
           ) : !loading ? (
             <Link
               to="/auth"
               search={{ mode: "login" }}
-              className="hidden rounded-full border border-[#111111] px-5 py-2 text-[14px] font-semibold text-[#111111] transition-all duration-150 hover:bg-[#111111] hover:text-white hover:scale-105 active:scale-95 md:block"
+              className="focus-ring motion-colors hidden min-h-11 items-center rounded-md bg-primary px-5 text-label font-semibold text-white hover:bg-primary-hover lg:inline-flex"
             >
               Entrar
             </Link>
           ) : (
-            <div className="hidden h-[38px] w-[80px] md:block bg-slate-50 border border-slate-100 rounded-full animate-pulse" />
+            <span className="skeleton hidden h-11 w-24 rounded-md lg:block" aria-hidden />
           )}
-          <button
-            type="button"
-            onClick={() => setDrawer(true)}
-            className="grid size-11 place-items-center text-[#111111] md:hidden transition-all duration-150 hover:scale-105 active:scale-90"
-            aria-label="Abrir menu"
-          >
-            <Menu className="size-7" />
-          </button>
-        </div>
-      </div>
 
-      {/* Search overlay (desktop) */}
-      {searchOpen && (
-        <div
-          className="absolute left-0 right-0 hidden border-t border-[#D8DEE6] bg-white/95 px-10 py-4 shadow-[0_18px_40px_rgba(27,79,138,0.12)] backdrop-blur-md md:block animate-search-reveal"
-          style={{ top: "clamp(84px, 10vw, 136px)" }}
-        >
-          <div className="mx-auto max-w-3xl">
-            <SearchBox autoFocus onNavigate={() => setSearchOpen(false)} />
-          </div>
-        </div>
-      )}
-
-      <MegaMenu open={mega} onClose={() => setMega(false)} />
-
-      {/* Mobile drawer */}
-      {drawer && (
-        <div className="fixed inset-0 z-[60] md:hidden" role="dialog" aria-modal="true">
-          <button
-            type="button"
-            aria-label="Fechar"
-            onClick={() => setDrawer(false)}
-            className="absolute inset-0 bg-black/60 animate-fade-in"
-          />
-          <div className="absolute right-0 top-0 flex h-full w-[88%] max-w-sm flex-col bg-white animate-slide-in-right">
-            <div className="flex items-center justify-between border-b border-hairline bg-white p-4">
-              <Logo />
+          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+            <SheetTrigger asChild>
               <button
                 type="button"
-                onClick={() => setDrawer(false)}
-                className="grid size-10 place-items-center text-[#111] transition-all duration-150 hover:scale-110 active:scale-90"
-                aria-label="Fechar"
+                aria-label="Abrir menu"
+                className="focus-ring motion-colors inline-grid size-11 place-items-center rounded-md text-foreground hover:bg-accent hover:text-accent-foreground lg:hidden"
               >
-                <X className="size-6" />
+                <Menu className="size-6" aria-hidden />
               </button>
-            </div>
+            </SheetTrigger>
+            <SheetContent
+              side="right"
+              className="flex w-full max-w-sm flex-col gap-0 border-border bg-surface p-0"
+            >
+              <SheetHeader className="border-b border-border px-6 pb-5 pt-6 text-left">
+                <SheetTitle>Navegação</SheetTitle>
+                <SheetDescription>Explore a ItaSafety e acesse sua lista.</SheetDescription>
+              </SheetHeader>
 
-            <div className="border-b border-hairline bg-white px-4 py-3">
-              <SearchBox size="sm" onNavigate={() => setDrawer(false)} />
-            </div>
-
-            <div className="grid grid-cols-2 gap-px bg-hairline">
-              <a
-                href="tel:+551151785655"
-                className="flex flex-col items-center gap-1 bg-white py-3 text-[11px] font-semibold text-ink"
-              >
-                <Phone className="size-5 text-brand-blue" />
-                Ligar
-              </a>
-              <a
-                href="mailto:contato@itasafety.com.br"
-                className="flex flex-col items-center gap-1 bg-white py-3 text-[11px] font-semibold text-ink"
-              >
-                <Mail className="size-5 text-brand-blue" />
-                E-mail
-              </a>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-4">
-              <p className="mb-3 text-[11px] font-bold uppercase tracking-wider text-brand-blue">
-                Categorias
-              </p>
-              <ul className="divide-y divide-hairline">
-                {CATEGORIES.map((cat) => {
-                  const Icon = cat.icon;
-                  return (
-                    <li key={cat.slug}>
-                      <Link
-                        to="/departamento/$slug"
-                        params={{ slug: cat.slug }}
-                        onClick={() => setDrawer(false)}
-                        className="flex min-h-11 items-center gap-3 py-3 text-sm font-medium text-ink"
-                      >
-                        <Icon className="size-5 text-brand-blue" />
-                        {cat.title}
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-              <p className="mb-3 mt-6 text-[11px] font-bold uppercase tracking-wider text-brand-blue">
-                Institucional
-              </p>
-              <ul className="space-y-1 text-sm">
-                <li>
-                  <Link
-                    to="/quemsomos"
-                    onClick={() => setDrawer(false)}
-                    className="block py-2 text-ink"
-                  >
-                    Quem Somos
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/localizacao"
-                    onClick={() => setDrawer(false)}
-                    className="block py-2 text-ink"
-                  >
-                    Localização
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/contato"
-                    onClick={() => setDrawer(false)}
-                    className="block py-2 text-ink"
-                  >
+              <nav className="flex-1 overflow-y-auto px-4 py-5" aria-label="Navegação móvel">
+                <MobileSection title="Explorar">
+                  <MobileLink to="/catalogo" onNavigate={() => setMobileOpen(false)}>
+                    Catálogo
+                  </MobileLink>
+                  <MobileLink to="/categorias" onNavigate={() => setMobileOpen(false)}>
+                    Categorias
+                  </MobileLink>
+                </MobileSection>
+                <MobileSection title="Empresa">
+                  <MobileLink to="/sobre" onNavigate={() => setMobileOpen(false)}>
+                    Sobre
+                  </MobileLink>
+                  <MobileLink to="/contato" onNavigate={() => setMobileOpen(false)}>
                     Contato
-                  </Link>
-                </li>
-                {user && (
-                  <li>
-                    <Link
-                      to="/carrinho"
-                      onClick={() => setDrawer(false)}
-                      className="block py-2 text-ink"
-                    >
-                      Lista de Cotação
-                    </Link>
-                  </li>
-                )}
-              </ul>
-            </div>
-
-            {/* Sticky CTA: Entrar ou Perfil no Mobile Drawer */}
-            <div className="border-t border-hairline bg-white p-4">
-              {user ? (
-                <div>
-                  <div className="flex items-center gap-3 mb-4">
-                    {avatarUrl ? (
-                      <img
-                        src={avatarUrl}
-                        alt={firstName}
-                        className="size-11 rounded-full object-cover border border-hairline"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = "none";
-                        }}
-                      />
-                    ) : (
-                      <div className="size-11 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 border border-hairline">
-                        <User className="size-6" />
-                      </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-ink truncate">Olá, {firstName}</p>
-                      <p className="text-xs text-ink-muted truncate">{user.email}</p>
-                    </div>
-                  </div>
-
-                  {isAdmin && (
-                    <Link
-                      to="/admin"
-                      onClick={() => setDrawer(false)}
-                      className="flex w-full items-center justify-center gap-2 rounded-full border border-[#111111] py-2.5 text-center text-[14px] font-semibold text-[#111111] hover:bg-slate-50 transition-colors mb-2"
-                    >
-                      <LayoutDashboard className="size-4" />
-                      Painel Administrador
-                    </Link>
+                  </MobileLink>
+                </MobileSection>
+                <MobileSection title="Utilidades">
+                  <MobileLink to="/catalogo" onNavigate={() => setMobileOpen(false)}>
+                    Buscar produtos
+                  </MobileLink>
+                  <MobileLink to="/carrinho" onNavigate={() => setMobileOpen(false)}>
+                    Lista de cotação{count > 0 ? ` (${count})` : ""}
+                  </MobileLink>
+                  {user && (
+                    <MobileLink to="/minhas-cotacoes" onNavigate={() => setMobileOpen(false)}>
+                      Minhas cotações
+                    </MobileLink>
                   )}
+                </MobileSection>
+              </nav>
 
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      setDrawer(false);
-                      await supabase.auth.signOut();
-                      toast.success("Sessão encerrada");
-                    }}
-                    className="flex w-full items-center justify-center gap-2 rounded-full bg-brand-red py-2.5 text-center text-[14px] font-bold text-white hover:bg-red-600 transition-colors"
-                  >
-                    <LogOut className="size-4" />
-                    Sair
-                  </button>
-                </div>
-              ) : (
-                  <Link
-                    to="/auth"
-                    search={{ mode: "login" }}
-                    onClick={() => setDrawer(false)}
-                    className="flex w-full justify-center rounded-lg bg-brand-blue py-3.5 text-[15px] font-bold text-white shadow-[0_8px_20px_rgba(27,79,138,0.2)] transition-all hover:scale-[1.02] active:scale-[0.98]"
-                  >
-                  Entrar / Cadastrar
-                </Link>
-              )}
-            </div>
-          </div>
+              <div className="border-t border-border p-4">
+                {user ? (
+                  <div className="space-y-2">
+                    <p className="px-2 text-body-sm font-semibold text-foreground">
+                      {fullName || firstName}
+                    </p>
+                    {isAdmin && (
+                      <SheetClose asChild>
+                        <Link
+                          to="/admin"
+                          className="focus-ring motion-colors flex min-h-11 items-center gap-2 rounded-md px-3 text-body-sm font-semibold text-foreground hover:bg-accent"
+                        >
+                          <LayoutDashboard className="size-4 text-brand-blue" aria-hidden />
+                          Painel administrativo
+                        </Link>
+                      </SheetClose>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMobileOpen(false);
+                        void signOut();
+                      }}
+                      className="focus-ring motion-colors flex min-h-11 w-full items-center gap-2 rounded-md px-3 text-body-sm font-semibold text-danger hover:bg-danger-muted"
+                    >
+                      <LogOut className="size-4" aria-hidden />
+                      Sair
+                    </button>
+                  </div>
+                ) : (
+                  <SheetClose asChild>
+                    <Link
+                      to="/auth"
+                      search={{ mode: "login" }}
+                      className="focus-ring motion-colors inline-flex min-h-12 w-full items-center justify-center rounded-md bg-primary px-5 text-body-sm font-semibold text-white hover:bg-primary-hover"
+                    >
+                      Entrar ou criar conta
+                    </Link>
+                  </SheetClose>
+                )}
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
-      )}
+      </Container>
     </header>
+  );
+}
+
+const landingNavLinkClass =
+  "landing-anchor focus-ring inline-flex min-h-11 items-center rounded-sm px-2 text-[11px] font-semibold text-foreground-muted hover:text-foreground sm:px-3 sm:text-body-sm";
+
+function LandingHeader() {
+  return (
+    <header className="absolute inset-x-0 top-0 z-50 bg-transparent">
+      <div className="mx-auto flex h-20 w-full max-w-[1600px] items-center px-4 sm:px-7 lg:px-8">
+        <Logo imageClassName="h-12 origin-center scale-[1.18] sm:h-14 sm:scale-[1.15]" />
+        <nav
+          className="ml-3 flex items-center gap-0 sm:ml-7 sm:gap-1 lg:ml-12"
+          aria-label="Navegação da página"
+        >
+          <a href="#inicio" className={landingNavLinkClass}>
+            Início
+          </a>
+          <a href="#motivos" className={landingNavLinkClass}>
+            Motivos
+          </a>
+          <a href="#perguntas" className={landingNavLinkClass}>
+            Perguntas
+          </a>
+        </nav>
+      </div>
+    </header>
+  );
+}
+
+function AccountMenu({
+  email,
+  fullName,
+  isAdmin,
+  onSignOut,
+}: {
+  email?: string;
+  fullName?: string;
+  isAdmin: boolean;
+  onSignOut: () => Promise<void>;
+}) {
+  return (
+    <DropdownMenuContent align="end" className="w-64">
+      <DropdownMenuLabel className="px-3 py-2">
+        <span className="block text-body-sm text-foreground">{fullName || "Sua conta"}</span>
+        {email && (
+          <span className="mt-0.5 block truncate text-caption font-normal text-foreground-muted">
+            {email}
+          </span>
+        )}
+      </DropdownMenuLabel>
+      <DropdownMenuSeparator />
+      <AccountLink to="/minhas-cotacoes" icon={ClipboardList} label="Minhas cotações" />
+      <AccountLink to="/perfil" icon={Building2} label="Meu perfil" />
+      <AccountLink to="/configuracoes" icon={Settings} label="Configurações" />
+      {isAdmin && <AccountLink to="/admin" icon={LayoutDashboard} label="Painel administrativo" />}
+      <DropdownMenuSeparator />
+      <DropdownMenuItem
+        onSelect={() => void onSignOut()}
+        className="min-h-10 cursor-pointer px-3 font-semibold text-danger focus:bg-danger-muted focus:text-danger"
+      >
+        <LogOut className="size-4" aria-hidden />
+        Sair
+      </DropdownMenuItem>
+    </DropdownMenuContent>
+  );
+}
+
+function AccountLink({
+  to,
+  icon: Icon,
+  label,
+}: {
+  to: "/minhas-cotacoes" | "/perfil" | "/configuracoes" | "/admin";
+  icon: typeof User;
+  label: string;
+}) {
+  return (
+    <DropdownMenuItem asChild className="cursor-pointer p-0">
+      <Link to={to} className="flex min-h-10 w-full items-center gap-2 px-3 font-semibold">
+        <Icon className="size-4 text-brand-blue" aria-hidden />
+        {label}
+      </Link>
+    </DropdownMenuItem>
+  );
+}
+
+function MobileSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="mb-6" aria-labelledby={`mobile-${title.toLowerCase()}`}>
+      <h2
+        id={`mobile-${title.toLowerCase()}`}
+        className="px-3 text-caption font-semibold text-primary"
+      >
+        {title}
+      </h2>
+      <div className="mt-2 grid">{children}</div>
+    </section>
+  );
+}
+
+function MobileLink({
+  to,
+  onNavigate,
+  children,
+}: {
+  to: "/catalogo" | "/categorias" | "/sobre" | "/contato" | "/carrinho" | "/minhas-cotacoes";
+  onNavigate: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <SheetClose asChild>
+      <Link
+        to={to}
+        onClick={onNavigate}
+        className="focus-ring motion-colors flex min-h-12 items-center rounded-md px-3 text-body font-semibold text-foreground hover:bg-accent hover:text-accent-foreground"
+      >
+        {children}
+      </Link>
+    </SheetClose>
   );
 }

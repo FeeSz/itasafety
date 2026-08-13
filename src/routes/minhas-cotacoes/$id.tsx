@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useEffect } from "react";
 import {
-  Loader2,
   ArrowLeft,
   Package,
   Clock,
@@ -16,6 +15,7 @@ import {
   Phone,
 } from "lucide-react";
 import { pageMeta } from "@/lib/seo";
+import { DetailSkeleton } from "@/components/ui/Skeletons";
 
 export const Route = createFileRoute("/minhas-cotacoes/$id")({
   head: () =>
@@ -132,11 +132,7 @@ function MinhasCotacaoDetalhe() {
   });
 
   if (loading || !user || isLoading) {
-    return (
-      <div className="flex min-h-[50vh] items-center justify-center">
-        <Loader2 className="size-6 animate-spin text-ink-soft" />
-      </div>
-    );
+    return <DetailSkeleton />;
   }
 
   if (!cotacao) {

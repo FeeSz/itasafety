@@ -94,7 +94,7 @@ function QuemSomosPage() {
                 <ArrowRight className="size-4" />
               </Link>
               <Link
-                to="/categorias"
+                to="/catalogo"
                 className="inline-flex items-center gap-2 rounded-full border border-white/20 px-8 py-3.5 font-display text-sm font-bold uppercase tracking-wider text-white/80 transition-all hover:border-white/40 hover:text-white"
               >
                 Ver catálogo
@@ -228,7 +228,7 @@ function QuemSomosPage() {
                 <ArrowRight className="size-4" />
               </Link>
               <Link
-                to="/categorias"
+                to="/catalogo"
                 className="inline-flex items-center gap-2 rounded-full border border-white/20 px-8 py-3.5 font-display text-sm font-bold uppercase tracking-wider text-white/80 transition-all hover:border-white/40 hover:text-white"
               >
                 Explorar catálogo

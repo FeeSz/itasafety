@@ -1,129 +1,128 @@
-import { Link } from "@tanstack/react-router";
-import { Mail, MapPin, Clock, Linkedin, Instagram, Facebook } from "lucide-react";
+import { Link, useRouter } from "@tanstack/react-router";
+import { Mail } from "lucide-react";
 import Logo from "./Logo";
-import { CATEGORIES } from "@/lib/categories";
+import Container from "@/components/ui/Container";
+
+const footerLinkClass =
+  "focus-ring-inverse motion-colors inline-flex min-h-11 items-center rounded-sm text-body-sm text-white/70 hover:text-white";
 
 export default function Footer() {
-  const topCats = CATEGORIES.slice(0, 8);
+  const pathname = useRouter().state.location.pathname;
+  const showModelCredit = pathname === "/";
+
   return (
-    <footer className="bg-announce-dark text-white/85">
-      <div className="mx-auto max-w-7xl px-6 pb-10 pt-16">
-        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
-          {/* About */}
+    <footer className="bg-surface-inverse text-white/85">
+      <Container className="py-10 lg:py-12">
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr] lg:gap-10">
           <div>
-            <div className="bg-white/95 inline-block rounded-md p-2">
-              <Logo />
-            </div>
-            <p className="mt-5 text-sm leading-relaxed text-white/65">
-              Equipamentos de Proteção Individual com qualidade e certificação. Fornecendo segurança
-              para empresas de todo o Brasil.
+            <Logo onDark />
+            <p className="mt-4 max-w-sm text-body-sm text-white/70">
+              Catálogo e atendimento comercial para empresas que precisam organizar a seleção de
+              equipamentos de proteção individual.
             </p>
-            <div className="mt-5 flex gap-3">
-              {[Linkedin, Instagram, Facebook].map((Icon, i) => (
-                <a
-                  key={i}
-                  href="#"
-                  aria-label="Rede social"
-                  className="grid size-9 place-items-center rounded-md bg-white/5 text-white/60 transition-all duration-300 hover:bg-brand-blue hover:text-white hover:-translate-y-1 hover:scale-110 hover:shadow-md"
-                >
-                  <Icon className="size-4" />
-                </a>
-              ))}
-            </div>
           </div>
 
-          {/* Categorias */}
-          <nav aria-label="Categorias">
-            <h2 className="mb-4 text-[12px] font-bold uppercase tracking-[0.15em] text-brand-blue-light">
-              Categorias
-            </h2>
-            <ul className="space-y-2 text-sm text-white/70">
-              {topCats.map((c) => (
-                <li key={c.slug}>
-                  <Link
-                    to="/departamento/$slug"
-                    params={{ slug: c.slug }}
-                    className="inline-block transition-all duration-300 hover:text-white hover:translate-x-1"
-                  >
-                    {c.title}
-                  </Link>
-                </li>
-              ))}
+          <nav aria-label="Explorar">
+            <h2 className="text-caption font-semibold text-brand-blue-light">Explorar</h2>
+            <ul className="mt-3 grid">
+              <li>
+                <Link to="/catalogo" className={footerLinkClass}>
+                  Catálogo
+                </Link>
+              </li>
+              <li>
+                <Link to="/categorias" className={footerLinkClass}>
+                  Categorias
+                </Link>
+              </li>
+              <li>
+                <Link to="/carrinho" className={footerLinkClass}>
+                  Lista de cotação
+                </Link>
+              </li>
             </ul>
           </nav>
 
-          {/* Institucional */}
-          <nav aria-label="Institucional">
-            <h2 className="mb-4 text-[12px] font-bold uppercase tracking-[0.15em] text-brand-blue-light">
-              Institucional
-            </h2>
-            <ul className="space-y-2 text-sm text-white/70">
+          <nav aria-label="Empresa">
+            <h2 className="text-caption font-semibold text-brand-blue-light">Empresa</h2>
+            <ul className="mt-3 grid">
               <li>
-                <Link to="/quemsomos" className="inline-block transition-all duration-300 hover:text-white hover:translate-x-1">
-                  Quem Somos
+                <Link to="/sobre" className={footerLinkClass}>
+                  Sobre
                 </Link>
               </li>
               <li>
-                <Link to="/localizacao" className="inline-block transition-all duration-300 hover:text-white hover:translate-x-1">
-                  Localização
-                </Link>
-              </li>
-              <li>
-                <Link to="/contato" className="inline-block transition-all duration-300 hover:text-white hover:translate-x-1">
+                <Link to="/contato" className={footerLinkClass}>
                   Contato
                 </Link>
               </li>
               <li>
-                <Link to="/privacidade" className="inline-block transition-all duration-300 hover:text-white hover:translate-x-1">
-                  Política de Privacidade
-                </Link>
-              </li>
-              <li>
-                <a
-                  href="https://consultaca.com/"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-block transition-all duration-300 hover:text-white hover:translate-x-1"
-                >
-                  Consulta de CA (MTE) ↗
+                <a href="mailto:contato@itasafety.com.br" className={`${footerLinkClass} gap-2`}>
+                  <Mail className="size-4" aria-hidden />
+                  contato@itasafety.com.br
                 </a>
               </li>
             </ul>
           </nav>
+        </div>
 
-          {/* Contato */}
-          <div>
-            <h2 className="mb-4 text-[12px] font-bold uppercase tracking-[0.15em] text-brand-blue-light">
-              Contato
-            </h2>
-            <ul className="space-y-3 text-sm text-white/75">
-              <li className="flex items-start gap-2">
-                <Mail className="mt-0.5 size-4 shrink-0 text-brand-blue-light" />
-                <a href="mailto:contato@itasafety.com.br" className="inline-block transition-all duration-300 hover:text-white hover:translate-x-1">
-                  contato@itasafety.com.br
-                </a>
-              </li>
-              <li className="flex items-start gap-2">
-                <MapPin className="mt-0.5 size-4 shrink-0 text-brand-blue-light" />
-                <span>São Paulo, SP — Brasil</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Clock className="mt-0.5 size-4 shrink-0 text-brand-blue-light" />
-                <span>Seg–Sex, 08h às 18h</span>
-              </li>
-            </ul>
+        <div className="mt-8 flex flex-col gap-4 border-t border-white/10 pt-6 text-caption text-white/60 sm:flex-row sm:items-center sm:justify-between">
+          <p>© {new Date().getFullYear()} ItaSafety. Todos os direitos reservados.</p>
+          <div className="flex flex-wrap gap-x-5 gap-y-2">
+            <Link
+              to="/privacidade"
+              className="focus-ring-inverse motion-colors rounded-sm hover:text-white"
+            >
+              Privacidade
+            </Link>
+            <Link
+              to="/termos"
+              className="focus-ring-inverse motion-colors rounded-sm hover:text-white"
+            >
+              Termos
+            </Link>
+            <Link
+              to="/cookies"
+              className="focus-ring-inverse motion-colors rounded-sm hover:text-white"
+            >
+              Cookies
+            </Link>
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 md:flex-row">
-          <p className="text-[12px] text-white/45">
-            © {new Date().getFullYear()} ItaSafety. Todos os direitos reservados.
+        {showModelCredit ? (
+          <p className="mt-4 max-w-3xl text-caption leading-relaxed text-white/55">
+            Modelo 3D “PPE VISOR” por{" "}
+            <a
+              href="https://sketchfab.com/lanzaboy"
+              target="_blank"
+              rel="noreferrer"
+              className="focus-ring-inverse motion-colors rounded-sm text-white/75 underline decoration-white/30 underline-offset-4 hover:text-white hover:decoration-white/70"
+            >
+              Lanzaman
+            </a>{" "}
+            no{" "}
+            <a
+              href="https://sketchfab.com/3d-models/ppe-visor-d2d4aaa1ee20445cb132e628e9487e40"
+              target="_blank"
+              rel="noreferrer"
+              className="focus-ring-inverse motion-colors rounded-sm text-white/75 underline decoration-white/30 underline-offset-4 hover:text-white hover:decoration-white/70"
+            >
+              Sketchfab
+            </a>
+            , licença{" "}
+            <a
+              href="https://creativecommons.org/licenses/by/4.0/"
+              target="_blank"
+              rel="license noreferrer"
+              className="focus-ring-inverse motion-colors rounded-sm text-white/75 underline decoration-white/30 underline-offset-4 hover:text-white hover:decoration-white/70"
+            >
+              CC BY 4.0
+            </a>
+            .
           </p>
-          <p className="text-[12px] text-white/45">
-            Conformidade NR-06 · Produtos certificados pelo MTE
-          </p>
-        </div>
-      </div>
+        ) : null}
+      </Container>
     </footer>
   );
 }

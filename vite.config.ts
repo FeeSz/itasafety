@@ -102,6 +102,19 @@ function safePublicBuildPlugin(): Plugin {
   };
 }
 
+function localUiModeOnlyPlugin(): Plugin {
+  return {
+    name: "local-ui-mode-only",
+    configResolved(config) {
+      if (config.mode === "ui" && config.command === "build") {
+        throw new Error(
+          "O modo visual é exclusivo do desenvolvimento local e não pode gerar um bundle publicável.",
+        );
+      }
+    },
+  };
+}
+
 const isGithubPagesBuild =
   process.env.GITHUB_PAGES === "true" || process.argv.includes("github-pages");
 const githubPagesViteConfig = isGithubPagesBuild
@@ -121,7 +134,7 @@ const githubPagesViteConfig = isGithubPagesBuild
 // @cloudflare/vite-plugin builds from this — wrangler.jsonc main alone is insufficient.
 export default defineConfig({
   nitro: isGithubPagesBuild ? false : undefined,
-  plugins: [safePublicBuildPlugin()],
+  plugins: [localUiModeOnlyPlugin(), safePublicBuildPlugin()],
   vite: githubPagesViteConfig,
   tanstackStart: {
     router: {

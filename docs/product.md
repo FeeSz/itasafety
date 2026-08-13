@@ -27,6 +27,136 @@ Esses números são conteúdo editorial, não fatos técnicos confirmados por es
 documentação. Antes de reutilizá-los em novos textos, SEO ou integrações, a área de
 negócio deve definir uma versão oficial.
 
+## Arquitetura pública de descoberta — Fase 1
+
+Estado: **implementado localmente, não implantado**.
+
+A entrada pública agora separa duas responsabilidades:
+
+1. `/` apresenta a marca, o posicionamento institucional, FAQ e caminhos para
+   catálogo e contato;
+2. `/catalogo` concentra busca, descoberta por categorias, seleção de produtos e
+   início da lista de cotação;
+3. `/categorias` permanece como índice completo da taxonomia versionada;
+4. `/departamento/$slug` e `/detalhes/$sku` preservam URLs existentes;
+5. `/carrinho` permite revisar a lista e exige autenticação somente quando o
+   visitante tenta finalizar a submissão.
+
+A antiga home híbrida não foi movida para `/catalogo`. Hero em vídeo, métricas,
+storytelling, parceiros e grandes blocos comerciais deixaram de participar da
+rota ativa de descoberta. Seus componentes ainda existem no repositório e podem
+ser avaliados para remoção em uma etapa posterior.
+
+Produtos podem ser abertos e adicionados por visitante anônimo. A lista local
+permanece visível no cabeçalho, em `/carrinho` e no acesso flutuante quando há
+itens. Essa seleção não submete uma cotação nem contorna autenticação, aprovação
+empresarial ou controles do banco.
+
+### Fundação visual compartilhada — Fase 2
+
+Estado: **implementado localmente, não implantado**.
+
+Landing e Catálogo agora usam o mesmo DNA visual: Inter, grafite de alto
+contraste, azul ItaSafety como ação principal, vermelho raro, bordas discretas,
+radius controlado, três níveis de sombra e um único padrão de foco. A Landing
+aplica composição editorial e mais espaço negativo; o Catálogo aplica composição
+funcional e maior velocidade de leitura. Essas densidades não representam dois
+design systems.
+
+A fase não alterou catálogo, autenticação, regras de empresa, submissão ou dados
+de produto. Também não introduziu filtros, Quick View, comparação ou nova copy
+comercial. ProductCard e CategoryCard foram diferenciados porque produto é
+seleção e categoria é navegação. Loading, vazio, erro, disabled e feedback de
+adição passaram a possuir bases compartilhadas.
+
+O vermelho permanece assinatura de atenção e consequência, não decoração de
+chrome. O azul comunica confiança, navegação e ação. Os cards editoriais da
+Landing não definem tokens para o restante da aplicação.
+
+### Landing institucional em `/`
+
+A Landing ativa possui três etapas: Hero, Motivos e FAQ. O Hero mantém proposta,
+contexto e ações no mesmo eixo de leitura e materializa proteção facial com um
+modelo 3D interativo de viseira no desktop/tablet e com o poster do mesmo objeto
+em smartphones pequenos. A composição não retoma o device removido nem o
+capacete usado em composições anteriores. O modelo “PPE VISOR”, licenciado em
+CC BY 4.0, é atribuído a Lanzaman no Sketchfab na área legal do Footer da Landing.
+A inspeção visual em múltiplos ângulos não encontrou marca de fabricante. O asset
+não constitui afirmação de marca, certificação, CA ou disponibilidade de produto
+ItaSafety. Motivos combina o
+trilho de benefícios com uma
+composição editorial larga sobre escolha preventiva, mantendo copy curta e uma
+única ação comercial. O device, Product Family, full-bleed, jornada
+intermediária e CTA final foram retirados da página. A copy principal continua
+“Um acidente custa muito mais que o EPI.” sem números, prazos, certificações
+institucionais ou prova social não validados.
+
+Motivos apresenta quatro aspectos da jornada ItaSafety: catálogo organizado,
+escolha mais clara, atendimento para empresas e seleção para cotação. Os cards
+usam fotografia em área completa, copy controlada no topo e veil tonal para
+contraste, sem publicar dado comercial novo. O comportamento é um trilho
+horizontal com elevação mínima no hover.
+
+Na Landing, o header transparente oferece somente Início, Motivos e Perguntas.
+Busca, cotação, conta e navegação completa continuam disponíveis nas superfícies
+funcionais do produto, especialmente no Catálogo, mas não competem com o Hero.
+
+Os textos usam somente posicionamento institucional compatível com a jornada já
+existente. Números comerciais, prazos, cobertura geográfica, preços e
+depoimentos não confirmados não são publicados. O FAQ explica navegação,
+cadastro, cotação, CA, preços, acompanhamento e contato sem criar novas garantias
+comerciais.
+
+Na arquitetura da Fase 1:
+
+- a landing é o componente da rota `/` em builds normais e no modo `ui`;
+- o modo `ui` continua sendo uma ferramenta local de isolamento de backend, não
+  uma chave que troca a composição da home;
+- CTAs usam caminhos internos relativos e não dependem de `localhost`;
+- a landing não envia formulários nem executa integração;
+- Header e Footer globais são compartilhados com o catálogo, enquanto os cards
+  de Motivos e seus assets permanecem restritos à Landing;
+- a implementação não foi publicada e não constitui evidência de produção.
+
+### Catálogo em `/catalogo`
+
+O catálogo começa por contexto compacto, busca, categorias principais e produtos.
+A busca atual filtra somente a seleção local versionada e mantém o termo no
+search param `q`. Resultado zero informa a limitação e oferece limpeza ou contato.
+Não existem nesta fase filtros avançados, busca remota, Quick View, comparação,
+preço, estoque ou recomendação.
+
+### Contratos locais de dados
+
+`src/lib/products.ts` contém oito registros locais versionados em
+`LOCAL_CATALOG_PRODUCTS`. Os campos usados
+pela experiência são `sku`, `name`, `category`, `categorySlug`, `ca`,
+`description` e `image`. `tags` continua sendo metadado editorial local legado e
+não é promovido pelo novo catálogo como prova de novidade, demanda ou certificação.
+
+| Informação                                                          | Estado na Fase 1                                                                           |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| SKU, nome, categoria, slug, descrição e imagem                      | local versionado; existência no código confirmada; verdade comercial remota não confirmada |
+| Número de CA                                                        | local versionado; status atual do certificado não confirmado                               |
+| Contagem por categoria                                              | derivada apenas dos oito registros locais; não representa o portfólio total                |
+| Fabricante, estoque, disponibilidade, normas, aplicações e garantia | não confirmados; removidos das superfícies ativas                                          |
+| Preço e oferta                                                      | ausentes; nenhum placeholder ou dado estruturado foi criado                                |
+
+`src/lib/categories.ts` contém 14 categorias locais com `slug`, `title`, `icon`
+e subcategorias opcionais. A taxonomia mistura tipo de produto, proteção,
+ambiente, material, aplicação e atributo. A Fase 1 preserva essa ordem e não
+trata a taxonomia do frontend como fonte de verdade de negócio. Subcategorias
+sem relacionamento confiável com produto não são apresentadas como filtros.
+
+### Estados de carregamento da aplicação
+
+A aplicação normal apresenta skeletons estruturais durante transições de rota e
+consultas iniciais de conteúdo. Eles preservam títulos, cards, formulários,
+listas e tabelas para reduzir mudança brusca de layout. Spinners permanecem
+restritos a ações em andamento, como autenticar, salvar, enviar, aprovar ou
+rejeitar, porque nesses casos representam uma operação e não carregamento de
+estrutura.
+
 ## Atores
 
 ### Visitante

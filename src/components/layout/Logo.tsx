@@ -1,37 +1,29 @@
-import logo from "@/assets/itasafety-header-logo.png";
+import logo from "@/assets/itasafety-header-logo-384.png";
 import { Link } from "@tanstack/react-router";
 
 type LogoProps = {
   className?: string;
+  imageClassName?: string;
   onDark?: boolean;
 };
 
-/**
- * Logo responsivo — escala de forma fluida usando CSS clamp().
- * Sem breakpoints fixos: a logo cresce proporcionalmente com a viewport.
- *   mobile pequeno (~375px)  →  ~52px
- *   mobile grande (~768px)   →  ~80px
- *   desktop (≥1280px)        →  120px
- */
-export default function Logo({ className = "", onDark = false }: LogoProps) {
+export default function Logo({
+  className = "",
+  imageClassName = "h-10",
+  onDark = false,
+}: LogoProps) {
   return (
     <Link
       to="/"
       aria-label="ItaSafety — Página inicial"
-      className={`group inline-flex items-center ${className}`}
+      className={`focus-ring group inline-flex items-center rounded-sm ${className}`}
     >
       <img
         src={logo}
         alt="ItaSafety — Equipamentos de Proteção Individual"
-        width={1536}
-        height={1024}
-        className="w-auto transition-transform duration-300 group-hover:scale-[1.02]"
-        style={{
-          objectFit: "contain",
-          /* Escala fluida: mín 52px → 8vw → máx 120px */
-          /* Escala fluida: mín 72px (mobile) → 9vw → máx 120px */
-          height: "clamp(72px, 9vw, 120px)",
-        }}
+        width={384}
+        height={256}
+        className={`${imageClassName} w-auto object-contain ${onDark ? "rounded-sm bg-surface px-1" : ""}`}
       />
     </Link>
   );

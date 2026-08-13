@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, ClipboardList, AlertTriangle } from "lucide-react";
+import { ClipboardList, AlertTriangle } from "lucide-react";
+import { TableSkeleton } from "@/components/ui/Skeletons";
 
 export const Route = createFileRoute("/_authenticated/admin/cotacoes/")({
   component: AdminCotacoesListPage,
@@ -78,9 +79,7 @@ function AdminCotacoesListPage() {
 
       {/* Tabela */}
       {isLoading ? (
-        <div className="flex items-center justify-center py-16">
-          <Loader2 className="size-6 animate-spin text-ink-soft" />
-        </div>
+        <TableSkeleton />
       ) : !cotacoes?.length ? (
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <ClipboardList className="size-10 text-ink-soft mb-3" />

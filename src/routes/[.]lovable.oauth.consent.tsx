@@ -2,11 +2,10 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, ShieldCheck } from "lucide-react";
+import { IS_VISUAL_MODE } from "@/lib/visual-mode";
 
 type AuthOAuthClient = {
-  getAuthorizationDetails: (
-    id: string,
-  ) => Promise<{
+  getAuthorizationDetails: (id: string) => Promise<{
     data: {
       client?: { name?: string; client_name?: string; redirect_uri?: string } | null;
       scopes?: string[] | null;
@@ -16,15 +15,11 @@ type AuthOAuthClient = {
     } | null;
     error: { message: string } | null;
   }>;
-  approveAuthorization: (
-    id: string,
-  ) => Promise<{
+  approveAuthorization: (id: string) => Promise<{
     data: { redirect_url?: string | null; redirect_to?: string | null } | null;
     error: { message: string } | null;
   }>;
-  denyAuthorization: (
-    id: string,
-  ) => Promise<{
+  denyAuthorization: (id: string) => Promise<{
     data: { redirect_url?: string | null; redirect_to?: string | null } | null;
     error: { message: string } | null;
   }>;
@@ -40,6 +35,10 @@ export const Route = createFileRoute("/.lovable/oauth/consent")({
     authorization_id: typeof s.authorization_id === "string" ? s.authorization_id : "",
   }),
   beforeLoad: async ({ search, location }) => {
+    if (IS_VISUAL_MODE) {
+      throw redirect({ to: "/" });
+    }
+
     if (!search.authorization_id) {
       throw new Error("Solicitação de autorização inválida (authorization_id ausente).");
     }
@@ -64,9 +63,7 @@ export const Route = createFileRoute("/.lovable/oauth/consent")({
     <main className="flex min-h-[100dvh] items-center justify-center p-6">
       <div className="max-w-md rounded-2xl border border-red-200 bg-white p-6 text-center shadow-lg">
         <h1 className="text-lg font-bold text-red-600">Não foi possível carregar a autorização</h1>
-        <p className="mt-2 text-sm text-slate-600">
-          {String((error as Error)?.message ?? error)}
-        </p>
+        <p className="mt-2 text-sm text-slate-600">{String((error as Error)?.message ?? error)}</p>
       </div>
     </main>
   ),
@@ -115,7 +112,8 @@ function ConsentPage() {
               Conectar {clientName} à ItaSafety
             </h1>
             <p className="text-xs text-ink-muted dark:text-slate-400">
-              Este acesso permite que {clientName} utilize as ferramentas do MCP da ItaSafety em seu nome.
+              Este acesso permite que {clientName} utilize as ferramentas do MCP da ItaSafety em seu
+              nome.
             </p>
           </div>
         </div>
@@ -142,7 +140,10 @@ function ConsentPage() {
         </p>
 
         {error && (
-          <p role="alert" className="mt-3 rounded-lg border border-red-200 bg-red-50 p-2 text-xs text-red-600">
+          <p
+            role="alert"
+            className="mt-3 rounded-lg border border-red-200 bg-red-50 p-2 text-xs text-red-600"
+          >
             {error}
           </p>
         )}

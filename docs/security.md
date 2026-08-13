@@ -126,8 +126,15 @@ canônico não estiver presente ou se outro ref Supabase for incorporado.
 | AUD-09 | Pendente                               | Submissão e outbox transacionais.                                |
 | AUD-10 | Parcial                                | Limites MIME/tamanho e validação de conteúdo.                    |
 | AUD-11 | Parcial                                | Constraints restantes e backfill.                                |
-| AUD-12 | Triado online, risco residual aceito   | Remover exceção por upgrades major isolados.                     |
+| AUD-12 | `fast-uri` corrigido; risco residual documentado | Tratar os 13 registros restantes em lotes isolados.             |
 | AUD-13 | CI local e remoto validado               | Manter os gates e adicionar replay SQL após sanear a trilha.     |
+
+Em 13/08/2026, a resolução transitiva de `fast-uri` foi atualizada de `3.1.4`
+para `3.1.5` exclusivamente no lockfile. O audit online passou de 14 para 13
+registros totais e `fast-uri` deixou de aparecer no relatório. Nenhuma
+vulnerabilidade crítica foi identificada. Os cinco altos, sete moderados e um
+baixo restantes continuam explícitos e exigem lotes próprios, pois parte das
+correções sugeridas atravessa contratos de Nitro e do toolchain.
 
 ## Testes funcionais mínimos
 

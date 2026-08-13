@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import type { User as SupabaseUser, UserAttributes } from "@supabase/supabase-js";
 import { getErrorMessage } from "@/lib/utils";
+import { ListSkeleton } from "@/components/ui/Skeletons";
 
 export const Route = createFileRoute("/_authenticated/configuracoes/")({
   component: ConfiguracoesPage,
@@ -624,9 +625,7 @@ function ConfiguracoesPage() {
           {activeTab === "empresa" && (
             <div>
               {loadingEmpresa ? (
-                <div className="flex items-center justify-center py-16">
-                  <Loader2 className="size-8 animate-spin text-brand-blue" />
-                </div>
+                <ListSkeleton rows={3} />
               ) : !empresa ? (
                 <div className="rounded-2xl border border-hairline bg-white p-8 text-center shadow-card">
                   <Building2 className="mx-auto size-12 text-ink-soft/40" />

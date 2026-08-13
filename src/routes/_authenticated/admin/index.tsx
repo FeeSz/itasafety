@@ -23,6 +23,7 @@ import {
   CheckCircle2,
   XCircle,
 } from "lucide-react";
+import { SkeletonBlock } from "@/components/ui/Skeletons";
 import {
   Dialog,
   DialogContent,
@@ -213,8 +214,15 @@ function DashboardTab() {
           Métricas do catálogo
         </h2>
         {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="size-6 animate-spin text-ink-soft" />
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6" role="status" aria-label="Carregando métricas">
+            <span className="sr-only">Carregando métricas</span>
+            {Array.from({ length: 6 }, (_, index) => (
+              <div key={index} className="rounded-xl border border-hairline bg-white p-4 shadow-card">
+                <SkeletonBlock className="size-9 rounded-lg" />
+                <SkeletonBlock className="mt-4 h-6 w-16" />
+                <SkeletonBlock className="mt-2 h-3 w-24" />
+              </div>
+            ))}
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
@@ -536,11 +544,16 @@ function ProductsTab() {
           </thead>
           <tbody className="divide-y divide-hairline">
             {isLoading && (
-              <tr>
-                <td colSpan={6} className="px-4 py-12 text-center text-ink-soft">
-                  <Loader2 className="mx-auto size-5 animate-spin" />
-                </td>
-              </tr>
+              Array.from({ length: 4 }, (_, index) => (
+                <tr key={`skeleton-${index}`} aria-hidden>
+                  <td className="px-4 py-4"><SkeletonBlock className="h-4 w-32" /></td>
+                  <td className="px-4 py-4"><SkeletonBlock className="h-4 w-20" /></td>
+                  <td className="px-4 py-4"><SkeletonBlock className="h-4 w-24" /></td>
+                  <td className="px-4 py-4"><SkeletonBlock className="mx-auto size-7 rounded-full" /></td>
+                  <td className="px-4 py-4"><SkeletonBlock className="mx-auto size-7 rounded-full" /></td>
+                  <td className="px-4 py-4"><SkeletonBlock className="ml-auto h-8 w-20 rounded-full" /></td>
+                </tr>
+              ))
             )}
             {!isLoading && filtered.length === 0 && (
               <tr>

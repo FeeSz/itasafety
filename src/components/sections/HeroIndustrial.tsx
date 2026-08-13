@@ -27,15 +27,17 @@ export default function HeroIndustrial() {
           </p>
 
           <div className="mt-10 flex flex-wrap items-center gap-4">
-            <CtaButton as={Link} to="/categorias" className="group">
-              Ver Catálogo
-              <ArrowRight
-                className="size-4 transition-transform group-hover:translate-x-1"
-                aria-hidden
-              />
+            <CtaButton asChild className="group">
+              <Link to="/categorias">
+                Ver Catálogo
+                <ArrowRight
+                  className="motion-transform size-4 group-hover:translate-x-1"
+                  aria-hidden
+                />
+              </Link>
             </CtaButton>
-            <CtaButton as={Link} to="/contato" variant="outline">
-              Consultoria Técnica
+            <CtaButton asChild variant="outline">
+              <Link to="/contato">Consultoria Técnica</Link>
             </CtaButton>
           </div>
 
