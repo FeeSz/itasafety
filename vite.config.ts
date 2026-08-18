@@ -117,6 +117,41 @@ function localUiModeOnlyPlugin(): Plugin {
 
 const isGithubPagesBuild =
   process.env.GITHUB_PAGES === "true" || process.argv.includes("github-pages");
+
+// Fallback: alguns ambientes de build expõem apenas SUPABASE_* (sem prefixo VITE_).
+// Sem isso, o bundle do cliente sai sem as variáveis públicas e o site publica em branco.
+function readEnvFileVars(): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const file of [".env", ".env.local", ".env.production"]) {
+    const full = path.resolve(process.cwd(), file);
+    if (!fs.existsSync(full)) continue;
+    for (const rawLine of fs.readFileSync(full, "utf8").split(/\r?\n/)) {
+      const match = /^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/.exec(rawLine);
+      if (!match) continue;
+      out[match[1]] = match[2].replace(/^["']|["']$/g, "");
+    }
+  }
+  return out;
+}
+
+const envFileVars = readEnvFileVars();
+function publicSupabaseValue(name: "URL" | "PUBLISHABLE_KEY" | "PROJECT_ID"): string | undefined {
+  return (
+    process.env[`VITE_SUPABASE_${name}`] ||
+    process.env[`SUPABASE_${name}`] ||
+    envFileVars[`VITE_SUPABASE_${name}`] ||
+    envFileVars[`SUPABASE_${name}`]
+  );
+}
+
+const supabaseDefine: Record<string, string> = {};
+for (const name of ["URL", "PUBLISHABLE_KEY", "PROJECT_ID"] as const) {
+  const value = publicSupabaseValue(name);
+  if (value) {
+    supabaseDefine[`import.meta.env.VITE_SUPABASE_${name}`] = JSON.stringify(value);
+  }
+}
+
 const githubPagesViteConfig = isGithubPagesBuild
   ? {
       base: GITHUB_PAGES_BASE,
@@ -124,11 +159,13 @@ const githubPagesViteConfig = isGithubPagesBuild
         outDir: "dist/github-pages",
       },
       define: {
+        ...supabaseDefine,
         "import.meta.env.VITE_SITE_URL": JSON.stringify("https://feesz.github.io/itasafety"),
         "import.meta.env.SITE_URL": JSON.stringify("https://feesz.github.io/itasafety"),
       },
     }
-  : {};
+  : { define: supabaseDefine };
+
 
 // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
 // @cloudflare/vite-plugin builds from this — wrangler.jsonc main alone is insufficient.
