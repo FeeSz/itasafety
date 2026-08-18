@@ -122,7 +122,7 @@ const isGithubPagesBuild =
 // Sem isso, o bundle do cliente sai sem as variáveis públicas e o site publica em branco.
 function readEnvFileVars(): Record<string, string> {
   const out: Record<string, string> = {};
-  for (const file of [".env", ".env.local", ".env.production"]) {
+  for (const file of [".env.public", ".env", ".env.local", ".env.production"]) {
     const full = path.resolve(process.cwd(), file);
     if (!fs.existsSync(full)) continue;
     for (const rawLine of fs.readFileSync(full, "utf8").split(/\r?\n/)) {
