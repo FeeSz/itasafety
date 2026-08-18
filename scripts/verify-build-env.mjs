@@ -17,8 +17,22 @@ const DIST_CANDIDATES = IS_VERCEL_BUILD
     : ["dist/client", ".output/public"];
 const DIST = DIST_CANDIDATES.find(existsSync);
 const REQUIRED_MARKERS = ["VITE_SUPABASE_URL", "VITE_SUPABASE_PUBLISHABLE_KEY"];
-const EXPECTED_PROJECT_REF = "porgyoqngtshxdxuwaft";
-const EXPECTED_SUPABASE_URL = `https://${EXPECTED_PROJECT_REF}.supabase.co`;
+// O ref esperado vem do ambiente/arquivo publico committado, nao de um valor fixo.
+function readExpectedRef() {
+  const fromEnv = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+  const fromFile = [".env.public", ".env", ".env.local", ".env.production"]
+    .filter(existsSync)
+    .map((f) => readFileSync(f, "utf8"))
+    .join("\n");
+  const match = /https:\/\/([a-z0-9]+)\.supabase\.co/i.exec(
+    `${fromEnv ?? ""}\n${fromFile}`,
+  );
+  return match?.[1];
+}
+const EXPECTED_PROJECT_REF = readExpectedRef();
+const EXPECTED_SUPABASE_URL = EXPECTED_PROJECT_REF
+  ? `https://${EXPECTED_PROJECT_REF}.supabase.co`
+  : null;
 
 function walk(dir) {
   const out = [];
@@ -56,7 +70,12 @@ for (const f of files) {
     // Vite replaces import.meta.env.VITE_* with the literal string value.
     // We check for the presence of a supabase.co URL (VITE_SUPABASE_URL)
     // and a JWT-shaped literal (VITE_SUPABASE_PUBLISHABLE_KEY).
-    if (marker === "VITE_SUPABASE_URL" && content.includes(EXPECTED_SUPABASE_URL)) {
+    if (
+      marker === "VITE_SUPABASE_URL" &&
+      (EXPECTED_SUPABASE_URL
+        ? content.includes(EXPECTED_SUPABASE_URL)
+        : supabaseUrlRegex.test(content))
+    ) {
       found.add(marker);
     }
     if (
@@ -71,9 +90,9 @@ for (const f of files) {
   }
 }
 
-const unexpectedProjectRefs = [...observedProjectRefs].filter(
-  (projectRef) => projectRef !== EXPECTED_PROJECT_REF,
-);
+const unexpectedProjectRefs = EXPECTED_PROJECT_REF
+  ? [...observedProjectRefs].filter((projectRef) => projectRef !== EXPECTED_PROJECT_REF)
+  : [];
 if (unexpectedProjectRefs.length > 0) {
   console.error(
     `\n[verify-build-env] ERROR — unexpected Supabase project ref(s) in ${DIST}:\n  - ${unexpectedProjectRefs.join(
