@@ -21,6 +21,14 @@ origem está em `auditoria-inicial-seguranca-2026-07-27.md`.
 | EmailJS           | Serviço externo               | Enviar apenas dados necessários e conteúdo codificado.     |
 | Storage público   | Conteúdo publicamente legível | Restringir escrita, tipo, tamanho e caminho.               |
 
+O formulário público de contato envia ao EmailJS apenas assunto, nome, telefone
+opcional, e-mail e mensagem. O template usa variáveis com chaves duplas
+(`{{variavel}}`), preservando o escaping nativo do EmailJS; chaves triplas são
+proibidas para conteúdo controlado pelo usuário. A validação Zod no browser melhora a experiência,
+mas não é uma fronteira de segurança. O template de contato é obrigatório e não
+possui fallback para o template de cotação. Rate limit e validação server-side
+permanecem pendentes antes de tratar o canal como resistente a abuso automatizado.
+
 ## Autenticação
 
 - Supabase Auth gerencia e-mail/senha e OAuth;

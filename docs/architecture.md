@@ -55,11 +55,28 @@ Estado: **implementado localmente, não implantado**.
 
 Landing e Catálogo compartilham Header, Footer, tokens, focus rings e
 primitivas. Eles não compartilham responsabilidade de página: `LandingReasons`
-e seus assets entram somente pelo grafo da Landing. O Catálogo usa `CatalogSearch`, `CategoryGrid` e
-`CatalogProductCard`, sem importar seções promocionais da antiga home.
+e seus assets entram somente pelo grafo da Landing. O Catálogo usa `CatalogHero`,
+`CatalogCategoryShowcase` e `CatalogProductCard`, sem importar
+seções promocionais da antiga home.
 
-O Header expõe uma única entrada de busca em `/catalogo`, evitando dois
-contratos concorrentes. O estado da busca é navegável pelo search param `q`.
+Na composição atual, `CatalogHero` concentra a faixa navegável de categorias e a
+abertura industrial;
+`CatalogCategoryShowcase` apresenta categorias prioritárias com mídia local.
+Esses módulos pertencem ao grafo de `/catalogo` e não são importados pela
+Landing. Os contratos de URL, produto e lista de cotação permanecem os mesmos.
+
+O inventário versionado em `src/lib/products.ts` contém 96 registros recuperados
+do catálogo público legado em 14/08/2026. As 94 imagens disponíveis são preservadas
+em `public/images/catalog/products`; as 96 apresentações normalizadas são servidas
+por `public/images/catalog/products-enhanced`. Dois produtos cuja origem já retorna
+arquivo quebrado usam referências equivalentes explicitamente marcadas como
+ilustrativas. `ITA-{legacyId}` é apenas um identificador interno de migração e não é
+apresentado como SKU comercial da fonte.
+
+O Header expõe a única entrada de busca: um campo sobreposto, expansível para a
+esquerda e com sugestões locais contidas na mesma largura, sem alterar o fluxo
+das ações do header.
+O estado completo da busca permanece navegável pelo search param `q` em `/catalogo`.
 
 ### Fundação visual
 
@@ -77,7 +94,8 @@ src/components/ui
 └─ Radix: Dropdown, Sheet, Dialog e Accordion
 
 src/components/catalog
-├─ CatalogSearch
+├─ CatalogHero
+├─ CatalogCategoryShowcase
 ├─ CategoryCard
 └─ CatalogProductCard
 ```
@@ -175,6 +193,17 @@ resolve o vínculo e pode ser sobrescrito no build seguinte.
 `supabase/functions/enviar-notificacao-cotacao/index.ts` valida o JWT do chamador,
 consulta a cotação sob RLS, usa RPCs server-side e envia mensagens por EmailJS.
 
+O formulário público de `/contato` usa um componente próprio e permanece no
+browser. Ele envia somente assunto, nome, telefone opcional, e-mail e mensagem
+ao serviço EmailJS já adotado. A configuração client-side é centralizada em
+`src/lib/emailjs-config.ts`; cotação e contato possuem IDs de template distintos.
+O contato exige `VITE_EMAILJS_TEMPLATE_ID_CONTATO` e falha de forma segura quando
+o valor não existe, sem fallback para `EMAILJS_TEMPLATE_ID_COTACAO`. O contrato
+do template está versionado em `docs/email-templates/contato.html`. A criação do
+template e a configuração do ID no ambiente remoto continuam operações externas
+independentes. Esse fluxo não escreve no Supabase e não altera a fronteira
+autenticada de cotação.
+
 ## Fluxos de autenticação
 
 ### Browser para Supabase
@@ -233,7 +262,6 @@ projeto novo e só deve ser redirecionado ou retirado após o cutover documentad
   troca: `não confirmados`;
 - a reconciliação e o plano de validação estão em
   `decisions/0003-migracao-backend-supabase-canonico.md`.
-
 
 Aplicar migration e implantar Edge Function são operações independentes.
 

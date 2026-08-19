@@ -1,19 +1,17 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Mail, MapPin, Phone, Clock, ArrowRight } from "lucide-react";
-import { pageMeta } from "@/lib/seo";
-import QuoteForm from "@/components/forms/QuoteForm";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowUpRight } from "lucide-react";
+import ContactForm from "@/components/forms/ContactForm";
 import Container from "@/components/ui/Container";
-import ContactCard from "@/components/ui/ContactCard";
-import Reveal from "@/components/ui/Reveal";
+import { pageMeta } from "@/lib/seo";
 
 export const Route = createFileRoute("/contato")({
   head: () => {
     const base = pageMeta({
-      title: "Solicitar Orçamento — ItaSafety",
-      description:
-        "Fale com um engenheiro de aplicação ItaSafety. Cotação técnica, levantamento de risco e atendimento corporativo para indústrias.",
+      title: "Entre em contato — ItaSafety",
+      description: "Fale com a equipe ItaSafety por telefone, e-mail ou formulário de contato.",
       path: "/contato",
     });
+
     return {
       ...base,
       scripts: [
@@ -50,219 +48,102 @@ export const Route = createFileRoute("/contato")({
   component: ContactPage,
 });
 
-/** Returns true during business hours (Mon–Fri, 08–18 Brasília time) */
-function useIsOpen() {
-  const now = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
-  const day  = now.getDay();  // 0=Sun
-  const hour = now.getHours();
-  return day >= 1 && day <= 5 && hour >= 8 && hour < 18;
-}
+const channels = [
+  {
+    label: "Telefone",
+    value: "(11) 5178-5655",
+    detail: "Segunda a sexta, das 8h às 18h",
+    href: "tel:+551151785655",
+    external: true,
+  },
+  {
+    label: "E-mail",
+    value: "contato@itasafety.com.br",
+    detail: "Dúvidas, sugestões e assuntos institucionais",
+    href: "mailto:contato@itasafety.com.br",
+    external: true,
+  },
+  {
+    label: "Localização",
+    value: "São Paulo, SP",
+    detail: "Consulte o endereço e a rota",
+    href: "/localizacao",
+    external: false,
+  },
+] as const;
 
 function ContactPage() {
-  const isOpen = useIsOpen();
-
   return (
-    <>
-      {/* ─── HERO SPLIT ─── */}
-      <section className="relative grid min-h-[calc(100svh-var(--header-h,72px))] lg:grid-cols-2">
+    <div className="bg-background">
+      <Container size="lg" className="py-14 sm:py-20 lg:py-24">
+        <header className="max-w-3xl border-b border-border pb-10 sm:pb-14">
+          <p className="text-label font-semibold text-primary">Contato</p>
+          <h1 className="mt-4 text-balance text-display font-semibold text-foreground">
+            Fale com a ItaSafety.
+          </h1>
+          <p className="mt-5 max-w-2xl text-pretty text-body-lg leading-relaxed text-foreground-muted">
+            Escolha um canal direto ou envie uma mensagem. Sem etapas desnecessárias.
+          </p>
+        </header>
 
-        {/* LEFT — Dark panel */}
-        <div className="relative flex flex-col justify-center overflow-hidden bg-[#0d1f3c] px-8 py-20 md:px-14 lg:py-28">
-          {/* Grid dots */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0"
-            style={{
-              backgroundImage:
-                "radial-gradient(circle, rgba(59,125,216,0.16) 1px, transparent 1px)",
-              backgroundSize: "28px 28px",
-            }}
-          />
-          {/* Ambient glow */}
-          <div aria-hidden className="pointer-events-none absolute -left-24 top-1/4 size-80 rounded-full bg-brand-blue/15 blur-[100px]" />
-          <div aria-hidden className="pointer-events-none absolute -right-16 bottom-1/4 size-56 rounded-full bg-brand-red/10 blur-[80px]" />
+        <div className="grid gap-14 pt-10 sm:pt-14 lg:grid-cols-[minmax(0,0.72fr)_minmax(32rem,1.28fr)] lg:gap-20 xl:gap-28">
+          <aside aria-labelledby="contact-channels-title">
+            <h2 id="contact-channels-title" className="text-title-md font-semibold tracking-tight text-foreground">
+              Canais diretos
+            </h2>
+            <p className="mt-3 max-w-sm text-body leading-relaxed text-foreground-muted">
+              Para cotações, selecione os produtos no catálogo. Este canal é dedicado a dúvidas,
+              sugestões, contato e elogios.
+            </p>
 
-          <div className="relative max-w-md">
-            {/* Eyebrow */}
-            <Reveal>
-              <p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-brand-blue-light">
-                Atendimento Corporativo
-              </p>
-            </Reveal>
-
-            {/* Headline */}
-            <Reveal delay={100}>
-              <h1 className="mt-4 text-balance font-display text-4xl font-black leading-tight tracking-tight text-white md:text-5xl">
-                Fale com quem{" "}
-                <span className="text-brand-red">entende</span>{" "}
-                de EPI.
-              </h1>
-            </Reveal>
-
-            <Reveal delay={200}>
-              <p className="mt-4 text-pretty text-base leading-relaxed text-white/65">
-                Cotação técnica em até 24h úteis. Para urgências operacionais, use nossa
-                Central de Vendas — atendimento humano em horário comercial.
-              </p>
-            </Reveal>
-
-            {/* SLA badge */}
-            <Reveal delay={280}>
-              <div className="mt-6 inline-flex items-center gap-2.5 rounded-full border border-brand-blue/30 bg-brand-blue/15 px-4 py-2 backdrop-blur-sm">
-                <span className="size-2 rounded-full bg-green-400 shadow-[0_0_6px_rgba(74,222,128,0.8)] animate-pulse" />
-                <span className="text-sm font-semibold text-white/90">Respondemos em até 24h úteis</span>
-              </div>
-            </Reveal>
-
-            {/* Quick contact strip */}
-            <Reveal delay={360}>
-              <div className="mt-10 space-y-4 border-t border-white/10 pt-8">
-                <a
-                  href="tel:+551151785655"
-                  className="group flex items-center gap-4 text-white/70 transition-colors hover:text-white"
-                >
-                  <div className="grid size-10 shrink-0 place-items-center rounded-lg bg-white/8 transition-colors group-hover:bg-brand-blue/30">
-                    <Phone className="size-4" strokeWidth={1.8} />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-mono uppercase tracking-wider text-white/40">Central de Vendas</p>
-                    <p className="text-sm font-bold">(11) 5178-5655</p>
-                  </div>
-                </a>
-
-                <a
-                  href="mailto:contato@itasafety.com.br"
-                  className="group flex items-center gap-4 text-white/70 transition-colors hover:text-white"
-                >
-                  <div className="grid size-10 shrink-0 place-items-center rounded-lg bg-white/8 transition-colors group-hover:bg-brand-blue/30">
-                    <Mail className="size-4" strokeWidth={1.8} />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-mono uppercase tracking-wider text-white/40">E-mail corporativo</p>
-                    <p className="text-sm font-bold">contato@itasafety.com.br</p>
-                  </div>
-                </a>
-
-                <div className="flex items-center gap-4 text-white/70">
-                  <div className="grid size-10 shrink-0 place-items-center rounded-lg bg-white/8">
-                    <MapPin className="size-4" strokeWidth={1.8} />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-mono uppercase tracking-wider text-white/40">Sede Operacional</p>
-                    <p className="text-sm font-bold">São Paulo, SP — Brasil</p>
-                  </div>
+            <dl className="mt-8 border-t border-border">
+              {channels.map((channel) => (
+                <div key={channel.label} className="border-b border-border py-5">
+                  <dt className="text-caption font-medium text-foreground-muted">{channel.label}</dt>
+                  <dd className="mt-1">
+                    {channel.external ? (
+                      <a
+                        href={channel.href}
+                        className="group inline-flex max-w-full items-center gap-2 break-all text-body font-semibold text-foreground hover:text-primary"
+                      >
+                        {channel.value}
+                        <ArrowUpRight
+                          className="size-4 shrink-0 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                          aria-hidden="true"
+                        />
+                      </a>
+                    ) : (
+                      <Link
+                        to={channel.href}
+                        className="group inline-flex items-center gap-2 text-body font-semibold text-foreground hover:text-primary"
+                      >
+                        {channel.value}
+                        <ArrowUpRight
+                          className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                          aria-hidden="true"
+                        />
+                      </Link>
+                    )}
+                    <p className="mt-1 text-caption leading-relaxed text-foreground-subtle">{channel.detail}</p>
+                  </dd>
                 </div>
-              </div>
-            </Reveal>
+              ))}
+            </dl>
+          </aside>
 
-            {/* Open/Closed indicator */}
-            <Reveal delay={420}>
-              <div className="mt-6 flex items-center gap-2 text-sm">
-                <span
-                  className={`size-2 rounded-full ${isOpen ? "bg-green-400 shadow-[0_0_6px_rgba(74,222,128,0.7)]" : "bg-white/30"}`}
-                />
-                <span className={isOpen ? "text-green-400 font-semibold" : "text-white/45"}>
-                  {isOpen ? "Estamos abertos agora" : "Fechado · Abrimos seg–sex às 08h"}
-                </span>
-              </div>
-            </Reveal>
-          </div>
-        </div>
-
-        {/* RIGHT — Form panel */}
-        <div className="flex items-center justify-center bg-white px-8 py-16 md:px-14">
-          <div className="w-full max-w-lg">
-            <QuoteForm />
-          </div>
-        </div>
-      </section>
-
-      {/* ─── CONTACT CARDS ─── */}
-      <section className="bg-surface-sunken py-16 md:py-20">
-        <Container>
-          <Reveal>
-            <div className="mb-10 text-center">
-              <p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-brand-blue">
-                Outros canais
-              </p>
-              <h2 className="mt-2 text-2xl font-bold tracking-tight text-ink">
-                Prefere outro canal?
+          <section aria-labelledby="contact-form-title" className="lg:border-l lg:border-border lg:pl-16 xl:pl-20">
+            <div className="mb-8">
+              <h2 id="contact-form-title" className="text-title-lg font-semibold tracking-tight text-foreground">
+                Envie uma mensagem
               </h2>
+              <p className="mt-2 text-body text-foreground-muted">
+                Os campos marcados como opcionais podem ficar em branco.
+              </p>
             </div>
-          </Reveal>
-
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <ContactCard
-              icon={<Phone className="size-5" strokeWidth={1.8} />}
-              label="Central de Vendas"
-              value="(11) 5178-5655"
-              href="tel:+551151785655"
-              badge="Atendimento humano"
-              badgeColor="blue"
-              delay={0}
-            />
-            <ContactCard
-              icon={<Phone className="size-5" strokeWidth={1.8} />}
-              label="Linha Alternativa"
-              value="(11) 2963-0303"
-              href="tel:+551129630303"
-              delay={80}
-            />
-            <ContactCard
-              icon={<Mail className="size-5" strokeWidth={1.8} />}
-              label="Corporativo / Licitações"
-              value="contato@itasafety.com.br"
-              href="mailto:contato@itasafety.com.br"
-              delay={160}
-            />
-            <ContactCard
-              icon={<MapPin className="size-5" strokeWidth={1.8} />}
-              label="Sede"
-              value="São Paulo, SP"
-              delay={240}
-            />
-          </div>
-        </Container>
-      </section>
-
-      {/* ─── URGENCY BANNER ─── */}
-      <section className="bg-white py-8">
-        <Container>
-          <Reveal>
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-brand-blue-active via-brand-blue to-brand-blue-light p-8 text-white shadow-lift md:p-10">
-              {/* Sweep shine effect */}
-              <div className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 hover:translate-x-full" />
-              <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 size-64 rounded-full bg-white/10 blur-3xl" />
-
-              <div className="relative flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-                <div className="flex items-center gap-5">
-                  <div className="grid size-14 shrink-0 place-items-center rounded-full bg-white/15 ring-1 ring-white/20">
-                    <Clock className="size-7" strokeWidth={1.6} />
-                  </div>
-                  <div>
-                    <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/80">
-                      Urgências Operacionais
-                    </p>
-                    <h3 className="mt-1 text-xl font-extrabold leading-tight md:text-2xl">
-                      Precisa de EPI agora? Ligue.
-                    </h3>
-                    <p className="mt-1 text-sm text-white/80">
-                      Atendimento humano · Seg–Sex · 08h às 18h
-                    </p>
-                  </div>
-                </div>
-                <a
-                  href="tel:+551151785655"
-                  className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-6 py-3.5 text-sm font-bold text-brand-blue transition-transform hover:translate-x-1"
-                >
-                  (11) 5178-5655
-                  <ArrowRight className="size-4" />
-                </a>
-              </div>
-            </div>
-          </Reveal>
-        </Container>
-      </section>
-    </>
+            <ContactForm />
+          </section>
+        </div>
+      </Container>
+    </div>
   );
 }

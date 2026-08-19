@@ -99,8 +99,37 @@ de credenciais em chat, documentação, issue ou commit.
 - `EMAILJS_PUBLIC_KEY` ou variante administrativa;
 - `EMAILJS_PRIVATE_KEY` ou variante administrativa;
 - IDs de template de nova cotação, resposta e devolução.
+- `VITE_EMAILJS_TEMPLATE_ID_CONTATO`, ID público do template institucional de contato.
 
-Os valores ficam em gerenciadores de segredo, nunca no repositório.
+Valores sensíveis ficam em gerenciadores de segredo, nunca no repositório.
+Identificadores e chaves explicitamente públicas do SDK client-side continuam
+configuração de ambiente, mas não devem ser confundidos com credenciais privadas.
+
+### Template de contato
+
+O formulário de `/contato` não pode reutilizar templates de cotação. O template
+administrativo deve ser criado no painel do EmailJS a partir de
+`docs/email-templates/contato.html`, com os seguintes metadados:
+
+- destinatário: `contato@itasafety.com.br`;
+- Reply-To: `{{reply_to}}`;
+- assunto: `[Site ItaSafety] {{subject}} — {{contact_name}}`;
+- parâmetros: `subject`, `contact_name`, `contact_email`, `contact_phone`,
+  `message` e `reply_to`.
+
+Esse único template atende às quatro categorias do formulário (`Dúvidas`,
+`Sugestões`, `Contato` e `Elogios`). Não devem ser criados templates separados
+por categoria. As variáveis controladas pelo usuário devem permanecer com
+chaves duplas; chaves triplas desativam o escaping do EmailJS e são proibidas
+nesse fluxo.
+
+Depois de criado, seu ID deve ser configurado como
+`VITE_EMAILJS_TEMPLATE_ID_CONTATO` no ambiente de build. O ID é público por ser
+entregue ao browser; chaves privadas continuam proibidas em variáveis `VITE_*`.
+Sem essa variável, o formulário falha fechado, preserva os dados digitados e
+orienta o usuário a enviar a mensagem diretamente por e-mail. Após configurar,
+validar um envio de cada assunto sem usar dados pessoais reais e confirmar que
+nenhum e-mail contém linguagem, CTA ou campos de cotação.
 
 ## Desenvolvimento
 

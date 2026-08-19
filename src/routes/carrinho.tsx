@@ -1,5 +1,16 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Trash2, ShoppingCart, ArrowRight, Minus, Plus, Loader2, CheckCircle2, LogIn, Building2 } from "lucide-react";
+import {
+  Trash2,
+  ShoppingCart,
+  ArrowRight,
+  Minus,
+  Plus,
+  Loader2,
+  CheckCircle2,
+  LogIn,
+  Building2,
+  ImageOff,
+} from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -69,7 +80,8 @@ function CarrinhoPage() {
     let val = e.target.value.replace(/\D/g, "");
     if (val.length > 11) val = val.slice(0, 11);
     if (val.length > 2 && val.length <= 6) val = `(${val.slice(0, 2)}) ${val.slice(2)}`;
-    else if (val.length > 6 && val.length < 11) val = `(${val.slice(0, 2)}) ${val.slice(2, 6)}-${val.slice(6)}`;
+    else if (val.length > 6 && val.length < 11)
+      val = `(${val.slice(0, 2)}) ${val.slice(2, 6)}-${val.slice(6)}`;
     else if (val.length === 11) val = `(${val.slice(0, 2)}) ${val.slice(2, 7)}-${val.slice(7)}`;
     e.target.value = val;
   };
@@ -146,9 +158,7 @@ function CarrinhoPage() {
         quantidade: i.qty,
       }));
 
-      const { error: itemErr } = await supabase
-        .from("cotacao_itens")
-        .insert(itensSql);
+      const { error: itemErr } = await supabase.from("cotacao_itens").insert(itensSql);
 
       if (itemErr) throw itemErr;
 
@@ -160,7 +170,7 @@ function CarrinhoPage() {
             acao: "nova_cotacao",
             cotacao_id: cotacao.id,
           },
-        }
+        },
       );
 
       if (edgeErr) throw edgeErr;
@@ -294,16 +304,18 @@ function CarrinhoPage() {
                       {isDone ? <CheckCircle2 className="size-4" /> : idx + 1}
                     </div>
                     <span
-                      className={`hidden text-sm font-semibold sm:inline ${isActive ? "text-ink" : isDone ? "text-ink-muted" : "text-ink-soft"
-                        }`}
+                      className={`hidden text-sm font-semibold sm:inline ${
+                        isActive ? "text-ink" : isDone ? "text-ink-muted" : "text-ink-soft"
+                      }`}
                     >
                       {s.label}
                     </span>
                   </div>
                   {!isLast && (
                     <div
-                      className={`mx-3 h-px flex-1 transition-colors ${isDone ? "bg-brand-blue" : "bg-hairline"
-                        }`}
+                      className={`mx-3 h-px flex-1 transition-colors ${
+                        isDone ? "bg-brand-blue" : "bg-hairline"
+                      }`}
                     />
                   )}
                 </div>
@@ -316,7 +328,6 @@ function CarrinhoPage() {
       <section className="py-12 md:py-16">
         <Container>
           <div className="grid gap-8 lg:grid-cols-[1.6fr_1fr]">
-
             {/* ── LEFT: Items list ───────────────────────────────────────── */}
             <div>
               {step === "review" && (
@@ -333,20 +344,24 @@ function CarrinhoPage() {
                         key={item.sku}
                         className="flex gap-4 p-5 transition-colors hover:bg-surface-sunken/60"
                       >
-                        <img
-                          src={item.image || "/placeholder.png"}
-                          alt=""
-                          className="size-20 shrink-0 rounded-xl border border-hairline bg-surface-sunken object-contain p-2"
-                        />
+                        {item.image ? (
+                          <img
+                            src={item.image}
+                            alt=""
+                            className="size-20 shrink-0 rounded-xl border border-hairline bg-surface-sunken object-contain p-2"
+                          />
+                        ) : (
+                          <span className="grid size-20 shrink-0 place-items-center rounded-xl border border-hairline bg-surface-sunken text-ink-soft">
+                            <ImageOff className="size-5" aria-hidden />
+                          </span>
+                        )}
                         <div className="min-w-0 flex-1">
                           <p className="font-mono text-[10px] font-bold uppercase tracking-wider text-brand-blue">
                             {item.category}
                           </p>
-                          <p className="mt-0.5 font-semibold leading-snug text-ink">
-                            {item.name}
-                          </p>
+                          <p className="mt-0.5 font-semibold leading-snug text-ink">{item.name}</p>
                           <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-xs text-ink-soft">
-                            <span>SKU: {item.sku}</span>
+                            <span>Código: {item.sku}</span>
                             {item.ca_number && <span>CA: {item.ca_number}</span>}
                           </div>
 
@@ -408,9 +423,16 @@ function CarrinhoPage() {
                   className="space-y-6 rounded-2xl border border-hairline bg-white p-8 shadow-card"
                 >
                   <div className="space-y-2">
-                    <label htmlFor="empresa" className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-ink-soft">
+                    <label
+                      htmlFor="empresa"
+                      className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-ink-soft"
+                    >
                       <span>Empresa / Razão Social *</span>
-                      {!!empresa && <span className="text-[10px] text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded-full flex items-center gap-1"><CheckCircle2 className="size-3" /> Conta Verificada</span>}
+                      {!!empresa && (
+                        <span className="text-[10px] text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <CheckCircle2 className="size-3" /> Conta Verificada
+                        </span>
+                      )}
                     </label>
                     <input
                       id="empresa"
@@ -423,9 +445,11 @@ function CarrinhoPage() {
                       onChange={maskEmpresaOuCnpj}
                       className={[
                         "w-full rounded-lg border bg-white px-4 py-3 text-sm font-medium text-ink outline-none transition placeholder:text-ink-soft/50",
-                        empresa ? "bg-surface-sunken text-ink-muted cursor-not-allowed border-hairline" : fieldErrors.empresa
-                          ? "border-brand-red focus:border-brand-red focus:ring-2 focus:ring-brand-red/15"
-                          : "border-hairline focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15",
+                        empresa
+                          ? "bg-surface-sunken text-ink-muted cursor-not-allowed border-hairline"
+                          : fieldErrors.empresa
+                            ? "border-brand-red focus:border-brand-red focus:ring-2 focus:ring-brand-red/15"
+                            : "border-hairline focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15",
                       ].join(" ")}
                       aria-invalid={!!fieldErrors.empresa}
                     />
@@ -436,8 +460,12 @@ function CarrinhoPage() {
 
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
-                      <label htmlFor="cnpj" className="block text-xs font-bold uppercase tracking-wider text-ink-soft">
-                        CNPJ <span className="normal-case font-medium text-ink-soft/70">(opcional)</span>
+                      <label
+                        htmlFor="cnpj"
+                        className="block text-xs font-bold uppercase tracking-wider text-ink-soft"
+                      >
+                        CNPJ{" "}
+                        <span className="normal-case font-medium text-ink-soft/70">(opcional)</span>
                       </label>
                       <input
                         id="cnpj"
@@ -451,7 +479,10 @@ function CarrinhoPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <label htmlFor="telefone" className="block text-xs font-bold uppercase tracking-wider text-ink-soft">
+                      <label
+                        htmlFor="telefone"
+                        className="block text-xs font-bold uppercase tracking-wider text-ink-soft"
+                      >
                         Telefone / WhatsApp *
                       </label>
                       <input
@@ -466,9 +497,11 @@ function CarrinhoPage() {
                         onChange={maskPhone}
                         className={[
                           "w-full rounded-lg border bg-white px-4 py-3 text-sm font-medium text-ink outline-none transition placeholder:text-ink-soft/50",
-                          empresa ? "bg-surface-sunken text-ink-muted cursor-not-allowed border-hairline" : fieldErrors.telefone
-                            ? "border-brand-red focus:border-brand-red focus:ring-2 focus:ring-brand-red/15"
-                            : "border-hairline focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15",
+                          empresa
+                            ? "bg-surface-sunken text-ink-muted cursor-not-allowed border-hairline"
+                            : fieldErrors.telefone
+                              ? "border-brand-red focus:border-brand-red focus:ring-2 focus:ring-brand-red/15"
+                              : "border-hairline focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15",
                         ].join(" ")}
                         aria-invalid={!!fieldErrors.telefone}
                       />
@@ -479,8 +512,14 @@ function CarrinhoPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <label htmlFor="observacoes" className="block text-xs font-bold uppercase tracking-wider text-ink-soft">
-                      Observações <span className="normal-case font-medium text-ink-soft/70">(prazo, normas, outros requisitos)</span>
+                    <label
+                      htmlFor="observacoes"
+                      className="block text-xs font-bold uppercase tracking-wider text-ink-soft"
+                    >
+                      Observações{" "}
+                      <span className="normal-case font-medium text-ink-soft/70">
+                        (prazo, normas, outros requisitos)
+                      </span>
                     </label>
                     <textarea
                       id="observacoes"
@@ -525,9 +564,13 @@ function CarrinhoPage() {
               <div className="my-4 border-t border-hairline" />
 
               <div className="flex items-baseline justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-ink-soft">Total</span>
+                <span className="text-xs font-semibold uppercase tracking-wider text-ink-soft">
+                  Total
+                </span>
                 <p className="text-sm">
-                  <strong className="font-black text-ink">{items.reduce((a, i) => a + i.qty, 0)}</strong>{" "}
+                  <strong className="font-black text-ink">
+                    {items.reduce((a, i) => a + i.qty, 0)}
+                  </strong>{" "}
                   <span className="text-ink-soft">unidades</span>
                 </p>
               </div>
@@ -541,7 +584,9 @@ function CarrinhoPage() {
                   </p>
                   <button
                     type="button"
-                    onClick={() => navigate({ to: "/auth", search: { next: "/carrinho", mode: "login" } })}
+                    onClick={() =>
+                      navigate({ to: "/auth", search: { next: "/carrinho", mode: "login" } })
+                    }
                     className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-amber-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-amber-700"
                   >
                     <LogIn className="size-4" /> Entrar / Criar conta
@@ -550,23 +595,40 @@ function CarrinhoPage() {
               )}
 
               {/* Status da Empresa gate */}
-              {user && !loadingEmpresa && (!empresa || empresa.status !== "aprovada") && step === "review" && (
-                <div className={`mt-5 rounded-xl border p-4 text-sm ${empresa?.status === "pendente_aprovacao" ? "border-amber-200 bg-amber-50" : empresa?.status === "rejeitada" ? "border-red-200 bg-red-50" : "border-brand-blue/20 bg-brand-blue-tint"}`}>
-                  <p className={`font-semibold ${empresa?.status === "pendente_aprovacao" ? "text-amber-900" : empresa?.status === "rejeitada" ? "text-red-900" : "text-brand-blue"}`}>
-                    {empresa?.status === "pendente_aprovacao" ? "Cadastro em análise" : empresa?.status === "rejeitada" ? "Cadastro não aprovado" : "Complete seu perfil"}
-                  </p>
-                  <p className={`mt-1 text-xs leading-relaxed ${empresa?.status === "pendente_aprovacao" ? "text-amber-700" : empresa?.status === "rejeitada" ? "text-red-700" : "text-brand-blue/80"}`}>
-                    {empresa?.status === "pendente_aprovacao" ? "Você poderá enviar cotações assim que sua empresa for aprovada." : empresa?.status === "rejeitada" ? "Seu cadastro de empresa foi rejeitado." : "Você precisa cadastrar os dados da sua empresa antes de enviar cotações."}
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => navigate({ to: "/perfil" })}
-                    className={`mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-bold shadow-sm transition ${empresa?.status === "pendente_aprovacao" ? "bg-amber-600 text-white hover:bg-amber-700" : empresa?.status === "rejeitada" ? "bg-red-600 text-white hover:bg-red-700" : "bg-brand-blue text-white hover:bg-brand-blue-hover"}`}
+              {user &&
+                !loadingEmpresa &&
+                (!empresa || empresa.status !== "aprovada") &&
+                step === "review" && (
+                  <div
+                    className={`mt-5 rounded-xl border p-4 text-sm ${empresa?.status === "pendente_aprovacao" ? "border-amber-200 bg-amber-50" : empresa?.status === "rejeitada" ? "border-red-200 bg-red-50" : "border-brand-blue/20 bg-brand-blue-tint"}`}
                   >
-                    <Building2 className="size-4" /> Acessar Meu Perfil
-                  </button>
-                </div>
-              )}
+                    <p
+                      className={`font-semibold ${empresa?.status === "pendente_aprovacao" ? "text-amber-900" : empresa?.status === "rejeitada" ? "text-red-900" : "text-brand-blue"}`}
+                    >
+                      {empresa?.status === "pendente_aprovacao"
+                        ? "Cadastro em análise"
+                        : empresa?.status === "rejeitada"
+                          ? "Cadastro não aprovado"
+                          : "Complete seu perfil"}
+                    </p>
+                    <p
+                      className={`mt-1 text-xs leading-relaxed ${empresa?.status === "pendente_aprovacao" ? "text-amber-700" : empresa?.status === "rejeitada" ? "text-red-700" : "text-brand-blue/80"}`}
+                    >
+                      {empresa?.status === "pendente_aprovacao"
+                        ? "Você poderá enviar cotações assim que sua empresa for aprovada."
+                        : empresa?.status === "rejeitada"
+                          ? "Seu cadastro de empresa foi rejeitado."
+                          : "Você precisa cadastrar os dados da sua empresa antes de enviar cotações."}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => navigate({ to: "/perfil" })}
+                      className={`mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-bold shadow-sm transition ${empresa?.status === "pendente_aprovacao" ? "bg-amber-600 text-white hover:bg-amber-700" : empresa?.status === "rejeitada" ? "bg-red-600 text-white hover:bg-red-700" : "bg-brand-blue text-white hover:bg-brand-blue-hover"}`}
+                    >
+                      <Building2 className="size-4" /> Acessar Meu Perfil
+                    </button>
+                  </div>
+                )}
 
               {/* Actions */}
               {user && step === "review" && empresa?.status === "aprovada" && (

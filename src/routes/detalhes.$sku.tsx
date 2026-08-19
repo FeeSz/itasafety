@@ -32,9 +32,11 @@ export const Route = createFileRoute("/detalhes/$sku")({
 
     return pageMeta({
       title: `${loaderData.product.name} — ItaSafety`,
-      description: loaderData.product.description,
+      description:
+        loaderData.product.description ??
+        `Consulte ${loaderData.product.name} no catálogo ItaSafety e solicite uma cotação.`,
       path: `/detalhes/${params.sku}`,
-      image: abs(loaderData.product.image),
+      image: loaderData.product.image ? abs(loaderData.product.image) : undefined,
     });
   },
   errorComponent: () => (
@@ -67,11 +69,12 @@ export const Route = createFileRoute("/detalhes/$sku")({
 });
 
 function trustedSpecs(product: Product) {
-  return [
-    { label: "SKU / Referência", value: product.sku },
+  const specs = [
+    { label: "Código do catálogo", value: product.sku },
     { label: "Categoria", value: product.category },
-    { label: "CA informado no cadastro", value: product.ca },
   ];
+  if (product.ca) specs.push({ label: "CA informado no acervo legado", value: product.ca });
+  return specs;
 }
 
 function ProductDetailsPage() {
@@ -132,13 +135,24 @@ function ProductDetailsPage() {
       <section className="section-functional bg-surface" aria-labelledby="product-title">
         <Container className="grid gap-8 lg:grid-cols-2 lg:gap-12">
           <div className="relative flex min-h-[20rem] items-center justify-center overflow-hidden rounded-lg border border-border bg-surface-muted p-6 sm:min-h-[28rem] sm:p-10">
-            <img
-              src={product.image}
-              alt={product.name}
-              width={640}
-              height={640}
-              className="max-h-[26rem] w-full object-contain mix-blend-multiply"
-            />
+            {product.image ? (
+              <img
+                src={product.image}
+                alt={product.name}
+                width={640}
+                height={640}
+                className="max-h-[26rem] w-full object-contain mix-blend-multiply"
+              />
+            ) : (
+              <div className="flex max-w-xs items-center justify-center text-center text-title font-semibold text-foreground-muted">
+                {product.category}
+              </div>
+            )}
+            {product.imageNote ? (
+              <p className="absolute bottom-4 left-4 rounded-full bg-surface/92 px-3 py-1.5 text-caption font-medium text-foreground-muted shadow-subtle">
+                {product.imageNote}
+              </p>
+            ) : null}
             <Button
               type="button"
               onClick={() => void shareProduct()}
@@ -156,12 +170,17 @@ function ProductDetailsPage() {
             <h1 id="product-title" className="mt-2 text-h2 font-semibold text-foreground">
               {product.name}
             </h1>
-            <p className="mt-2 font-mono text-data text-foreground-subtle">Ref. {product.sku}</p>
-            <p className="mt-5 text-body text-foreground-muted">{product.description}</p>
+            <p className="mt-2 font-mono text-data text-foreground-subtle">Cód. {product.sku}</p>
+            <p className="mt-5 text-body text-foreground-muted">
+              {product.description ??
+                "A fonte legada não publicou uma descrição para este item. Confirme aplicação, disponibilidade e especificações com a equipe ItaSafety."}
+            </p>
 
             <Surface variant="muted" padding="sm" className="mt-6 border-info/20">
               <p className="text-body-sm font-semibold text-foreground">
-                CA informado no cadastro: {product.ca}
+                {product.ca
+                  ? `CA informado no acervo legado: ${product.ca}`
+                  : "CA não informado no acervo legado"}
               </p>
               <p className="mt-1 text-caption text-foreground-muted">
                 O status do CA, fabricante, estoque, normas, aplicações e garantia não são

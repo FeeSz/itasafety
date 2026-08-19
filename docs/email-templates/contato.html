@@ -1,0 +1,90 @@
+<!--
+  Template EmailJS: contato institucional
+
+  Configuração do template no painel:
+  To Email: contato@itasafety.com.br
+  Reply-To: {{reply_to}}
+  Subject: [Site ItaSafety] {{subject}} — {{contact_name}}
+
+  Um único template genérico para /contato atende Dúvidas, Sugestões, Contato e Elogios.
+  Não criar um template por categoria e não reutilizar este em cotações.
+  Preservar {{variavel}} para o escaping nativo do EmailJS.
+  Nunca usar {{{variavel}}} com conteúdo controlado pelo usuário.
+-->
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Novo contato pelo site</title>
+  </head>
+  <body style="margin: 0; background: #f5f7f9; color: #101820; font-family: Arial, Helvetica, sans-serif;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+      <tr>
+        <td align="center" style="padding: 32px 16px;">
+          <table
+            role="presentation"
+            width="100%"
+            cellspacing="0"
+            cellpadding="0"
+            border="0"
+            style="max-width: 640px; background: #ffffff; border: 1px solid #dfe5ea;"
+          >
+            <tr>
+              <td style="padding: 40px 40px 28px; border-top: 4px solid #086caf;">
+                <p style="margin: 0 0 12px; color: #086caf; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;">
+                  Contato pelo site
+                </p>
+                <h1 style="margin: 0; color: #101820; font-size: 28px; line-height: 1.2;">
+                  Nova mensagem para a ItaSafety
+                </h1>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 0 40px 32px;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                  <tr>
+                    <td style="padding: 16px 0; border-top: 1px solid #e8ecef;">
+                      <p style="margin: 0 0 6px; color: #66727d; font-size: 12px; font-weight: 700; text-transform: uppercase;">Assunto</p>
+                      <p style="margin: 0; color: #101820; font-size: 16px;">{{subject}}</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 16px 0; border-top: 1px solid #e8ecef;">
+                      <p style="margin: 0 0 6px; color: #66727d; font-size: 12px; font-weight: 700; text-transform: uppercase;">Nome</p>
+                      <p style="margin: 0; color: #101820; font-size: 16px;">{{contact_name}}</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 16px 0; border-top: 1px solid #e8ecef;">
+                      <p style="margin: 0 0 6px; color: #66727d; font-size: 12px; font-weight: 700; text-transform: uppercase;">E-mail</p>
+                      <p style="margin: 0; color: #101820; font-size: 16px;">{{contact_email}}</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 16px 0; border-top: 1px solid #e8ecef;">
+                      <p style="margin: 0 0 6px; color: #66727d; font-size: 12px; font-weight: 700; text-transform: uppercase;">Telefone</p>
+                      <p style="margin: 0; color: #101820; font-size: 16px;">{{contact_phone}}</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 16px 0; border-top: 1px solid #e8ecef;">
+                      <p style="margin: 0 0 8px; color: #66727d; font-size: 12px; font-weight: 700; text-transform: uppercase;">Mensagem</p>
+                      <p style="margin: 0; color: #101820; font-size: 16px; line-height: 1.6; white-space: pre-line;">{{message}}</p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 20px 40px; background: #f5f7f9; color: #66727d; font-size: 12px; line-height: 1.5;">
+                Mensagem enviada pelo formulário institucional em /contato.
+                Responda diretamente a este e-mail para falar com {{contact_name}}.
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

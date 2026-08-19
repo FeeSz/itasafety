@@ -1,10 +1,15 @@
-import { useMemo, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { Search, X } from "lucide-react";
-import { FEATURED_PRODUCTS } from "@/lib/products";
+import { useMemo, useState, type FormEvent, type KeyboardEvent } from "react";
+import { productMatchesCatalogQuery } from "@/lib/catalog-search";
+import { LOCAL_CATALOG_PRODUCTS } from "@/lib/products";
+import { cn } from "@/lib/utils";
 
 type Props = {
   autoFocus?: boolean;
+  className?: string;
+  id?: string;
+  onDismiss?: () => void;
   onNavigate?: () => void;
   placeholder?: string;
   size?: "sm" | "md";
@@ -12,102 +17,155 @@ type Props = {
 
 export default function SearchBox({
   autoFocus = false,
+  className,
+  id = "catalog-search",
+  onDismiss,
   onNavigate,
-  placeholder = "O que você está procurando?",
+  placeholder = "Buscar por produto, categoria ou CA",
   size = "md",
 }: Props) {
-  const [q, setQ] = useState("");
-  const [focused, setFocused] = useState(autoFocus);
-  const term = q.trim().toLowerCase();
+  const navigate = useNavigate();
+  const [query, setQuery] = useState("");
+  const term = query.trim();
 
-  const results = useMemo(() => {
+  const matchingProducts = useMemo(() => {
     if (!term) return [];
-    return FEATURED_PRODUCTS.filter((p) =>
-      [p.name, p.category, p.sku, p.description].join(" ").toLowerCase().includes(term),
-    ).slice(0, 6);
+    return LOCAL_CATALOG_PRODUCTS.filter((product) => productMatchesCatalogQuery(product, term));
   }, [term]);
 
-  const inputCls = size === "sm" ? "h-10 text-[14px]" : "h-11 text-[15px]";
+  const suggestions = matchingProducts.slice(0, 6);
+  const resultsId = `${id}-suggestions`;
+  const inputHeight = size === "sm" ? "h-10 text-[14px]" : "h-11 text-[15px]";
+
+  const submitSearch = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    void navigate({
+      to: "/catalogo",
+      search: term ? { q: term } : {},
+    });
+    onNavigate?.();
+  };
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== "Escape") return;
+    if (query) {
+      setQuery("");
+      return;
+    }
+    onDismiss?.();
+  };
 
   return (
-    <div className="relative w-full">
-      <div
-        className={`group flex items-center gap-2 rounded-full border bg-white px-3 shadow-sm transition-all duration-300 ${inputCls} ${
-          focused || term
-            ? "border-brand-blue/60 shadow-[0_10px_26px_rgba(27,79,138,0.14)] ring-4 ring-brand-blue/10"
-            : "border-[#D8DEE6] hover:border-brand-blue/35 hover:shadow-[0_8px_18px_rgba(27,79,138,0.08)]"
-        }`}
+    <div className={cn("relative w-full", className)}>
+      <form
+        role="search"
+        onSubmit={submitSearch}
+        className={cn(
+          "group flex items-center rounded-lg border border-border-strong bg-surface shadow-subtle focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/15",
+          inputHeight,
+        )}
       >
-        <span
-          className={`grid size-7 shrink-0 place-items-center rounded-full transition-all duration-300 ${
-            focused || term
-              ? "bg-brand-blue-tint text-brand-blue"
-              : "bg-surface-sunken text-[#6B7280] group-hover:text-brand-blue"
-          }`}
+        <button
+          type="submit"
+          aria-label="Buscar no catálogo"
+          className="focus-ring motion-colors grid size-10 shrink-0 place-items-center rounded-md text-foreground-muted hover:text-primary"
         >
-          <Search className="size-4" />
-        </span>
+          <Search className="size-4" aria-hidden />
+        </button>
+        <label htmlFor={id} className="sr-only">
+          Buscar produtos
+        </label>
         <input
+          id={id}
           autoFocus={autoFocus}
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          onFocus={() => setFocused(true)}
-          onBlur={() => setFocused(false)}
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          onKeyDown={handleKeyDown}
           type="search"
           placeholder={placeholder}
-          aria-label="Buscar produtos"
-          className="min-w-0 flex-1 bg-transparent text-[#111] placeholder:text-[#6B7280] outline-none"
+          enterKeyHint="search"
+          autoComplete="off"
+          aria-autocomplete="list"
+          aria-controls={resultsId}
+          aria-expanded={term.length > 0}
+          className="min-w-0 flex-1 bg-transparent pr-1 text-foreground outline-none placeholder:text-foreground-subtle [&::-webkit-search-cancel-button]:appearance-none"
         />
-        {q.length > 0 && (
+        {(query || onDismiss) && (
           <button
             type="button"
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={() => setQ("")}
-            aria-label="Limpar busca"
-            className="grid size-7 shrink-0 place-items-center rounded-full text-[#6B7280] transition-all duration-200 hover:bg-surface-sunken hover:text-[#111]"
+            onMouseDown={(event) => event.preventDefault()}
+            onClick={() => {
+              if (query) setQuery("");
+              else onDismiss?.();
+            }}
+            aria-label={query ? "Limpar busca" : "Fechar busca"}
+            className="focus-ring motion-colors mr-1 grid size-9 shrink-0 place-items-center rounded-md text-foreground-muted hover:bg-accent hover:text-foreground"
           >
-            <X className="size-3.5" />
+            <X className="size-4" aria-hidden />
           </button>
         )}
-      </div>
+      </form>
 
       {term.length > 0 && (
-        <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-50 max-h-[60vh] overflow-y-auto rounded-xl border border-[#D8DEE6] bg-white shadow-[0_18px_44px_rgba(27,79,138,0.18)] animate-search-results">
-          {results.length === 0 ? (
-            <p className="px-4 py-5 text-center text-[13px] text-[#6B7280]">
-              Nenhum item relacionado a <span className="font-semibold text-[#111]">"{q}"</span> foi
-              encontrado no catálogo.
+        <div
+          id={resultsId}
+          role="region"
+          aria-label="Sugestões de busca"
+          className="animate-search-results absolute left-0 right-0 top-[calc(100%+8px)] z-50 max-h-[min(31rem,70vh)] overflow-x-hidden overflow-y-auto overscroll-contain rounded-xl border border-border bg-surface p-2 shadow-elevated"
+        >
+          {suggestions.length === 0 ? (
+            <p className="px-3 py-5 text-center text-body-sm text-foreground-muted">
+              Nenhum produto encontrado para{" "}
+              <span className="font-semibold text-foreground">“{query}”</span>.
             </p>
           ) : (
-            <ul className="divide-y divide-[#F3F4F6]">
-              {results.map((p) => (
-                <li key={p.sku}>
-                  <Link
-                    to="/detalhes/$sku"
-                    params={{ sku: p.sku }}
-                    onClick={() => {
-                      setQ("");
-                      onNavigate?.();
-                    }}
-                    className="group/result flex items-center gap-3 px-3 py-2.5 transition-colors duration-150 hover:bg-brand-blue-tint"
-                  >
-                    <img
-                      src={p.image}
-                      alt=""
-                      className="size-11 shrink-0 rounded-md object-cover"
-                    />
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-[13px] font-semibold text-[#111] transition-colors group-hover/result:text-brand-blue">
-                        {p.name}
-                      </p>
-                      <p className="truncate text-[11px] text-[#6B7280]">
-                        {p.category} · CA {p.ca}
-                      </p>
-                    </div>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <>
+              <p className="px-3 pb-2 pt-1 text-caption font-semibold text-foreground-subtle">
+                Sugestões
+              </p>
+              <ul className="grid min-w-0 gap-1">
+                {suggestions.map((product) => (
+                  <li key={product.sku} className="min-w-0">
+                    <Link
+                      to="/detalhes/$sku"
+                      params={{ sku: product.sku }}
+                      onClick={() => {
+                        setQuery("");
+                        onNavigate?.();
+                      }}
+                      className="focus-ring group/result flex min-h-16 w-full min-w-0 items-center gap-3 rounded-lg px-2 py-2 hover:bg-accent"
+                    >
+                      <img
+                        src={product.image ?? undefined}
+                        alt=""
+                        className="size-12 shrink-0 rounded-md bg-surface-muted object-contain"
+                      />
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-body-sm font-semibold text-foreground group-hover/result:text-primary">
+                          {product.name}
+                        </span>
+                        <span className="mt-0.5 block truncate text-caption text-foreground-muted">
+                          {product.category}
+                          {product.ca ? ` · CA ${product.ca}` : ""}
+                        </span>
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              <Link
+                to="/catalogo"
+                search={{ q: term }}
+                onClick={() => {
+                  setQuery("");
+                  onNavigate?.();
+                }}
+                className="focus-ring motion-colors mt-2 flex min-h-11 items-center justify-center rounded-lg border-t border-border px-3 pt-2 text-label font-semibold text-primary hover:text-primary-hover"
+              >
+                Ver {matchingProducts.length}{" "}
+                {matchingProducts.length === 1 ? "resultado" : "resultados"}
+              </Link>
+            </>
           )}
         </div>
       )}

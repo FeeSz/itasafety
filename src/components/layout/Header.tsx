@@ -11,9 +11,10 @@ import {
   ShoppingCart,
   User,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import Logo from "./Logo";
+import SearchBox from "./SearchBox";
 import Container from "@/components/ui/Container";
 import {
   DropdownMenu,
@@ -50,6 +51,7 @@ export default function Header() {
   const { user, isAdmin, loading } = useAuth();
   const { count } = useQuoteCart();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [desktopSearchOpen, setDesktopSearchOpen] = useState(false);
 
   const fullName =
     typeof user?.user_metadata?.full_name === "string"
@@ -75,10 +77,14 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-surface/95 backdrop-blur-sm">
       <Container className="flex h-16 items-center gap-2 sm:gap-3">
-        <Logo />
+        <Logo imageClassName="h-12 origin-center scale-[1.18]" />
 
         <nav
-          className="ml-4 hidden flex-1 items-center gap-1 lg:flex"
+          inert={desktopSearchOpen}
+          aria-hidden={desktopSearchOpen}
+          className={`ml-4 hidden flex-1 items-center gap-1 transition-[opacity,transform] duration-150 ease-out motion-reduce:transition-none lg:flex ${
+            desktopSearchOpen ? "pointer-events-none -translate-x-2 opacity-0" : "opacity-100"
+          }`}
           aria-label="Navegação principal"
         >
           <DropdownMenu>
@@ -134,18 +140,13 @@ export default function Header() {
         </nav>
 
         <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
-          <Link
-            to="/catalogo"
-            aria-label="Buscar no catálogo"
-            className="focus-ring motion-colors hidden size-11 items-center justify-center rounded-md text-foreground-muted hover:bg-accent hover:text-accent-foreground sm:inline-flex"
-          >
-            <Search className="size-5" aria-hidden />
-          </Link>
+          <HeaderCatalogSearch mobile className="flex lg:hidden" />
+          <HeaderCatalogSearch className="hidden lg:flex" onExpandedChange={setDesktopSearchOpen} />
 
           <Link
             to="/carrinho"
             aria-label={count > 0 ? `Lista de cotação com ${count} unidades` : "Lista de cotação"}
-            className="focus-ring motion-surface relative inline-flex min-h-11 items-center gap-2 rounded-md border border-border bg-surface px-3 text-label font-semibold text-foreground hover:border-primary/30 hover:bg-accent hover:text-accent-foreground sm:px-4"
+            className="focus-ring motion-colors relative inline-flex min-h-11 items-center gap-2 rounded-lg bg-primary px-3 text-label font-semibold text-white shadow-subtle hover:bg-primary-hover sm:px-4"
           >
             <ShoppingCart className="size-5" aria-hidden />
             <span className="hidden sm:inline">Cotação</span>
@@ -162,9 +163,14 @@ export default function Header() {
                 <button
                   type="button"
                   aria-label="Abrir menu da conta"
-                  className="focus-ring motion-surface hidden min-h-11 items-center gap-2 rounded-md border border-border bg-surface px-3 text-label font-semibold text-foreground hover:bg-accent lg:inline-flex"
+                  className="focus-ring motion-colors hidden min-h-11 items-center gap-2 rounded-lg px-2.5 text-label font-semibold text-foreground hover:bg-accent lg:inline-flex"
                 >
-                  <User className="size-4 text-brand-blue" aria-hidden />
+                  <span
+                    className="grid size-8 place-items-center rounded-full bg-primary-muted text-caption font-bold text-primary"
+                    aria-hidden
+                  >
+                    {firstName.charAt(0)}
+                  </span>
                   {firstName}
                   <ChevronDown className="size-4 text-ink-soft" aria-hidden />
                 </button>
@@ -180,7 +186,7 @@ export default function Header() {
             <Link
               to="/auth"
               search={{ mode: "login" }}
-              className="focus-ring motion-colors hidden min-h-11 items-center rounded-md bg-primary px-5 text-label font-semibold text-white hover:bg-primary-hover lg:inline-flex"
+              className="focus-ring motion-colors hidden min-h-11 items-center rounded-lg px-4 text-label font-semibold text-foreground hover:bg-accent hover:text-primary lg:inline-flex"
             >
               Entrar
             </Link>
@@ -207,6 +213,14 @@ export default function Header() {
                 <SheetDescription>Explore a ItaSafety e acesse sua lista.</SheetDescription>
               </SheetHeader>
 
+              <div className="border-b border-border px-4 py-4">
+                <SearchBox
+                  id="mobile-header-search"
+                  onNavigate={() => setMobileOpen(false)}
+                  placeholder="Buscar no catálogo"
+                />
+              </div>
+
               <nav className="flex-1 overflow-y-auto px-4 py-5" aria-label="Navegação móvel">
                 <MobileSection title="Explorar">
                   <MobileLink to="/catalogo" onNavigate={() => setMobileOpen(false)}>
@@ -225,9 +239,6 @@ export default function Header() {
                   </MobileLink>
                 </MobileSection>
                 <MobileSection title="Utilidades">
-                  <MobileLink to="/catalogo" onNavigate={() => setMobileOpen(false)}>
-                    Buscar produtos
-                  </MobileLink>
                   <MobileLink to="/carrinho" onNavigate={() => setMobileOpen(false)}>
                     Lista de cotação{count > 0 ? ` (${count})` : ""}
                   </MobileLink>
@@ -288,6 +299,110 @@ export default function Header() {
   );
 }
 
+function HeaderCatalogSearch({
+  className,
+  mobile = false,
+  onExpandedChange,
+  onNavigate,
+}: {
+  className?: string;
+  mobile?: boolean;
+  onExpandedChange?: (expanded: boolean) => void;
+  onNavigate?: () => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const [closing, setClosing] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  const closeSearch = () => {
+    if (mobile) {
+      setExpanded(false);
+      onExpandedChange?.(false);
+      return;
+    }
+    setClosing(true);
+    onExpandedChange?.(false);
+  };
+
+  useEffect(() => {
+    if (!expanded) return;
+    const handlePointerDown = (event: PointerEvent) => {
+      if (wrapperRef.current?.contains(event.target as Node)) return;
+      if (mobile) setExpanded(false);
+      else {
+        setClosing(true);
+        onExpandedChange?.(false);
+      }
+    };
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [expanded, mobile, onExpandedChange]);
+
+  return (
+    <div
+      ref={wrapperRef}
+      className={`${className ?? "flex"} relative h-11 w-11 shrink-0 justify-end`}
+    >
+      {expanded ? (
+        <div
+          className={
+            mobile
+              ? "fixed inset-x-3 top-[4.5rem] z-50"
+              : "absolute right-0 top-0 z-[60] w-[min(42rem,calc(100vw-31rem))] 2xl:w-[46rem]"
+          }
+        >
+          <div
+            onAnimationEnd={(event) => {
+              if (!closing || event.currentTarget !== event.target) return;
+              setExpanded(false);
+              setClosing(false);
+            }}
+            className={
+              mobile
+                ? undefined
+                : `${closing ? "header-search-collapse-right" : "header-search-expand-left"} ml-auto`
+            }
+          >
+            <SearchBox
+              autoFocus
+              id={mobile ? "mobile-quick-search" : "desktop-header-search"}
+              onDismiss={closeSearch}
+              onNavigate={() => {
+                setExpanded(false);
+                setClosing(false);
+                onExpandedChange?.(false);
+                onNavigate?.();
+              }}
+              placeholder="Buscar produto, categoria ou CA"
+              className={
+                mobile
+                  ? "animate-search-reveal"
+                  : closing
+                    ? "header-search-content-exit"
+                    : "header-search-content-enter"
+              }
+            />
+          </div>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => {
+            setClosing(false);
+            setExpanded(true);
+            onExpandedChange?.(true);
+          }}
+          aria-label="Abrir busca no catálogo"
+          aria-expanded="false"
+          className="focus-ring motion-colors grid size-11 place-items-center rounded-lg text-foreground-muted hover:bg-accent hover:text-primary"
+        >
+          <Search className="size-5" aria-hidden />
+        </button>
+      )}
+    </div>
+  );
+}
+
 const landingNavLinkClass =
   "landing-anchor focus-ring inline-flex min-h-11 items-center rounded-sm px-2 text-[11px] font-semibold text-foreground-muted hover:text-foreground sm:px-3 sm:text-body-sm";
 
@@ -327,24 +442,56 @@ function AccountMenu({
   onSignOut: () => Promise<void>;
 }) {
   return (
-    <DropdownMenuContent align="end" className="w-64">
-      <DropdownMenuLabel className="px-3 py-2">
-        <span className="block text-body-sm text-foreground">{fullName || "Sua conta"}</span>
-        {email && (
-          <span className="mt-0.5 block truncate text-caption font-normal text-foreground-muted">
-            {email}
+    <DropdownMenuContent align="end" sideOffset={8} className="w-80 rounded-xl p-2">
+      <DropdownMenuLabel className="flex items-center gap-3 px-3 py-3">
+        <span
+          className="grid size-10 shrink-0 place-items-center rounded-full bg-primary-muted text-label font-bold text-primary"
+          aria-hidden
+        >
+          {(fullName || email || "I").charAt(0).toUpperCase()}
+        </span>
+        <span className="min-w-0">
+          <span className="block truncate text-body-sm font-semibold text-foreground">
+            {fullName || "Sua conta"}
           </span>
-        )}
+          {email && (
+            <span className="mt-0.5 block truncate text-caption font-normal text-foreground-muted">
+              {email}
+            </span>
+          )}
+        </span>
       </DropdownMenuLabel>
       <DropdownMenuSeparator />
-      <AccountLink to="/minhas-cotacoes" icon={ClipboardList} label="Minhas cotações" />
-      <AccountLink to="/perfil" icon={Building2} label="Meu perfil" />
-      <AccountLink to="/configuracoes" icon={Settings} label="Configurações" />
-      {isAdmin && <AccountLink to="/admin" icon={LayoutDashboard} label="Painel administrativo" />}
+      <AccountLink
+        to="/minhas-cotacoes"
+        icon={ClipboardList}
+        label="Minhas cotações"
+        description="Acompanhe solicitações e respostas"
+      />
+      <AccountLink
+        to="/perfil"
+        icon={Building2}
+        label="Perfil da empresa"
+        description="Dados de contato e identificação"
+      />
+      <AccountLink
+        to="/configuracoes"
+        icon={Settings}
+        label="Configurações"
+        description="Preferências da sua conta"
+      />
+      {isAdmin && (
+        <AccountLink
+          to="/admin"
+          icon={LayoutDashboard}
+          label="Painel administrativo"
+          description="Gestão do catálogo e atendimento"
+        />
+      )}
       <DropdownMenuSeparator />
       <DropdownMenuItem
         onSelect={() => void onSignOut()}
-        className="min-h-10 cursor-pointer px-3 font-semibold text-danger focus:bg-danger-muted focus:text-danger"
+        className="min-h-11 cursor-pointer rounded-lg px-3 font-semibold text-danger focus:bg-danger-muted focus:text-danger"
       >
         <LogOut className="size-4" aria-hidden />
         Sair
@@ -357,16 +504,23 @@ function AccountLink({
   to,
   icon: Icon,
   label,
+  description,
 }: {
   to: "/minhas-cotacoes" | "/perfil" | "/configuracoes" | "/admin";
   icon: typeof User;
   label: string;
+  description: string;
 }) {
   return (
     <DropdownMenuItem asChild className="cursor-pointer p-0">
-      <Link to={to} className="flex min-h-10 w-full items-center gap-2 px-3 font-semibold">
-        <Icon className="size-4 text-brand-blue" aria-hidden />
-        {label}
+      <Link to={to} className="flex min-h-14 w-full items-center gap-3 rounded-lg px-3 py-2">
+        <Icon className="size-4 shrink-0 text-primary" strokeWidth={1.8} aria-hidden />
+        <span className="min-w-0">
+          <span className="block text-body-sm font-semibold text-foreground">{label}</span>
+          <span className="mt-0.5 block text-caption font-normal text-foreground-muted">
+            {description}
+          </span>
+        </span>
       </Link>
     </DropdownMenuItem>
   );

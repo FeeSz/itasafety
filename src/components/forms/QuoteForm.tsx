@@ -4,14 +4,12 @@ import { ArrowRight, Loader2 } from "lucide-react";
 import emailjs from "@emailjs/browser";
 import DemandChips from "@/components/ui/DemandChips";
 import FormSuccess from "@/components/ui/FormSuccess";
+import {
+  EMAILJS_PUBLIC_KEY,
+  EMAILJS_SERVICE_ID,
+  EMAILJS_TEMPLATE_ID_COTACAO,
+} from "@/lib/emailjs-config";
 import { IS_VISUAL_MODE } from "@/lib/visual-mode";
-
-// ─── EmailJS config ─────────────────────────────────────────────────────────
-const EMAILJS_SERVICE_ID = "service_qz2af8x";
-const EMAILJS_TEMPLATE_ID_COTACAO = "template_wdyquq6";
-const EMAILJS_TEMPLATE_ID_RESET_SENHA = "template_zxjeqan";
-const EMAILJS_PUBLIC_KEY = "KUpCqP8GI8O64tYfB";
-// ────────────────────────────────────────────────────────────────────────────
 
 const schema = z.object({
   demand_type: z.string().min(1),

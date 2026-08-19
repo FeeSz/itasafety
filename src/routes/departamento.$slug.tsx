@@ -7,8 +7,8 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import Eyebrow from "@/components/ui/Eyebrow";
 import { Input } from "@/components/ui/input";
-import { Surface } from "@/components/ui/Surface";
 import { CATEGORIES } from "@/lib/categories";
+import { productMatchesCatalogQuery } from "@/lib/catalog-search";
 import { LOCAL_CATALOG_PRODUCTS } from "@/lib/products";
 import { pageMeta } from "@/lib/seo";
 
@@ -89,20 +89,12 @@ function DepartmentPage() {
 
   if (!category) return null;
 
-  const Icon = category.icon;
-
   const products = (() => {
     const inCategory = LOCAL_CATALOG_PRODUCTS.filter(
       (product) => product.categorySlug === category.slug,
     );
-    const term = search.q?.trim().toLocaleLowerCase("pt-BR");
-    const filtered = term
-      ? inCategory.filter((product) =>
-          [product.name, product.sku, product.ca, product.description]
-            .join(" ")
-            .toLocaleLowerCase("pt-BR")
-            .includes(term),
-        )
+    const filtered = search.q
+      ? inCategory.filter((product) => productMatchesCatalogQuery(product, search.q ?? ""))
       : inCategory;
 
     if (search.sort === "name-asc") {
@@ -147,28 +139,20 @@ function DepartmentPage() {
       </nav>
 
       <section className="section-functional bg-surface" aria-labelledby="department-title">
-        <Container className="flex flex-col gap-5 sm:flex-row sm:items-center">
-          <span className="grid size-14 shrink-0 place-items-center rounded-lg bg-info-muted text-info">
-            <Icon className="size-7" strokeWidth={1.7} aria-hidden />
-          </span>
-          <div>
-            <Eyebrow>Categoria</Eyebrow>
-            <h1 id="department-title" className="mt-2 text-h1 font-semibold text-foreground">
-              {category.title}
-            </h1>
-            <p className="mt-2 max-w-2xl text-body-sm text-foreground-muted">
-              Produtos desta categoria presentes na seleção local atualmente publicada.
-            </p>
-          </div>
+        <Container>
+          <Eyebrow>Categoria</Eyebrow>
+          <h1 id="department-title" className="mt-2 text-h1 font-semibold text-foreground">
+            {category.title}
+          </h1>
+          <p className="mt-2 max-w-2xl text-body-sm text-foreground-muted">
+            Produtos recuperados do catálogo ItaSafety, prontos para seleção e cotação.
+          </p>
         </Container>
       </section>
 
       <section className="section-functional" aria-label={`Produtos de ${category.title}`}>
         <Container>
-          <Surface
-            padding="sm"
-            className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end"
-          >
+          <div className="grid gap-5 border-y border-border py-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
             <div>
               <label
                 htmlFor="department-search"
@@ -186,7 +170,7 @@ function DepartmentPage() {
                   type="search"
                   value={search.q ?? ""}
                   onChange={(event) => updateSearch({ q: event.target.value.trimStart() })}
-                  placeholder="Nome, referência ou CA informado"
+                  placeholder="Nome, código ou CA informado"
                   className="h-12 pl-10"
                 />
               </div>
@@ -208,7 +192,7 @@ function DepartmentPage() {
                 ))}
               </select>
             </div>
-          </Surface>
+          </div>
 
           <p className="my-5 text-body-sm text-foreground-muted" aria-live="polite">
             <strong className="text-foreground">{products.length}</strong>{" "}
@@ -224,7 +208,7 @@ function DepartmentPage() {
           ) : (
             <EmptyState
               title="Nenhum produto publicado aqui"
-              description="A seleção local pode não contemplar todo o portfólio. Limpe a busca, escolha outra categoria ou fale com a equipe comercial."
+              description="Limpe a busca, escolha outra categoria ou fale com a equipe comercial para localizar uma alternativa."
               action={
                 <>
                   {search.q && (

@@ -5,14 +5,7 @@
  * - Usuário autenticado: persiste em Supabase (carrinho_cotacao) + sincroniza localStorage
  * - Ao autenticar: migra itens do localStorage para o Supabase automaticamente
  */
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  useRef,
-  type ReactNode,
-} from "react";
+import { useCallback, useEffect, useMemo, useState, useRef, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   QuoteCartContext,
@@ -37,13 +30,17 @@ function readLocal(): QuoteItem[] {
 function writeLocal(items: QuoteItem[]) {
   try {
     localStorage.setItem(STORAGE, JSON.stringify(items));
-  } catch {/* ignore */}
+  } catch {
+    /* ignore */
+  }
 }
 
 function clearLocal() {
   try {
     localStorage.removeItem(STORAGE);
-  } catch {/* ignore */}
+  } catch {
+    /* ignore */
+  }
 }
 
 // ── Provider ─────────────────────────────────────────────────────────────────
@@ -65,12 +62,12 @@ export function QuoteCartProvider({ children }: { children: ReactNode }) {
 
     if (error || !data) return [];
     return data.map((row) => ({
-      sku:       row.sku,
-      name:      row.nome,
-      image:     row.image_url ?? "",
-      category:  row.categoria ?? "",
+      sku: row.sku,
+      name: row.nome,
+      image: row.image_url ?? "",
+      category: row.categoria ?? "",
       ca_number: row.ca_number ?? "",
-      qty:       row.quantidade,
+      qty: row.quantidade,
     }));
   }
 
@@ -79,9 +76,9 @@ export function QuoteCartProvider({ children }: { children: ReactNode }) {
   async function upsertSupabase(userId: string, item: QuoteItem) {
     await supabase.from("carrinho_cotacao").upsert(
       {
-        user_id:   userId,
-        sku:       item.sku,
-        nome:      item.name,
+        user_id: userId,
+        sku: item.sku,
+        nome: item.name,
         image_url: item.image,
         categoria: item.category,
         ca_number: item.ca_number ?? null,
@@ -94,20 +91,13 @@ export function QuoteCartProvider({ children }: { children: ReactNode }) {
   // ── Delete single item in Supabase ────────────────────────────────────────
 
   async function deleteSupabase(userId: string, sku: string) {
-    await supabase
-      .from("carrinho_cotacao")
-      .delete()
-      .eq("user_id", userId)
-      .eq("sku", sku);
+    await supabase.from("carrinho_cotacao").delete().eq("user_id", userId).eq("sku", sku);
   }
 
   // ── Clear all in Supabase ─────────────────────────────────────────────────
 
   async function clearSupabase(userId: string) {
-    await supabase
-      .from("carrinho_cotacao")
-      .delete()
-      .eq("user_id", userId);
+    await supabase.from("carrinho_cotacao").delete().eq("user_id", userId);
   }
 
   // ── On auth change ────────────────────────────────────────────────────────
@@ -167,16 +157,14 @@ export function QuoteCartProvider({ children }: { children: ReactNode }) {
         let next: QuoteItem[];
 
         if (existing) {
-          next = prev.map((i) =>
-            i.sku === sku ? { ...i, qty: i.qty + qty } : i,
-          );
+          next = prev.map((i) => (i.sku === sku ? { ...i, qty: i.qty + qty } : i));
         } else {
           const newItem: QuoteItem = {
             sku,
-            name:      "name"     in p ? p.name     : (p as QuoteItem).name,
-            image:     "image"    in p ? p.image     : (p as QuoteItem).image,
-            category:  "category" in p ? p.category  : (p as QuoteItem).category,
-            ca_number: "ca"       in p ? String((p as Product).ca) : (p as QuoteItem).ca_number,
+            name: "name" in p ? p.name : (p as QuoteItem).name,
+            image: "image" in p ? (p.image ?? "") : (p as QuoteItem).image,
+            category: "category" in p ? p.category : (p as QuoteItem).category,
+            ca_number: "ca" in p ? (p.ca ?? "") : (p as QuoteItem).ca_number,
             qty,
           };
           next = [...prev, newItem];
@@ -242,9 +230,5 @@ export function QuoteCartProvider({ children }: { children: ReactNode }) {
     [items, add, remove, setQty, clear, open, syncing],
   );
 
-  return (
-    <QuoteCartContext.Provider value={value}>
-      {children}
-    </QuoteCartContext.Provider>
-  );
+  return <QuoteCartContext.Provider value={value}>{children}</QuoteCartContext.Provider>;
 }

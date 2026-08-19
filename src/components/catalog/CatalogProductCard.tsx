@@ -27,13 +27,13 @@ export default function CatalogProductCard({
   const handleAdd = () => {
     add(product, 1);
     setAdded(true);
-    toast.success("Produto adicionado à lista", { description: product.name });
+    toast.success("Produto adicionado à cotação", { description: product.name });
   };
 
   return (
     <article
       className={cn(
-        "motion-control group flex h-full flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-subtle hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-elevated",
+        "motion-control group flex h-full flex-col overflow-hidden rounded-lg border border-border/80 bg-surface hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-subtle",
         className,
       )}
     >
@@ -41,22 +41,35 @@ export default function CatalogProductCard({
         to="/detalhes/$sku"
         params={{ sku: product.sku }}
         aria-label={`Ver detalhes de ${product.name}`}
-        className="focus-ring relative block aspect-square overflow-hidden bg-surface p-5"
+        className="focus-ring relative block aspect-square overflow-hidden bg-surface-muted/70 p-5"
       >
-        <img
-          src={product.image}
-          alt={product.name}
-          loading="lazy"
-          decoding="async"
-          className="motion-transform size-full object-contain mix-blend-multiply group-hover:scale-[1.025]"
-        />
-        <Badge
-          variant="outline"
-          className="absolute left-3 top-3 bg-surface/95 font-mono text-data"
-          title="Número de CA informado no cadastro local"
-        >
-          CA informado {product.ca}
-        </Badge>
+        {product.image ? (
+          <img
+            src={product.image}
+            alt={product.name}
+            loading="lazy"
+            decoding="async"
+            className="motion-transform size-full object-contain mix-blend-multiply group-hover:scale-[1.025]"
+          />
+        ) : (
+          <span className="flex size-full items-center justify-center px-8 text-center text-title font-semibold text-foreground-muted">
+            {product.category}
+          </span>
+        )}
+        {product.ca ? (
+          <Badge
+            variant="outline"
+            className="absolute left-3 top-3 bg-surface/95 font-mono text-data shadow-subtle"
+            title="CA informado no catálogo público legado"
+          >
+            CA {product.ca}
+          </Badge>
+        ) : null}
+        {product.imageNote ? (
+          <span className="absolute bottom-3 left-3 rounded-full bg-surface/92 px-2.5 py-1 text-data font-medium text-foreground-muted shadow-subtle">
+            Imagem ilustrativa
+          </span>
+        ) : null}
       </Link>
 
       <div className="flex flex-1 flex-col border-t border-border p-4 sm:p-5">
@@ -70,23 +83,20 @@ export default function CatalogProductCard({
             {product.name}
           </h3>
         </Link>
-        <p className="mt-2 line-clamp-2 text-body-sm text-foreground-muted">
-          {product.description}
-        </p>
-        <p className="mt-3 font-mono text-data text-foreground-subtle">Ref. {product.sku}</p>
+        <p className="mb-5 mt-3 font-mono text-data text-foreground-subtle">Cód. {product.sku}</p>
 
         <Button
           type="button"
           onClick={handleAdd}
           size="default"
-          className={cn("mt-5 w-full", added && "bg-success text-white hover:bg-success")}
+          className={cn("mt-auto w-full", added && "bg-success text-white hover:bg-success")}
         >
           {added ? (
             <Check className="size-4" aria-hidden />
           ) : (
             <Plus className="size-4" aria-hidden />
           )}
-          <span aria-live="polite">{added ? "Adicionado" : "Adicionar à lista"}</span>
+          <span aria-live="polite">{added ? "Na cotação" : "Adicionar à cotação"}</span>
         </Button>
       </div>
     </article>

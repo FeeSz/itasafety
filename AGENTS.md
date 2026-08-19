@@ -138,7 +138,11 @@ Não altere código, banco, configuração ou infraestrutura quando o usuário s
 
 Frontend é parte central da qualidade da ItaSafety.
 
-Toda interface deve demonstrar qualidade compatível com um produto profissional em produção.
+Toda interface deve demonstrar qualidade compatível com um produto profissional em produção — e mais que isso, deve ser **inconfundivelmente ItaSafety**. Uma tela que poderia pertencer a qualquer outro produto B2B gerado por IA não está pronta, mesmo que passe em todos os outros critérios deste arquivo.
+
+Design genérico não é um risco estético menor. É um defeito de entrega, no mesmo nível de uma falha de acessibilidade ou de uma query N+1.
+
+---
 
 ## 6.1 Direção visual
 
@@ -154,67 +158,69 @@ A ItaSafety deve transmitir:
 * qualidade industrial;
 * maturidade B2B.
 
-Use Apple, Vercel e produtos digitais de alto nível como referências de **disciplina visual e experiência**, nunca como templates para cópia literal.
+Use Apple, Vercel, Linear e Stripe como referências de **disciplina visual e experiência**, nunca como templates para cópia literal. Nunca produza um componente que, ao ser mostrado sem logo, poderia ser confundido com uma cópia direta desses produtos. A referência empresta rigor, não vocabulário visual.
 
-Busque:
+### 6.1.1 Anti-padrões proibidos ("estilo padrão de IA")
 
-* hierarquia visual evidente;
-* excelente tipografia;
-* espaçamento consistente;
-* layouts limpos;
-* densidade de informação controlada;
-* alinhamentos precisos;
-* uso disciplinado de cor;
-* superfícies e bordas discretas;
-* profundidade apenas quando ajuda a hierarquia;
-* feedback imediato;
-* transições naturais;
-* conteúdo objetivo;
-* ausência de ruído visual.
+Ferramentas de geração de UI (Lovable, v0, Codex sem direção, etc.) convergem para um conjunto reconhecível de defaults por ausência de opinião estética, não porque sejam boas escolhas. Os itens abaixo são **proibidos por padrão** neste projeto. Uma exceção só é aceitável quando justificada explicitamente por um motivo de produto, registrada na entrega — nunca por omissão ou conveniência.
 
-Minimalismo não significa remover informação necessária.
+**Proibido:**
 
-Minimalismo significa reduzir tudo que compete com a tarefa principal do usuário.
+* Fundo `bg-slate-950`, `bg-zinc-900`, `bg-neutral-900` ou qualquer cinza-quase-preto "puro" de biblioteca usado como base de página sem intenção cromática própria da ItaSafety.
+* Borda em praticamente todo elemento (`border border-zinc-800`, `border border-gray-200`) como forma padrão de separar conteúdo. Separação vem de espaçamento, tipografia e alinhamento primeiro; borda é exceção pontual, não hábito.
+* Gradiente roxo→rosa (ou variações azul→roxo→rosa) em texto, título ou botão primário. Isso é o clichê mais reconhecível de "produto gerado por IA" e é proibido sem exceção neste projeto.
+* "Efeito painel": telas inteiras compostas por cards brancos com `shadow-md`/`shadow-lg` flutuando sobre fundo cinza claro, todos com o mesmo radius e a mesma sombra. Cards devem ser exceção deliberada (ver 6.3), não o container-padrão de qualquer bloco de conteúdo.
+* Ícone genérico de biblioteca (lucide/heroicons) usado como enfeite decorativo sem função — "ícone porque preenche espaço".
+* Emoji como substituto de iconografia ou ilustração em produto B2B.
+* Sombra de card usando valores arbitrários repetidos e inconsistentes (`shadow-sm` num lugar, `shadow-md` idêntico visualmente noutro, `0 4px 6px rgba(0,0,0,0.1)` copiado e colado) — sombra faz parte do design system (6.2), não é decisão ad hoc por componente.
+* Layout centralizado com título grande + subtítulo cinza + botão arredondado + imagem/mockup flutuante à direita como fórmula fixa de toda seção de hero/CTA, aplicada sem pensar no conteúdo real da seção.
+* Badge/pill com fundo colorido translúcido (`bg-blue-500/10 text-blue-400`) usado indiscriminadamente como decoração de qualquer palavra-chave.
 
-Não crie interfaces genéricas com aparência padrão de biblioteca de componentes.
-
-Componentes Radix/shadcn ou similares são fundações técnicas e devem ser adaptados à identidade ItaSafety.
+Antes de considerar um componente pronto, o agente deve verificar explicitamente contra esta lista, seguindo o protocolo da seção 6.12. Se qualquer item estiver presente sem justificativa registrada, o componente **não está concluído**.
 
 ---
 
 ## 6.2 Design system
 
-Antes de criar um novo padrão visual, procure por um padrão existente.
-
-Centralize decisões reutilizáveis de:
-
-* cor;
-* tipografia;
-* espaçamento;
-* radius;
-* bordas;
-* sombras;
-* tamanho;
-* motion;
-* z-index;
-* estados;
-* breakpoints.
-
-Use os tokens e variáveis globais existentes.
+Antes de criar um novo padrão visual, procure por um padrão existente. Centralize decisões reutilizáveis de cor, tipografia, espaçamento, radius, bordas, sombras, tamanho, motion, z-index, estados e breakpoints, usando os tokens e variáveis globais existentes.
 
 Para Tailwind CSS, prefira tokens e variáveis do tema em vez de espalhar valores arbitrários por dezenas de componentes.
 
-Evite:
+### 6.2.1 Ritmo espacial rígido (grid de 8px)
 
-* cores hardcoded repetidas;
-* magic numbers sem necessidade;
-* múltiplos radii quase idênticos;
-* sombras inconsistentes;
-* componentes visualmente equivalentes implementados de formas diferentes;
-* duplicação de variantes;
-* CSS específico quando uma regra reutilizável representa melhor a intenção.
+Todo espaçamento (padding, margin, gap, altura de elementos, tamanho de ícones) deve ser múltiplo de **8px** (`0.5rem`), com exceção pontual de **4px** apenas para ajustes finos dentro de componentes densos (ex.: espaço entre ícone e label num botão pequeno).
 
-Uma nova exceção visual deve ser intencional, não acidental.
+* Proibido: valores arbitrários como `13px`, `p-[7px]`, `gap-[10px]`, `mt-[22px]`.
+* Proibido: misturar múltiplos de 8 com múltiplos de 4 e valores quebrados no mesmo componente sem motivo.
+* A escala de espaçamento do Tailwind já usada no projeto deve ser mapeada explicitamente para esse grid (ex.: `space-2` = 8px, `space-4` = 16px, `space-6` = 24px, `space-8` = 32px, `space-12` = 48px, `space-16` = 64px, `space-24` = 96px) e essa escala é a única fonte de verdade de espaçamento — não valores arbitrários com colchetes.
+* Qualquer exceção a este grid exige justificativa explícita (ex.: alinhamento óptico de tipografia), nunca "ficou parecido o suficiente".
+
+### 6.2.2 Contraste por escala, não por cor
+
+Hierarquia visual deve ser construída primariamente por **tamanho** e **peso** tipográfico, não por variação de cor de texto.
+
+* Um título principal e um rótulo secundário devem se diferenciar por `text-4xl`/`text-5xl` vs `text-sm`, e por `font-light`/`font-semibold` vs `font-medium`, não apenas por um ser `text-gray-900` e outro `text-gray-500`.
+* Cor é reservada para: estado (erro, sucesso, alerta), a cor de marca em pontos de ênfase deliberada, e informação semântica real. Cor não é a ferramenta padrão para "fazer esse texto parecer menos importante".
+* Nunca use unicamente a cor para comunicar diferença de importância entre dois blocos de texto do mesmo tamanho e peso — isso também é uma falha de acessibilidade (ver 6.5).
+
+### 6.2.3 Micro-tipografia
+
+* Títulos grandes (`text-3xl` e acima) devem usar `tracking-tight` ou `tracking-tighter` como padrão, não o `tracking-normal` implícito.
+* Texto em caixa alta usado como eyebrow/label (quando fizer sentido semântico, ver 6.3) deve usar `tracking-wide` ou `tracking-widest` combinado com tamanho pequeno e peso médio — nunca caixa alta com tracking normal, que lê como grito, não como rótulo.
+* `line-height` de títulos grandes deve ser reduzido conscientemente (`leading-tight`/`leading-none` conforme o caso) — o `leading-normal` padrão do navegador raramente é a escolha certa em display type.
+* Números e dados tabulares (preços, quantidades, métricas) devem considerar `tabular-nums` quando alinhados em coluna.
+
+### 6.2.4 Espaço negativo
+
+* Seções de página (hero, blocos de conteúdo, CTA) devem usar padding vertical generoso como padrão — pense em `py-24`/`py-32` em desktop para seções principais, nunca `py-4`/`py-6` "porque cabe mais conteúdo na tela".
+* Densidade de informação alta é aceitável em telas operacionais (dashboards, tabelas internas), mas mesmo ali o respiro entre grupos lógicos deve ser deliberado, não comprimido por padrão.
+* "Mais espaço em branco" nunca é a resposta errada quando em dúvida entre dois layouts de mesma clareza funcional.
+
+### 6.2.5 Regras gerais do design system
+
+Evite: cores hardcoded repetidas fora do token system; magic numbers sem necessidade; múltiplos radii quase idênticos; sombras inconsistentes; componentes visualmente equivalentes implementados de formas diferentes; duplicação de variantes; CSS específico quando uma regra reutilizável representa melhor a intenção.
+
+Uma nova exceção visual deve ser intencional, registrada e justificada — nunca acidental.
 
 ---
 
@@ -229,15 +235,11 @@ Cada tela deve deixar evidente:
 5. qual é o estado atual do sistema;
 6. o que acontecerá ao executar uma ação.
 
-Evite telas em que todos os elementos competem pela mesma atenção.
+Evite telas em que todos os elementos competem pela mesma atenção. CTAs primários devem ser escassos — no máximo um CTA de destaque máximo por tela/seção. Elementos secundários não devem visualmente dominar a ação principal.
 
-CTAs primários devem ser escassos.
+Cards não devem ser utilizados automaticamente para agrupar qualquer conteúdo. Use agrupamento, whitespace, tipografia e alinhamento (ver 6.2.4) antes de adicionar contêineres e bordas. Pergunte: "esse card existe porque o conteúdo precisa de um limite visual, ou porque é o reflexo automático de encapsular tudo numa caixa?" Se for a segunda opção, remova o card.
 
-Elementos secundários não devem visualmente dominar a ação principal.
-
-Cards não devem ser utilizados automaticamente para agrupar qualquer conteúdo.
-
-Use agrupamento, whitespace, tipografia e alinhamento antes de adicionar contêineres e bordas.
+Numeração explícita (01 / 02 / 03) e "eyebrows" só devem ser usados quando o conteúdo é de fato sequencial ou categórico — nunca como decoração estrutural aplicada por hábito.
 
 ---
 
@@ -310,6 +312,8 @@ Não use `div` clicável quando `button` ou `a` representam corretamente a inter
 
 Ícones puramente decorativos não devem poluir a árvore de acessibilidade.
 
+Como a hierarquia visual deve depender de escala e peso, e não apenas de cor (ver 6.2.2), a verificação de contraste deixa de ser a única defesa contra "informação que só existe pela cor" — ela passa a ser a segunda camada, depois da própria estrutura tipográfica.
+
 ---
 
 ## 6.6 Motion e microinterações
@@ -324,17 +328,19 @@ Animação deve comunicar:
 * sucesso;
 * progresso.
 
-Não adicione animação apenas para demonstrar sofisticação.
+Não adicione animação apenas para demonstrar sofisticação — e não deixe de adicionar animação onde ela é o que separa uma interface "funcional" de uma interface "com acabamento".
 
-Prefira CSS para microinterações simples.
+### 6.6.1 Padrões obrigatórios de microinteração
 
-Priorize `transform` e `opacity` para animações frequentes.
+**Hover em grupos pai/filho (reveal pattern):** quando um elemento filho (ícone de ação, texto secundário, seta) só faz sentido no contexto de interação, ele deve nascer com opacidade reduzida (`opacity-0` ou `opacity-60`, conforme o caso) e transicionar suavemente para opacidade plena no `:hover`/`:focus-within` do elemento pai (`group` + `group-hover:opacity-100`), com `transition-opacity duration-200` (ou token equivalente do design system). Aparecimento abrupto, sem transição, de elementos interativos secundários no hover é considerado inacabado.
 
-Evite animar propriedades que provoquem layout e repaint custosos sem necessidade.
+**Focus-visible customizado:** o outline padrão do navegador é proibido em elementos interativos customizados (botões, cards clicáveis, itens de lista interativos). Todo `:focus-visible` deve receber um estilo próprio da ItaSafety — por exemplo um `ring` com a cor de marca e offset consistente (`focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`), nunca `outline: none` sem substituto, e nunca o azul padrão do navegador. Isso não é opcional: remover foco visível sem substituto viola tanto este princípio quanto a seção 6.5 e a regra da seção 25.
 
-Não use `transition: all`.
+**Animações de entrada:** elementos que aparecem na tela por resultado de navegação, carregamento de dados ou revelação por scroll devem combinar **fade-in + slide-up sutil** (ex.: de `opacity-0 translate-y-2` para `opacity-100 translate-y-0`), nunca aparecimento instantâneo quando o conteúdo é o foco da atenção do usuário, e nunca movimento maior que ~8–16px (deslocamentos grandes leem como "hack de animação", não como refinamento).
 
-Toda animação significativa deve respeitar `prefers-reduced-motion`.
+### 6.6.2 Regras gerais de motion
+
+Prefira CSS para microinterações simples. Priorize `transform` e `opacity` para animações frequentes. Evite animar propriedades que provoquem layout e repaint custosos sem necessidade. Não use `transition: all`. Toda animação significativa deve respeitar `prefers-reduced-motion`.
 
 Motion deve ser:
 
@@ -469,6 +475,97 @@ Extraia componentes quando houver ganho real de:
 Não fragmente componentes apenas para reduzir número de linhas.
 
 Siga os padrões e APIs compatíveis com a versão de React efetivamente instalada.
+
+---
+
+## 6.11 Uso de referências externas como calibração (few-shot)
+
+Quando o usuário anexar, colar ou referenciar um trecho de código de um produto de alto nível (Stripe, Linear, Apple, Vercel) como calibração de qualidade, trate esse trecho **apenas como padrão de refinamento técnico e sutileza visual** — nunca como fonte para reprodução literal de marca, texto, ilustração ou identidade visual de terceiros. O que deve ser extraído da referência é: disciplina de espaçamento, qualidade de transição, precisão de alinhamento e ausência de ruído — não o vocabulário cromático ou de conteúdo daquele produto específico, que pertence a outra marca.
+
+---
+
+## 6.12 Protocolo de geração e auditoria de código (obrigatório)
+
+Sempre que o agente for solicitado a criar ou refatorar qualquer componente, tela ou trecho visual de frontend — independentemente da tecnologia específica (React, HTML de email, etc.) — a resposta deve ser dividida em duas partes estritas, nesta ordem:
+
+1. **Checklist anti-padrão (auditoria pré-entrega).** Uma lista curta e explícita confirmando que o código que está prestes a ser gerado não incorre em nenhum item da seção 6.1.1, e que segue o ritmo espacial (6.2.1), a hierarquia por escala (6.2.2) e a micro-tipografia (6.2.3) definidos. Exemplo de formato:
+   * Fundo genérico de biblioteca (`zinc-900`/`slate-950`): não utilizado — paleta deriva dos tokens `bg-background`/`bg-surface` do design system.
+   * Borda em tudo: eliminada — separação via espaçamento e tipografia; borda usada só em `border-b` do cabeçalho.
+   * Gradiente roxo→rosa: zero.
+   * Ritmo espacial: todos os valores múltiplos de 8px (`py-12`, `px-8`, `gap-6`).
+   * Hierarquia: resolvida por `text-3xl`/`text-xs` e `font-semibold`/`font-medium`, não por variação de cor.
+
+2. **O código-fonte.** O componente limpo, tipado e estritamente aderente ao design system e aos tokens existentes no projeto (ver 6.2) — nunca cores hexadecimais arbitrárias soltas em `className`/`style` fora do token system, a menos que a exceção esteja nomeada e justificada no próprio checklist.
+
+Se o agente gerar código diretamente, sem o checklist, a entrega é considerada incompleta pelos mesmos critérios da seção 26 e deve ser refeita.
+
+### 6.12.1 O checklist é auditoria estática, não validação visual
+
+O checklist desta seção verifica apenas o que é decidível a partir do próprio código-fonte (tokens usados, presença/ausência de padrões proibidos, valores de espaçamento). Ele **não** substitui a exigência da seção 20.1 de que nenhuma UI seja declarada "validada visualmente" sem observação real da interface renderizada, nem a exigência da seção 26 de registrar `não confirmado` quando um critério não puder ser verificado.
+
+Concretamente: o agente pode confirmar no checklist que "nenhum gradiente foi escrito no código" (fato estático, verificável por leitura), mas não pode declarar que "a hierarquia visual está clara" ou que "o componente está visualmente refinado" como fato confirmado a menos que tenha efetivamente observado o resultado renderizado (screenshot, preview, etc.) quando essa observação estiver disponível no ambiente de trabalho. Quando não estiver disponível, a afirmação correspondente deve vir marcada como `não confirmado`, e não como sucesso.
+
+### 6.12.2 Exemplo de referência (formato esperado, não conteúdo a copiar)
+
+O exemplo abaixo ilustra apenas o **formato** da resposta esperada — checklist seguido de código — usando valores de exemplo. Os tokens específicos (`background`, `foreground`, `muted-foreground`, `border`, `primary`, `ring`) devem ser substituídos pelos tokens reais já definidos no design system do projeto, não usados literalmente:
+
+```md
+### Checklist anti-padrão
+
+- Fundo genérico de IA: não utilizado — `bg-background` do token system.
+- Borda em tudo: eliminada — apenas `border-b border-border` delimitando o cabeçalho.
+- Gradiente roxo→rosa: zero.
+- Ritmo espacial: `py-12 px-8`, `gap-6` — múltiplos de 8px.
+- Hierarquia por escala: título em `text-3xl font-semibold tracking-tight`, eyebrow em `text-xs font-medium tracking-widest uppercase text-muted-foreground` — nenhuma diferenciação depende só de cor.
+- Focus-visible customizado: `focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`, sem outline padrão do navegador.
+```
+
+```tsx
+import React from 'react';
+
+interface InspectionHeaderProps {
+  unitName: string;
+  reportCount: number;
+}
+
+export function InspectionHeader({ unitName, reportCount }: InspectionHeaderProps) {
+  return (
+    <header className="w-full bg-background border-b border-border py-12 px-8 font-sans antialiased text-foreground">
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+
+        {/* Hierarquia por escala e peso, não por cor */}
+        <div className="space-y-3">
+          <span className="block text-xs font-medium tracking-widest uppercase text-muted-foreground">
+            {unitName} &bull; Relatórios Técnicos
+          </span>
+          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground leading-tight">
+            Inspeções de Segurança Industrial
+          </h1>
+          <p className="text-sm text-muted-foreground tracking-tight font-normal">
+            Exibindo{' '}
+            <span className="tabular-nums font-medium text-foreground">{reportCount}</span>{' '}
+            auditorias ativas em conformidade com as normas vigentes.
+          </p>
+        </div>
+
+        {/* Ação única e escassa (controle de atenção da tela) */}
+        <div className="flex items-center gap-4">
+          <button
+            className="bg-primary text-primary-foreground text-sm font-medium px-4 py-2.5 rounded-md
+                       hover:opacity-90 active:scale-[0.98] transition-all duration-200 ease-out
+                       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
+            Nova Inspeção
+          </button>
+        </div>
+
+      </div>
+    </header>
+  );
+}
+```
+
+Note que `tabular-nums` é usado como classe Tailwind isolada (não como propriedade CSS colada dentro de `className`), e que toda cor vem de um token (`background`, `foreground`, `muted-foreground`, `border`, `primary`, `ring`) — nunca de hex arbitrário solto no JSX, salvo exceção nomeada.
 
 ---
 
@@ -1142,7 +1239,7 @@ Mudanças visuais ou interativas devem verificar, conforme impacto:
 
 Nunca declare uma UI "validada visualmente" analisando somente JSX/CSS.
 
-Validação visual exige observar a interface renderizada.
+Validação visual exige observar a interface renderizada. Ver também 6.12.1 sobre a diferença entre auditoria estática de código e validação visual real.
 
 ---
 
@@ -1307,6 +1404,8 @@ Não crie um "framework interno" para resolver um problema local.
 * adicionar bibliotecas grandes para comportamentos simples já suportados;
 * duplicar componentes ou padrões existentes sem verificar reutilização;
 * copiar visualmente Apple, Vercel, shadcn ou qualquer referência sem adaptar à ItaSafety;
+* usar qualquer anti-padrão listado em 6.1.1 (fundo genérico, borda em tudo, gradiente roxo→rosa, efeito painel, etc.) sem justificativa registrada;
+* entregar componente ou tela de frontend sem o checklist de auditoria da seção 6.12;
 * afirmar validação visual sem observar a tela renderizada;
 * afirmar deploy sem confirmar o ambiente;
 * afirmar migration aplicada sem consultar o remoto;

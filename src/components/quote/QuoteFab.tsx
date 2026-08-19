@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ShoppingCart, Trash2 } from "lucide-react";
+import { ImageOff, ShoppingCart, Trash2 } from "lucide-react";
 import { useQuoteCart } from "@/hooks/use-quote-cart";
 import { Button } from "@/components/ui/button";
 import { buttonVariants } from "@/components/ui/button.variants";
@@ -53,13 +53,19 @@ export default function QuoteFab() {
                 key={item.sku}
                 className="flex gap-3 rounded-lg border border-border bg-surface p-3"
               >
-                <img
-                  src={item.image}
-                  alt=""
-                  width={64}
-                  height={64}
-                  className="size-16 shrink-0 rounded-md bg-surface-muted object-contain"
-                />
+                {item.image ? (
+                  <img
+                    src={item.image}
+                    alt=""
+                    width={64}
+                    height={64}
+                    className="size-16 shrink-0 rounded-md bg-surface-muted object-contain"
+                  />
+                ) : (
+                  <span className="grid size-16 shrink-0 place-items-center rounded-md bg-surface-muted text-foreground-subtle">
+                    <ImageOff className="size-5" aria-hidden />
+                  </span>
+                )}
                 <div className="min-w-0 flex-1">
                   <p className="text-caption font-semibold text-primary">{item.category}</p>
                   <p className="line-clamp-2 text-sm font-semibold text-ink">{item.name}</p>

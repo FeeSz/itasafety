@@ -120,25 +120,51 @@ Na arquitetura da Fase 1:
 
 ### Catálogo em `/catalogo`
 
-O catálogo começa por contexto compacto, busca, categorias principais e produtos.
-A busca atual filtra somente a seleção local versionada e mantém o termo no
-search param `q`. Resultado zero informa a limitação e oferece limpeza ou contato.
+O catálogo começa por navegação rápida de categorias e uma abertura visual que
+posiciona a ItaSafety como distribuidora B2B, seguida por categorias com mídia e
+coleções de produtos. A arquitetura de descoberta toma
+como referência lojas especializadas em EPI, mas não replica o contrato de
+varejo: não há preço público, desconto, checkout ou promessa de entrega.
+
+Nos cards, a ação primária é `Adicionar à cotação`. CA e referência continuam
+identificados como informação local publicada, sem afirmar validade atual do
+certificado. O visitante pode pesquisar, navegar e montar a lista sem login; o
+gate de autenticação e empresa aprovada permanece somente na submissão.
+
+A seleção local versionada contém 96 produtos recuperados do catálogo público
+legado em 14/08/2026, distribuídos em 14 departamentos. A busca mantém o termo no
+search param `q`; é iniciada pela lupa expansível do header, com sugestões locais.
+Resultado zero oferece limpeza ou contato.
+
+O rodapé expõe `Política de privacidade`, `Mapa e localização` e `Entre em
+contato`. A rota `/contato` é exclusivamente institucional e separada do fluxo
+de cotação. O visitante pode usar telefone, e-mail e localização ou enviar nome,
+e-mail, telefone opcional e mensagem sob os assuntos `Dúvidas`, `Sugestões`,
+`Contato` e `Elogios`. Seleção de produto e solicitação de cotação permanecem no
+catálogo e em `/carrinho`.
+
+O código `ITA-{legacyId}` identifica o registro durante a migração e não deve ser
+tratado como SKU comercial publicado. Doze produtos possuem CA e 94 possuem imagem
+recuperável na fonte. Os dois arquivos já quebrados na origem usam imagens de
+referência compatíveis, identificadas como ilustrativas; não são prova de modelo,
+marca ou especificação.
 Não existem nesta fase filtros avançados, busca remota, Quick View, comparação,
 preço, estoque ou recomendação.
 
 ### Contratos locais de dados
 
-`src/lib/products.ts` contém oito registros locais versionados em
-`LOCAL_CATALOG_PRODUCTS`. Os campos usados
-pela experiência são `sku`, `name`, `category`, `categorySlug`, `ca`,
-`description` e `image`. `tags` continua sendo metadado editorial local legado e
-não é promovido pelo novo catálogo como prova de novidade, demanda ou certificação.
+`src/lib/products.ts` contém 96 registros locais versionados em
+`LOCAL_CATALOG_PRODUCTS`. Os campos usados pela experiência são `legacyId`,
+`sku`, `name`, `category`, `categorySlug`, `ca`, `description`, `image`, `imageNote` e
+`sourceUrl`. `tags` representa somente curadoria visual local e não é promovido
+como prova de novidade, demanda ou certificação.
 
 | Informação                                                          | Estado na Fase 1                                                                           |
 | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| SKU, nome, categoria, slug, descrição e imagem                      | local versionado; existência no código confirmada; verdade comercial remota não confirmada |
-| Número de CA                                                        | local versionado; status atual do certificado não confirmado                               |
-| Contagem por categoria                                              | derivada apenas dos oito registros locais; não representa o portfólio total                |
+| Código interno, nome, categoria e slug                              | migrados do site público legado; disponibilidade comercial atual não confirmada            |
+| Descrição e imagem                                                  | origem preservada; duas referências externas permanecem marcadas como ilustrativas         |
+| Número de CA                                                        | presente em 12 registros legados; status atual do certificado não confirmado               |
+| Contagem por categoria                                              | derivada dos 96 registros recuperados em 14/08/2026; sincronização futura ainda não existe |
 | Fabricante, estoque, disponibilidade, normas, aplicações e garantia | não confirmados; removidos das superfícies ativas                                          |
 | Preço e oferta                                                      | ausentes; nenhum placeholder ou dado estruturado foi criado                                |
 

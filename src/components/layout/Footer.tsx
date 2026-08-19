@@ -53,7 +53,12 @@ export default function Footer() {
               </li>
               <li>
                 <Link to="/contato" className={footerLinkClass}>
-                  Contato
+                  Entre em contato
+                </Link>
+              </li>
+              <li>
+                <Link to="/localizacao" className={footerLinkClass}>
+                  Mapa e localização
                 </Link>
               </li>
               <li>
@@ -67,13 +72,16 @@ export default function Footer() {
         </div>
 
         <div className="mt-8 flex flex-col gap-4 border-t border-white/10 pt-6 text-caption text-white/60 sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} ItaSafety. Todos os direitos reservados.</p>
+          <p>
+            © {new Date().getFullYear()} ItaSafety Equipamentos de Proteção Individual Ltda. Todos
+            os direitos reservados.
+          </p>
           <div className="flex flex-wrap gap-x-5 gap-y-2">
             <Link
               to="/privacidade"
               className="focus-ring-inverse motion-colors rounded-sm hover:text-white"
             >
-              Privacidade
+              Política de privacidade
             </Link>
             <Link
               to="/termos"

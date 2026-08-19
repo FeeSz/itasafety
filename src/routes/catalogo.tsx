@@ -1,13 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, MessageCircle } from "lucide-react";
 import { useMemo } from "react";
+import CatalogCategoryShowcase from "@/components/catalog/CatalogCategoryShowcase";
+import CatalogHero from "@/components/catalog/CatalogHero";
 import CatalogProductCard from "@/components/catalog/CatalogProductCard";
-import CatalogSearch from "@/components/catalog/CatalogSearch";
-import CategoryGrid from "@/components/sections/CategoryGrid";
 import { Button } from "@/components/ui/button";
 import Container from "@/components/ui/Container";
 import { EmptyState } from "@/components/ui/EmptyState";
-import Eyebrow from "@/components/ui/Eyebrow";
+import { CATEGORIES } from "@/lib/categories";
+import { productMatchesCatalogQuery } from "@/lib/catalog-search";
 import { LOCAL_CATALOG_PRODUCTS } from "@/lib/products";
 import { pageMeta } from "@/lib/seo";
 
@@ -35,15 +36,8 @@ function CatalogPage() {
   const query = search.q ?? "";
 
   const products = useMemo(() => {
-    const term = query.trim().toLocaleLowerCase("pt-BR");
-    if (!term) return LOCAL_CATALOG_PRODUCTS;
-
-    return LOCAL_CATALOG_PRODUCTS.filter((product) =>
-      [product.name, product.sku, product.category, product.ca, product.description]
-        .join(" ")
-        .toLocaleLowerCase("pt-BR")
-        .includes(term),
-    );
+    if (!query.trim()) return LOCAL_CATALOG_PRODUCTS;
+    return LOCAL_CATALOG_PRODUCTS.filter((product) => productMatchesCatalogQuery(product, query));
   }, [query]);
 
   const updateQuery = (value: string) => {
@@ -55,97 +49,132 @@ function CatalogPage() {
 
   return (
     <div className="bg-background">
-      <section
-        className="section-functional border-b border-border bg-surface"
-        aria-labelledby="catalog-title"
-      >
-        <Container>
-          <Eyebrow>Produtos</Eyebrow>
-          <div className="mt-3 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,0.72fr)] lg:items-end">
-            <div>
-              <h1 id="catalog-title" className="mt-3 text-h1 font-semibold text-foreground">
-                Catálogo ItaSafety
-              </h1>
-              <p className="mt-3 max-w-2xl text-body text-foreground-muted">
-                Busque na seleção atualmente publicada, explore categorias e adicione os itens que
-                deseja cotar. Nenhum login é necessário para montar a lista.
-              </p>
-            </div>
-            <CatalogSearch
-              value={query}
-              onValueChange={updateQuery}
-              resultCount={products.length}
-            />
-          </div>
-        </Container>
-      </section>
+      <CatalogHero />
 
-      <section className="section-functional" aria-labelledby="catalog-categories-title">
-        <Container>
-          <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <Eyebrow>Descobrir</Eyebrow>
-              <h2
-                id="catalog-categories-title"
-                className="mt-2 text-h2 font-semibold text-foreground"
+      {!query && <CatalogCategoryShowcase />}
+
+      {query ? (
+        <section
+          className="section-functional border-y border-border bg-surface"
+          aria-labelledby="catalog-products-title"
+        >
+          <Container>
+            <div className="mb-7 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-label font-semibold text-primary">Busca no acervo migrado</p>
+                <h2
+                  id="catalog-products-title"
+                  className="mt-2 text-h2 font-semibold text-foreground"
+                >
+                  Resultados para “{query}”
+                </h2>
+              </div>
+              <Button type="button" variant="ghost" onClick={() => updateQuery("")}>
+                Limpar busca
+              </Button>
+            </div>
+
+            {products.length > 0 ? (
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {products.map((product) => (
+                  <CatalogProductCard key={product.sku} product={product} />
+                ))}
+              </div>
+            ) : (
+              <EmptyState
+                title="Nenhum produto encontrado"
+                description="Tente outro nome, código, categoria ou CA. A busca considera os 96 produtos recuperados do catálogo ItaSafety."
+                action={
+                  <Button type="button" onClick={() => updateQuery("")}>
+                    Limpar busca
+                  </Button>
+                }
+              />
+            )}
+          </Container>
+        </section>
+      ) : (
+        <div className="border-t border-border">
+          {CATEGORIES.map((category, index) => {
+            const categoryProducts = LOCAL_CATALOG_PRODUCTS.filter(
+              (product) => product.categorySlug === category.slug,
+            );
+            if (categoryProducts.length === 0) return null;
+
+            return (
+              <section
+                key={category.slug}
+                className={`catalog-shelf section-functional border-b border-border ${
+                  index % 2 === 0 ? "bg-surface" : "bg-background"
+                }`}
+                aria-labelledby={`catalog-shelf-${category.slug}`}
               >
-                Categorias principais
-              </h2>
-            </div>
-            <Button asChild variant="ghost" className="self-start sm:self-auto">
-              <Link to="/categorias">
-                Ver todas
-                <ArrowRight className="size-4" aria-hidden />
-              </Link>
-            </Button>
-          </div>
-          <CategoryGrid limit={8} />
-        </Container>
-      </section>
+                <Container>
+                  <div className="mb-7 flex items-end justify-between gap-4">
+                    <div>
+                      <p className="text-label font-semibold text-primary">
+                        {categoryProducts.length}{" "}
+                        {categoryProducts.length === 1 ? "produto" : "produtos"}
+                      </p>
+                      <h2
+                        id={`catalog-shelf-${category.slug}`}
+                        className="mt-2 text-h2 font-semibold text-foreground"
+                      >
+                        {category.title}
+                      </h2>
+                    </div>
+                    <Link
+                      to="/departamento/$slug"
+                      params={{ slug: category.slug }}
+                      className="focus-ring motion-colors hidden min-h-11 items-center gap-2 rounded-sm text-label font-semibold text-primary hover:text-primary-hover sm:inline-flex"
+                    >
+                      Ver categoria
+                      <ArrowRight className="size-4" aria-hidden />
+                    </Link>
+                  </div>
+
+                  <div className="catalog-product-rail">
+                    {categoryProducts.map((product) => (
+                      <CatalogProductCard
+                        key={product.sku}
+                        product={product}
+                        className="catalog-product-rail__item"
+                      />
+                    ))}
+                  </div>
+
+                  <Link
+                    to="/departamento/$slug"
+                    params={{ slug: category.slug }}
+                    className="focus-ring motion-colors mt-3 inline-flex min-h-11 items-center gap-2 rounded-sm text-label font-semibold text-primary hover:text-primary-hover sm:hidden"
+                  >
+                    Ver categoria
+                    <ArrowRight className="size-4" aria-hidden />
+                  </Link>
+                </Container>
+              </section>
+            );
+          })}
+        </div>
+      )}
 
       <section
-        className="section-functional border-t border-border bg-surface"
-        aria-labelledby="catalog-products-title"
+        className="border-t border-border bg-surface-inverse py-10"
+        aria-label="Ajuda comercial"
       >
-        <Container>
-          <div className="mb-7">
-            <Eyebrow>Selecionar</Eyebrow>
-            <h2 id="catalog-products-title" className="mt-2 text-h2 font-semibold text-foreground">
-              {query ? "Resultados da busca" : "Produtos publicados"}
-            </h2>
-          </div>
-
-          {products.length > 0 ? (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {products.map((product) => (
-                <CatalogProductCard key={product.sku} product={product} />
-              ))}
-            </div>
-          ) : (
-            <EmptyState
-              title="Nenhum produto encontrado"
-              description="Tente outro nome, referência, categoria ou CA informado. A seleção publicada ainda é limitada e não representa todo o portfólio comercial."
-              action={
-                <Button type="button" onClick={() => updateQuery("")}>
-                  Limpar busca
-                </Button>
-              }
-            />
-          )}
-        </Container>
-      </section>
-
-      <section className="border-t border-border py-8" aria-label="Ajuda comercial">
         <Container className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-title font-semibold text-foreground">
+            <h2 className="text-title font-semibold text-foreground-inverse">
               Não encontrou o item necessário?
             </h2>
-            <p className="mt-1 text-body-sm text-foreground-muted">
-              Converse com a equipe para orientar sua busca.
+            <p className="mt-1 text-body-sm text-white/70">
+              Compartilhe sua necessidade e organize a próxima etapa com a equipe ItaSafety.
             </p>
           </div>
-          <Button asChild variant="outline" className="self-start sm:self-auto">
+          <Button
+            asChild
+            className="self-start bg-white text-foreground hover:bg-primary-muted sm:self-auto"
+          >
             <Link to="/contato">
               <MessageCircle className="size-4" aria-hidden />
               Falar com a equipe

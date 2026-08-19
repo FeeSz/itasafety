@@ -235,7 +235,7 @@ na entrada `/`.
 | `/departamento/$slug`  | Produtos de uma categoria.                                     |
 | `/detalhes/$sku`       | Detalhe de produto.                                            |
 | `/carrinho`            | Revisão e submissão da cotação.                                |
-| `/contato`             | Contato comercial.                                             |
+| `/contato`             | Contato institucional por canais diretos e formulário.         |
 | `/localizacao`         | Endereço e canais de atendimento.                              |
 | `/sobre`               | Apresentação institucional histórica.                          |
 | `/quemsomos`           | Missão, visão, valores e posicionamento.                       |
@@ -249,6 +249,23 @@ na entrada `/`.
 | `/sitemap.xml`         | Sitemap.                                                       |
 | `/api/public/health`   | Sinal mínimo de disponibilidade.                               |
 
+`/contato` é um fluxo institucional separado da cotação. A página apresenta
+telefone, e-mail, localização e um formulário próprio com nome, telefone
+opcional, e-mail, mensagem e assunto entre `Dúvidas`, `Sugestões`, `Contato` e
+`Elogios`. A cotação continua sendo iniciada pelo catálogo e revisada em
+`/carrinho`; não há campos de empresa, demanda técnica ou seleção de produtos
+na rota de contato.
+
+O formulário preserva os dados em falhas, move o foco para o primeiro campo
+inválido, impede submissões simultâneas e oferece recuperação por e-mail quando
+o envio falha. O telefone é opcional para reduzir a coleta de dados pessoais.
+O transporte usa o serviço EmailJS já adotado pelo projeto e exige um único
+template genérico exclusivo do fluxo por `VITE_EMAILJS_TEMPLATE_ID_CONTATO`.
+Esse template atende Dúvidas, Sugestões, Contato e Elogios. A ausência dessa
+configuração falha de forma segura e oferece o e-mail direto; `/contato` nunca
+recorre ao template de cotação. O HTML versionado em
+`docs/email-templates/contato.html` define os campos esperados pelo template.
+
 ### Separação Landing e Catálogo
 
 `src/routes/index.tsx` monta exclusivamente `EntryLanding`. A antiga composição
@@ -258,14 +275,48 @@ híbrida com `HeroSlider`, `TrustSignals`, `HomeValueSection`, `PartnersStrip` e
 
 `src/routes/catalogo.tsx` concentra a descoberta funcional nesta ordem:
 
-1. contexto compacto e busca;
-2. categorias principais por `CategoryGrid`;
-3. produtos locais publicados por `CatalogProductCard`;
-4. ajuda comercial discreta.
+1. faixa horizontal de categorias;
+2. abertura industrial com dois recortes editoriais de contexto;
+3. categorias prioritárias com mídia do acervo real;
+4. coleções horizontais agrupadas pelos 14 departamentos;
+5. ajuda comercial em superfície inversa.
 
-A busca usa o parâmetro `q` da URL e filtra nome, SKU, categoria, descrição e o
-número de CA informado nos oito registros locais. O estado vazio é explícito e
-não representa essa seleção como o catálogo completo da empresa.
+Essa composição transporta a arquitetura de descoberta de uma loja
+especializada em EPI para a identidade ItaSafety, sem transportar marca, textos,
+ativos ou contrato de varejo. Preço, desconto e compra imediata dão lugar a CA
+informado, referência e `Adicionar à cotação`; carrinho de compra dá lugar à
+lista de cotação; banners promocionais dão lugar a orientação por categoria e
+atendimento.
+
+`CatalogHero` concentra faixa navegável e mídia principal sem uma segunda busca
+ou a faixa de benefícios genéricos anteriormente usada. Os dois cards de apoio
+usam fotografia industrial contextual e não repetem thumbnails de produto.
+`CatalogCategoryShowcase` apresenta seis categorias prioritárias em um trilho
+responsivo. Em smartphones, categorias e produtos mantêm largura legível e
+rolagem horizontal; em desktop, o hero usa uma composição assimétrica com um
+visual dominante e dois módulos secundários.
+
+O header funcional compartilhado pelas rotas pós-Landing mantém navegação,
+conta e cotação. A lupa abre uma superfície sobreposta ancorada à direita, que
+se expande em sequência para a esquerda sem deslocar as demais ações. Durante o
+modo de busca, a navegação funcional sai visualmente e fica inerte para não ser
+coberta, inclusive quando a conta autenticada ocupa mais espaço. O fechamento
+executa a sequência inversa, restaura a navegação em paralelo ao recolhimento e
+só então devolve a lupa. O painel de até seis sugestões acompanha integralmente
+a largura do campo e impede rolagem horizontal; Enter e a ação final conduzem
+para `/catalogo?q=...`. Em mobile, o mesmo contrato aparece no menu lateral.
+
+A busca usa o parâmetro `q` da URL e filtra nome, código interno, categoria,
+descrição e CA nos 96 registros recuperados do site público legado em
+14/08/2026. O estado vazio é explícito.
+
+As 94 imagens disponíveis no acervo legado foram self-hosted em
+`public/images/catalog/products` e normalizadas sem geração de conteúdo em
+`public/images/catalog/products-enhanced`: canvas de 800 px, recorte de margem,
+reamostragem Lanczos e nitidez leve. Os registros `ITA-578` e `ITA-588`, cujos
+arquivos já estavam quebrados na origem, usam referências externas compatíveis
+e são identificados como `Imagem ilustrativa`. Somente 12 registros possuem CA
+publicado na origem; os demais omitem o badge sem inferir certificação.
 
 `CatalogProductCard` é a base única usada em `/catalogo`, departamento, produtos
 relacionados e na seção legada `FeaturedProducts`. A inclusão chama diretamente
@@ -316,6 +367,14 @@ dependência de hotlink:
 - `landing-protected-worker.jpg` — [AI25.Studio](https://www.pexels.com/photo/a-man-wearing-safety-glasses-and-safety-helmet-4981769/);
 - `landing-woman-ppe.jpg` — [Mikael Blomkvist](https://www.pexels.com/photo/woman-in-work-clothes-wearing-hard-hat-and-gloves-8961396/);
 - `landing-factory-worker.jpg` — [ThisIsEngineering](https://www.pexels.com/photo/factory-worker-in-a-safety-helmet-19895881/).
+
+#### Assets editoriais do Catálogo
+
+Os cards editoriais do início de `/catalogo` usam arquivos locais obtidos no
+Pexels, sem hotlink:
+
+- `safety-briefing.jpg` — [Safi Erneste](https://www.pexels.com/photo/industrial-worker-in-safety-gear-at-factory-35082106/);
+- `industrial-inspection.jpg` — [Hanna Alves](https://www.pexels.com/photo/worker-handling-glass-in-industrial-setting-28812392/).
 
 ### Skeletons e espera assíncrona
 

@@ -1,6 +1,7 @@
 import { defineTool } from "@lovable.dev/mcp-js";
 import { z } from "zod";
-import { FEATURED_PRODUCTS } from "@/lib/products";
+import { productMatchesCatalogQuery } from "@/lib/catalog-search";
+import { LOCAL_CATALOG_PRODUCTS } from "@/lib/products";
 
 export default defineTool({
   name: "search_products",
@@ -13,15 +14,9 @@ export default defineTool({
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: ({ query, categorySlug }) => {
-    const q = query.toLowerCase();
-    const results = FEATURED_PRODUCTS.filter((p) => {
+    const results = LOCAL_CATALOG_PRODUCTS.filter((p) => {
       if (categorySlug && p.categorySlug !== categorySlug) return false;
-      return (
-        p.name.toLowerCase().includes(q) ||
-        p.sku.toLowerCase().includes(q) ||
-        p.category.toLowerCase().includes(q) ||
-        p.description.toLowerCase().includes(q)
-      );
+      return productMatchesCatalogQuery(p, query);
     }).map((p) => ({
       sku: p.sku,
       name: p.name,
